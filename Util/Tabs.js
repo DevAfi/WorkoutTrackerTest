@@ -1,7 +1,9 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { Button, StyleSheet, View, TouchableOpacity } from "react-native";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 import DashboardScreen from "../Screens/Main/DashboardScreen";
@@ -9,10 +11,12 @@ import SocialScreen from "../Screens/Main/SocialScreen";
 import ProfileScreen from "../Screens/Main/ProfileScreen";
 import StatsScreen from "../Screens/Main/StatsScreen";
 import WorkoutScreen from "../Screens/Main/WorkoutScreen";
+import SettingsScreen from "../Screens/Main/SettingsScreen";
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
-const Tabs = () => {
+const MainTabs = () => {
   return (
     <Tab.Navigator
       initialRouteName="Dash"
@@ -24,16 +28,13 @@ const Tabs = () => {
           backgroundColor: "#252323",
           borderColor: "#252323",
         },
+        headerTitle: "",
       }}
     >
       <Tab.Screen
         name="Dash"
         component={DashboardScreen}
-        options={{
-          headerStyle: {
-            backgroundColor: "pink",
-          },
-          headerTitle: null,
+        options={({ navigation }) => ({
           tabBarIcon: ({ focused }) => (
             <View style={styles.tabIconStyling}>
               <MaterialIcons
@@ -43,7 +44,24 @@ const Tabs = () => {
               />
             </View>
           ),
-        }}
+          headerStyle: {
+            backgroundColor: "#252323",
+          },
+
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Settings")}
+              style={{ marginRight: 10 }}
+            >
+              <MaterialIcons
+                name="settings"
+                size={30}
+                color="#70798c"
+                marginRight={10}
+              />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Tab.Screen
         name="Social"
@@ -58,6 +76,9 @@ const Tabs = () => {
               />
             </View>
           ),
+          headerStyle: {
+            backgroundColor: "#252323",
+          },
         }}
       />
       <Tab.Screen
@@ -73,6 +94,9 @@ const Tabs = () => {
               />
             </View>
           ),
+          headerStyle: {
+            backgroundColor: "#252323",
+          },
         }}
       />
       <Tab.Screen
@@ -88,12 +112,15 @@ const Tabs = () => {
               />
             </View>
           ),
+          headerStyle: {
+            backgroundColor: "#252323",
+          },
         }}
       />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{
+        options={({ navigation }) => ({
           tabBarIcon: ({ focused }) => (
             <View style={styles.tabIconStyling}>
               <MaterialIcons
@@ -103,9 +130,29 @@ const Tabs = () => {
               />
             </View>
           ),
-        }}
+          headerStyle: {
+            backgroundColor: "#252323",
+          },
+        })}
       />
     </Tab.Navigator>
+  );
+};
+
+const Tabs = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="MainTabs"
+        component={MainTabs}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ title: "Settings" }}
+      />
+    </Stack.Navigator>
   );
 };
 
