@@ -56,7 +56,7 @@ const MainTabs = () => {
               <MaterialIcons
                 name="settings"
                 size={30}
-                color="#70798c"
+                color="#f5f1ed"
                 marginRight={10}
               />
             </TouchableOpacity>
@@ -150,7 +150,13 @@ const Tabs = () => {
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
-        options={{ title: "Settings" }}
+        options={{
+          title: "Settings",
+          headerStyle: {
+            backgroundColor: "#252323",
+          },
+          headerShown: false,
+        }}
       />
     </Stack.Navigator>
   );
