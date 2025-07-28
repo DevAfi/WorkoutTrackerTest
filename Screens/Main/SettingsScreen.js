@@ -33,13 +33,15 @@ const SettingsScreen = ({ navigation }) => {
           <View style={styles.settingsSection}>
             <Text style={styles.settingsSubtext}>Personal</Text>
             <TouchableOpacity style={styles.settingsButton}>
-              <MaterialIcons name="person-outline" color={"#f5f1ed"} />
+              <MaterialIcons name="person" color={"#f5f1ed"} size={35} />
               <Text style={styles.settingsText}>Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity style={styles.settingsButton}>
+              <MaterialIcons name="share" color={"#f5f1ed"} size={35} />
               <Text style={styles.settingsText}>Account</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity style={styles.settingsButton}>
+              <MaterialIcons name="lock" color={"#f5f1ed"} size={35} />
               <Text style={styles.settingsText}>Privacy</Text>
             </TouchableOpacity>
           </View>
@@ -47,28 +49,42 @@ const SettingsScreen = ({ navigation }) => {
           {/* Preferences settings */}
           <View style={styles.settingsSection}>
             <Text style={styles.settingsSubtext}>Preferences</Text>
-            <TouchableOpacity>
-              <Text>Unit</Text>
+            <TouchableOpacity style={styles.settingsButton}>
+              <MaterialIcons name="change-circle" color={"#f5f1ed"} size={35} />
+              <Text style={styles.settingsText}>Unit</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Text>Notifications</Text>
+            <TouchableOpacity style={styles.settingsButton}>
+              <MaterialIcons name="notifications" color={"#f5f1ed"} size={35} />
+              <Text style={styles.settingsText}>Notifications</Text>
             </TouchableOpacity>
           </View>
 
           {/* General sectio */}
           <View style={styles.settingsSection}>
             <Text style={styles.settingsSubtext}>General</Text>
-            <TouchableOpacity>
-              <Text>FAQ</Text>
+            <TouchableOpacity style={styles.settingsButton}>
+              <MaterialIcons
+                name="question-answer"
+                color={"#f5f1ed"}
+                size={35}
+              />
+              <Text style={styles.settingsText}>FAQ</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Text>About</Text>
+            <TouchableOpacity style={styles.settingsButton}>
+              <MaterialIcons name="menu-book" color={"#f5f1ed"} size={35} />
+              <Text style={styles.settingsText}>About</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Text>Privacy Policy</Text>
+            <TouchableOpacity style={styles.settingsButton}>
+              <MaterialIcons name="privacy-tip" color={"#f5f1ed"} size={35} />
+              <Text style={styles.settingsText}>Privacy Policy</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Text>Terms & Conditions</Text>
+            <TouchableOpacity style={styles.settingsButton}>
+              <MaterialIcons
+                name="document-scanner"
+                color={"#f5f1ed"}
+                size={35}
+              />
+              <Text style={styles.settingsText}>Terms & Conditions</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -87,23 +103,38 @@ const styles = StyleSheet.create({
     fontFamily: "Arial",
     fontWeight: "bold",
     alignSelf: "center",
+    paddingBottom: 35,
   },
   settingsContainer: {},
   settingsSection: {
-    marginVertical: 10,
+    borderColor: "white",
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderBottomWidth: 0.7,
+    width: "100%",
   },
   settingsSubtext: {
     color: "#70798c",
     fontFamily: "Arial",
-    fontSize: "20",
+    fontSize: 20,
+    marginVertical: 12,
+
+    fontWeight: "bold",
   },
   settingsButton: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 30,
+    paddingVertical: 5,
   },
   settingsText: {
     fontFamily: "Arial",
+    fontWeight: "bold",
     color: "#f5f1ed",
+    fontSize: 18,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
   },
 });
 
