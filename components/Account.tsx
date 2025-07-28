@@ -6,6 +6,14 @@ import { Session } from '@supabase/supabase-js'
 import { useNavigation } from "@react-navigation/native";
 
 
+export   async function getAllUsers() {
+    const { data, error } = await supabase.from("profiles").select("id");
+    
+    if (error) {
+        throw error;
+    }
+    return data??[];
+}
 
 
 export default function Account({ session }: { session: Session }) {
@@ -14,10 +22,13 @@ export default function Account({ session }: { session: Session }) {
   const [username, setUsername] = useState('')
   const [website, setWebsite] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [users, setUsers] = useState<{ id: string}[]>([])
 
   useEffect(() => {
     if (session) getProfile()
   }, [session])
+
+
 
   async function getProfile() {
     try {
