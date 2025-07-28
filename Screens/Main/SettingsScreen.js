@@ -100,6 +100,9 @@ const SettingsScreen = ({ navigation }) => {
           >
             <Text style={styles.signOutText}>Sign out</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Auth")}>
+            <Text>Debug</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>

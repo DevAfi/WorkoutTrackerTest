@@ -14,6 +14,7 @@ import WorkoutScreen from "../Screens/Main/WorkoutScreen";
 import SettingsScreen from "../Screens/Main/SettingsScreen";
 import Account from "../components/Account";
 import ProfileSettings from "../Screens/SettingsScreens/ProfileSettings";
+import Auth from "../components/Auth";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -166,6 +167,17 @@ const Tabs = () => {
         component={ProfileSettings}
         options={{
           title: "Profile Settings",
+          headerStyle: {
+            backgroundColor: "#252323",
+          },
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Auth"
+        component={Auth}
+        options={{
+          title: "Authentication",
           headerStyle: {
             backgroundColor: "#252323",
           },
