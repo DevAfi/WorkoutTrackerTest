@@ -9,7 +9,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-
+import { supabase } from "../../lib/supabase";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 import Account from "../../components/Account";
@@ -94,6 +94,12 @@ const SettingsScreen = ({ navigation }) => {
               <Text style={styles.settingsText}>Terms & Conditions</Text>
             </TouchableOpacity>
           </View>
+          <TouchableOpacity
+            style={styles.signOutButton}
+            onPress={() => supabase.auth.signOut()}
+          >
+            <Text style={styles.signOutText}>Sign out</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -142,6 +148,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     paddingVertical: 10,
     paddingHorizontal: 15,
+  },
+  signOutButton: {
+    alignItems: "center",
+  },
+  signOutText: {
+    color: "red",
+    fontSize: 23,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    fontFamily: "Arial",
+    textDecorationLine: "underline",
   },
 });
 

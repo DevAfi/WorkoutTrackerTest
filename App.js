@@ -35,10 +35,10 @@ export default function App() {
         {session && session.user ? (
           <>
             {/* Optional screen after login */}
+            <Stack.Screen name="MainTabs" component={Tabs} />
             <Stack.Screen name="Account">
               {(props) => <Account {...props} session={session} />}
             </Stack.Screen>
-            <Stack.Screen name="MainTabs" component={Tabs} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={Auth} />
