@@ -8,9 +8,11 @@ import {
   ScrollView,
   SafeAreaView,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
+import Account from "../../components/Account";
 import AboutScreen from "../SettingsScreens/AboutScreen";
 import AccountSettings from "../SettingsScreens/AccountSettings";
 import FAQ from "../SettingsScreens/FAQ";
@@ -34,7 +36,12 @@ const SettingsScreen = ({ navigation }) => {
             <Text style={styles.settingsSubtext}>Personal</Text>
             <TouchableOpacity style={styles.settingsButton}>
               <MaterialIcons name="person" color={"#f5f1ed"} size={35} />
-              <Text style={styles.settingsText}>Profile</Text>
+              <Text
+                style={styles.settingsText}
+                onPress={() => navigation.navigate("Account")}
+              >
+                Profile
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.settingsButton}>
               <MaterialIcons name="share" color={"#f5f1ed"} size={35} />

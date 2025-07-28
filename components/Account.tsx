@@ -3,9 +3,14 @@ import { supabase } from '../lib/supabase'
 import { StyleSheet, View, Alert } from 'react-native'
 import { Button, Input } from '@rneui/themed'
 import { Session } from '@supabase/supabase-js'
+import { useNavigation } from "@react-navigation/native";
+
+
+
 
 export default function Account({ session }: { session: Session }) {
-  const [loading, setLoading] = useState(true)
+  const navigation = useNavigation();
+    const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState('')
   const [website, setWebsite] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -86,19 +91,25 @@ export default function Account({ session }: { session: Session }) {
         <Input label="Username" value={username || ''} onChangeText={(text) => setUsername(text)} />
       </View>
       <View style={styles.verticallySpaced}>
-        <Input label="Website" value={website || ''} onChangeText={(text) => setWebsite(text)} />
+        <Input label="Current Fitness Goal" value={website || ''} onChangeText={(text) => setWebsite(text)} />
       </View>
 
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Button
-          title={loading ? 'Loading ...' : 'Update'}
+          title={loading ? 'Loading ...' : 'Update Profile'}
           onPress={() => updateProfile({ username, website, avatar_url: avatarUrl })}
           disabled={loading}
         />
       </View>
 
-      <View style={styles.verticallySpaced}>
+     {/* <View style={styles.verticallySpaced}>
         <Button title="Sign Out" onPress={() => supabase.auth.signOut()} />
+      </View>  */}
+      <View style={styles.verticallySpaced}>
+        <Button
+  title="Proceed"
+  onPress={() => navigation.navigate("MainTabs")}
+/>
       </View>
     </View>
   )
