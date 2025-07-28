@@ -39,7 +39,7 @@ const MainTabs = () => {
             <View style={styles.tabIconStyling}>
               <MaterialIcons
                 name="account-circle"
-                color={focused ? "#70798c" : "#f5f1ed"}
+                color={focused ? "#fed42d" : "#f5f1ed"}
                 size={35}
               />
             </View>
@@ -71,7 +71,7 @@ const MainTabs = () => {
             <View style={styles.tabIconStyling}>
               <MaterialIcons
                 name="groups-3"
-                color={focused ? "#70798c" : "#f5f1ed"}
+                color={focused ? "#fed42d" : "#f5f1ed"}
                 size={35}
               />
             </View>
@@ -89,7 +89,7 @@ const MainTabs = () => {
             <View style={styles.tabIconStyling}>
               <MaterialIcons
                 name="add-circle"
-                color={focused ? "#70798c" : "#f5f1ed"}
+                color={focused ? "#fed42d" : "#f5f1ed"}
                 size={55}
               />
             </View>
@@ -107,7 +107,7 @@ const MainTabs = () => {
             <View style={styles.tabIconStyling}>
               <MaterialIcons
                 name="query-stats"
-                color={focused ? "#70798c" : "#f5f1ed"}
+                color={focused ? "#fed42d" : "#f5f1ed"}
                 size={35}
               />
             </View>
@@ -125,7 +125,7 @@ const MainTabs = () => {
             <View style={styles.tabIconStyling}>
               <MaterialIcons
                 name="list"
-                color={focused ? "#70798c" : "#f5f1ed"}
+                color={focused ? "#fed42d" : "#f5f1ed"}
                 size={35}
               />
             </View>
