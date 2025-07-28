@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 
 
 export   async function getAllUsers() {
-    const { data, error } = await supabase.from("profiles").select("id");
+    const { data, error } = await supabase.from("profiles").select("username");
     
     if (error) {
         throw error;

@@ -2,6 +2,10 @@ import React, { useState } from 'react'
 import { Alert, StyleSheet, View, AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { Button, Input } from '@rneui/themed'
+import { useNavigation } from '@react-navigation/native'
+import Account from './Account'
+
+
 
 // Tells Supabase Auth to continuously refresh the session automatically if
 // the app is in the foreground. When this is added, you will continue to receive
@@ -16,35 +20,67 @@ AppState.addEventListener('change', (state) => {
 })
 
 export default function Auth() {
+  const navigation = useNavigation();
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
   async function signInWithEmail() {
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    })
+  setLoading(true);
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: password,
+  });
 
-    if (error) Alert.alert(error.message)
-    setLoading(false)
+  if (error) {
+    Alert.alert(error.message);
+    setLoading(false);
+    return;
   }
 
-  async function signUpWithEmail() {
-    setLoading(true)
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    })
+  // Check if user profile exists
+  const user = data?.user;
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .single();
 
-    if (error) Alert.alert(error.message)
-    if (!session) Alert.alert('Please check your inbox for email verification!')
-    setLoading(false)
+    if (profile && profile.username) {
+      navigation.navigate('MainTabs');
+    } else {
+      navigation.navigate('Account');
+    }
   }
+  setLoading(false);
+}
+
+async function signUpWithEmail() {
+  setLoading(true);
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.signUp({
+    email: email,
+    password: password,
+  });
+
+  if (error) {
+    Alert.alert(error.message);
+    setLoading(false);
+    return;
+  }
+
+  if (!session) {
+    Alert.alert('Please check your inbox for email verification!');
+  } else {
+    // New user, go to Account for profile setup
+    navigation.navigate('Account');
+  }
+  setLoading(false);
+}
+
 
   return (
     <View style={styles.container}>

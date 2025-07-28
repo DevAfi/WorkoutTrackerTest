@@ -24,7 +24,7 @@ const SocialScreen = ({ navigation }) => {
       <View style={styles.userList}>
         <FlashList
           data={users}
-          renderItem={({ item }) => <Text>{item.id}</Text>}
+          renderItem={({ item }) => <Text>{item.username}</Text>}
         />
       </View>
     </SafeAreaView>

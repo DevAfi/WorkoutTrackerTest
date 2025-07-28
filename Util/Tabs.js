@@ -13,6 +13,7 @@ import StatsScreen from "../Screens/Main/StatsScreen";
 import WorkoutScreen from "../Screens/Main/WorkoutScreen";
 import SettingsScreen from "../Screens/Main/SettingsScreen";
 import Account from "../components/Account";
+import ProfileSettings from "../Screens/SettingsScreens/ProfileSettings";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -160,6 +161,17 @@ const Tabs = () => {
         }}
       />
       <Tab.Screen name="Account" component={Account} />
+      <Tab.Screen
+        name="ProfileSettings"
+        component={ProfileSettings}
+        options={{
+          title: "Profile Settings",
+          headerStyle: {
+            backgroundColor: "#252323",
+          },
+          headerShown: false,
+        }}
+      />
     </Stack.Navigator>
   );
 };

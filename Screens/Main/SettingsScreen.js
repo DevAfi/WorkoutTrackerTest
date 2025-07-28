@@ -38,7 +38,7 @@ const SettingsScreen = ({ navigation }) => {
               <MaterialIcons name="person" color={"#f5f1ed"} size={35} />
               <Text
                 style={styles.settingsText}
-                onPress={() => navigation.navigate("Account")}
+                onPress={() => navigation.navigate("ProfileSettings")}
               >
                 Profile
               </Text>

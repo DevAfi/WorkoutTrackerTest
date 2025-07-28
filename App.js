@@ -43,6 +43,7 @@ export default function App() {
         ) : (
           <Stack.Screen name="Auth" component={Auth} />
         )}
+        <Stack.Screen name="Account2" component={Account} />
       </Stack.Navigator>
     </NavigationContainer>
   );
