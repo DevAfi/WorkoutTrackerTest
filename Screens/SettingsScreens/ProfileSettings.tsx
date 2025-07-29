@@ -5,35 +5,49 @@ import { Button, Input } from '@rneui/themed'
 import { Session } from '@supabase/supabase-js'
 import { useNavigation } from "@react-navigation/native";
 
-export default function ProfileSettings({ session }: { session: Session }) {
-  const navigation = useNavigation();
-
-  const [username, setUsername] = useState('');
-  const [website, setWebsite] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
+export default function profileSettings({ session }: { session: Session }) {
+  const navigation = useNavigation()
+  const [loading, setLoading] = useState(true)
+  const [username, setUsername] = useState('')
+  const [goal, setgoal] = useState('')
+  const [name, setName] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
 
   useEffect(() => {
-    if (session) getProfile();
-  }, [session]);
+    if (session) {
+      getProfile()
+    } else {
+      console.warn('No session found')
+    }
+  }, [session])
 
   async function getProfile() {
-    console.log(session);
     try {
-      if (!session?.user) throw new Error('No user on the session!');
+      setLoading(true)
+      if (!session?.user) throw new Error('No user on the session!')
+
       const { data, error, status } = await supabase
         .from('profiles')
-        .select('username, website, avatar_url')
-        .eq('id', session.user.id)
-        .single();
-      if (error && status !== 406) throw error;
+        .select(`username, goal, avatar_url, full_name`)
+        .eq('id', session?.user.id)
+        .single()
+      if (error && status !== 406) {
+        throw error
+      }
+
       if (data) {
-        setUsername(data.username);
-        setWebsite(data.website);
-        setAvatarUrl(data.avatar_url);
+        setUsername(data.username)
+        setgoal(data.goal)
+        setAvatarUrl(data.avatar_url)
+        setName(data.full_name)
       }
     } catch (error) {
-      if (error instanceof Error) Alert.alert(error.message);
+      if (error instanceof Error) {
+        Alert.alert(error.message)
+      }
     } finally {
+      setLoading(false)
+
     }
   }
 
@@ -75,7 +89,7 @@ export default function ProfileSettings({ session }: { session: Session }) {
         <Input label="Username" value={username || ''} onChangeText={setUsername} />
       </View>
       <View style={styles.verticallySpaced}>
-        <Input label="Current Fitness Goal" value={website || ''} onChangeText={setWebsite} />
+        <Input label="Current Fitness Goal" value={goal || ''} onChangeText={setgoal} />
       </View>
       <View style={styles.verticallySpaced}>
         <Input label="Avatar URL" value={avatarUrl || ''} onChangeText={setAvatarUrl} />
