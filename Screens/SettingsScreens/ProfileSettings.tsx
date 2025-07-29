@@ -1,128 +1,103 @@
 import { useState, useEffect } from 'react'
+import { View, Alert, StyleSheet } from 'react-native'
+import { Input, Button } from '@rneui/themed'
 import { supabase } from '../../lib/supabase'
-import { StyleSheet, View, Alert, Text } from 'react-native'
-import { Button, Input } from '@rneui/themed'
-import { Session } from '@supabase/supabase-js'
-import { useNavigation } from "@react-navigation/native";
 
-export default function profileSettings({ session }: { session: Session }) {
-  
-  const navigation = useNavigation()
+export default function ProfileSettings() {
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState('')
-  const [goal, setgoal] = useState('')
-  const [name, setName] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
+  const [goal, setGoal] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('') // optional
+  const [email, setEmail] = useState('')
 
   useEffect(() => {
-    getProfile()
-    if (session) {
-      console.log('Session found')
-    } else {
-      console.warn('No session found')
-    }
-  }, [session])
+    fetchProfile()
+  }, [])
 
-  async function getProfile() {
-    console.log('Fetching profile...')
-    try {
-      setLoading(true)
-      if (!session?.user) throw new Error('No user on the session!')
+  async function fetchProfile() {
+    setLoading(true)
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
-      const { data, error, status } = await supabase
-        .from('profiles')
-        .select(`username, goal, avatar_url, full_name`)
-        .eq('id', session?.user.id)
-        .single()
-      if (error && status !== 406) {
-        throw error
-      }
-
-      if (data) {
-        setUsername(data.username)
-        setgoal(data.goal)
-        setAvatarUrl(data.avatar_url)
-        setName(data.full_name)
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message)
-      }
-    } finally {
+    if (userError || !user) {
+      Alert.alert('Error', 'Could not get user.')
       setLoading(false)
-
+      return
     }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('username, goal, full_name, avatar_url')
+      .eq('id', user.id)
+      .single()
+
+    if (error) {
+      Alert.alert('Error loading profile', error.message)
+    } else if (data) {
+      setUsername(data.username || '')
+      setGoal(data.goal || '')
+      setFullName(data.full_name || '')
+      setAvatarUrl(data.avatar_url || '')
+      setEmail(user.email || '')
+    }
+
+    setLoading(false)
   }
 
-  async function updateProfile({
-    username,
-    website,
-    avatar_url,
-  }: {
-    username: string
-    website: string
-    avatar_url: string
-  }) {
-    try {
+  async function handleUpdateProfile() {
+    setLoading(true)
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-      if (!session?.user) throw new Error('No user on the session!');
-      const updates = {
-        id: session.user.id,
-        username,
-        website,
-        avatar_url,
-        updated_at: new Date(),
-      };
-      const { error } = await supabase.from('profiles').upsert(updates);
-      if (error) throw error;
-    } catch (error) {
-      if (error instanceof Error) Alert.alert(error.message);
-    } finally {
-
+    const updates = {
+      id: user.id,
+      username,
+      goal,
+      full_name: fullName,
+      avatar_url: avatarUrl,
+      updated_at: new Date(),
     }
+
+    const { error } = await supabase.from('profiles').upsert(updates)
+
+    if (error) {
+      Alert.alert('Error updating profile', error.message)
+    } else {
+      Alert.alert('Success', 'Profile updated!')
+    }
+
+    setLoading(false)
   }
 
   return (
-    
     <View style={styles.container}>
-      <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Profile</Text>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Input label="Email" value={session?.user?.email || ''} disabled />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Input label="Username" value={username || ''} onChangeText={setUsername} />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Input label="Current Fitness Goal" value={goal || ''} onChangeText={setgoal} />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Input label="Avatar URL" value={avatarUrl || ''} onChangeText={setAvatarUrl} />
-      </View>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Button
-          title={'Update Profile'}
-          onPress={() => updateProfile({ username, website, avatar_url: avatarUrl })}
- 
-        />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Button title="Return" onPress={() => navigation.goBack()} />
-      </View>
+      <Input label="Email" value={email} disabled />
+      <Input label="Full Name" value={fullName} onChangeText={setFullName} />
+      <Input label="Username" value={username} onChangeText={setUsername} />
+      <Input label="Goal" value={goal} onChangeText={setGoal} />
+      <Input label="Avatar URL" value={avatarUrl} onChangeText={setAvatarUrl} />
+
+      <Button
+        title={loading ? 'Loading...' : 'Update Profile'}
+        onPress={handleUpdateProfile}
+        disabled={loading}
+        containerStyle={styles.button}
+      />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
-    padding: 12,
+    padding: 16,
+    backgroundColor: '#252323',
+    flex: 1,
   },
-  verticallySpaced: {
-    paddingTop: 4,
-    paddingBottom: 4,
-    alignSelf: 'stretch',
-  },
-  mt20: {
+  button: {
     marginTop: 20,
   },
-});
+})

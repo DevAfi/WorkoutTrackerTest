@@ -10,6 +10,9 @@ import {
 import { FlashList } from "@shopify/flash-list";
 import { getAllUsers } from "../../components/Account";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { supabase } from "../../lib/supabase";
+
+// function to get user data, then will be used to highlight your own account
 
 const SocialScreen = ({ navigation }) => {
   const [users, setUsers] = React.useState([]);

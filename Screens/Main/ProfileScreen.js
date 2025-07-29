@@ -7,8 +7,15 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
+import { supabase } from "../../lib/supabase";
 
 const ProfileScreen = ({ navigation }) => {
+  const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState("");
+  const [goal, setgoal] = useState("");
+  const [name, setName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.titleText}>Profile</Text>
