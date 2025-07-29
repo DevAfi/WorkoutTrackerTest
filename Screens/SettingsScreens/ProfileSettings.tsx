@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { View, Alert, StyleSheet } from 'react-native'
+import { View, Alert, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native'
 import { Input, Button } from '@rneui/themed'
 import { supabase } from '../../lib/supabase'
 
@@ -74,20 +74,21 @@ export default function ProfileSettings() {
   }
 
   return (
-    <View style={styles.container}>
-      <Input label="Email" value={email} disabled />
-      <Input label="Full Name" value={fullName} onChangeText={setFullName} />
-      <Input label="Username" value={username} onChangeText={setUsername} />
-      <Input label="Goal" value={goal} onChangeText={setGoal} />
-      <Input label="Avatar URL" value={avatarUrl} onChangeText={setAvatarUrl} />
-
+    <SafeAreaView style={styles.container}>
+      <View style={styles.inputContainer}>
+      <Input label="Email" value={email} disabled style={styles.inputText}/>
+      <Input label="Full Name" value={fullName} onChangeText={setFullName} style={styles.inputText}/>
+      <Input label="Username" value={username} onChangeText={setUsername} style={styles.inputText}/>
+      <Input label="Goal" value={goal} onChangeText={setGoal} style={styles.inputText}/>
+      <Input label="Avatar URL" value={avatarUrl} onChangeText={setAvatarUrl} style={styles.inputText}/>
+      </View>
       <Button
         title={loading ? 'Loading...' : 'Update Profile'}
         onPress={handleUpdateProfile}
         disabled={loading}
-        containerStyle={styles.button}
+        buttonStyle={styles.button}
       />
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -96,8 +97,18 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#252323',
     flex: 1,
+    gap: 20,
+
+  },
+  inputContainer: {
+    paddingVertical:60,
   },
   button: {
     marginTop: 20,
+    backgroundColor: "#AF125A"
+  },
+  inputText: {
+    color: "white",
+    paddingVertical: 10,
   },
 })
