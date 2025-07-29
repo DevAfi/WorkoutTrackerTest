@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
-import { View, Alert, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native'
+import { View, Alert, StyleSheet, SafeAreaView, Text } from 'react-native'
 import { Input, Button } from '@rneui/themed'
 import { supabase } from '../../lib/supabase'
+import { useNavigation } from '@react-navigation/native'
 
 export default function ProfileSettings() {
+  const navigation = useNavigation();
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState('')
   const [goal, setGoal] = useState('')
@@ -69,12 +71,13 @@ export default function ProfileSettings() {
     } else {
       Alert.alert('Success', 'Profile updated!')
     }
-
+    navigation.goBack()
     setLoading(false)
   }
 
   return (
     <SafeAreaView style={styles.container}>
+      <Text style={styles.headerText}>Profile Settings</Text>
       <View style={styles.inputContainer}>
       <Input label="Email" value={email} disabled style={styles.inputText}/>
       <Input label="Full Name" value={fullName} onChangeText={setFullName} style={styles.inputText}/>
@@ -100,8 +103,15 @@ const styles = StyleSheet.create({
     gap: 20,
 
   },
+  headerText: {
+    fontSize: 36,
+    fontFamily: "Arial",
+    fontWeight: "bold",
+    color: "#f5f1ed",
+    textAlign: "center",
+  },
   inputContainer: {
-    paddingVertical:60,
+    paddingVertical:20,
   },
   button: {
     marginTop: 20,
