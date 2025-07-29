@@ -6,6 +6,7 @@ import { Session } from '@supabase/supabase-js'
 import { useNavigation } from "@react-navigation/native";
 
 export default function profileSettings({ session }: { session: Session }) {
+  
   const navigation = useNavigation()
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState('')
@@ -14,14 +15,16 @@ export default function profileSettings({ session }: { session: Session }) {
   const [avatarUrl, setAvatarUrl] = useState('')
 
   useEffect(() => {
+    getProfile()
     if (session) {
-      getProfile()
+      console.log('Session found')
     } else {
       console.warn('No session found')
     }
   }, [session])
 
   async function getProfile() {
+    console.log('Fetching profile...')
     try {
       setLoading(true)
       if (!session?.user) throw new Error('No user on the session!')
@@ -80,6 +83,7 @@ export default function profileSettings({ session }: { session: Session }) {
   }
 
   return (
+    
     <View style={styles.container}>
       <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Profile</Text>
       <View style={[styles.verticallySpaced, styles.mt20]}>

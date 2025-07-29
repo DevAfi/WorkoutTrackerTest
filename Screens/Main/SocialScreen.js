@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { getAllUsers } from "../../components/Account";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const SocialScreen = ({ navigation }) => {
   const [users, setUsers] = React.useState([]);
@@ -24,7 +25,16 @@ const SocialScreen = ({ navigation }) => {
       <View style={styles.userList}>
         <FlashList
           data={users}
-          renderItem={({ item }) => <Text>{item.username}</Text>}
+          renderItem={({ item }) => (
+            <View style={styles.userItem}>
+              <MaterialIcons
+                name="account-circle"
+                size={30}
+                color={"#f5f1ed"}
+              />
+              <Text style={styles.userText}>{item.username}</Text>
+            </View>
+          )}
         />
       </View>
     </SafeAreaView>
@@ -49,8 +59,22 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     padding: 20,
-    backgroundColor: "#333",
+    borderColor: "#333",
     borderRadius: 10,
+    borderWidth: 3,
+  },
+  userItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 10,
+  },
+  userText: {
+    fontSize: 18,
+    color: "#f5f1ed",
+    fontFamily: "Arial",
+    fontWeight: "bold",
+    paddingVertical: 10,
   },
 });
 

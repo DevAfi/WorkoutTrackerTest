@@ -99,14 +99,15 @@ export default function Account({ session }: { session: Session }) {
         <Input label="Email" value={session?.user?.email} disabled />
       </View>
       <View style={styles.verticallySpaced}>
+        <Input label="Name" value={name || ''} onChangeText={(text) => setName(text)} />
+      </View>
+      <View style={styles.verticallySpaced}>
         <Input label="Username" value={username || ''} onChangeText={(text) => setUsername(text)} />
       </View>
       <View style={styles.verticallySpaced}>
         <Input label="goal" value={goal || ''} onChangeText={(text) => setgoal(text)} />
       </View>
-      <View style={styles.verticallySpaced}>
-        <Input label="Name" value={name || ''} onChangeText={(text) => setName(text)} />
-      </View>
+      
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Button
           title={loading ? 'Loading ...' : 'Update'}

@@ -42,7 +42,7 @@ const MainTabs = () => {
             <View style={styles.tabIconStyling}>
               <MaterialIcons
                 name="account-circle"
-                color={focused ? "#fed42d" : "#f5f1ed"}
+                color={focused ? "#AF125A" : "#f5f1ed"}
                 size={35}
               />
             </View>
