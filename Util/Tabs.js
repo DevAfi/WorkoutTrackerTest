@@ -15,6 +15,7 @@ import SettingsScreen from "../Screens/Main/SettingsScreen";
 import Account from "../components/Account";
 import ProfileSettings from "../Screens/SettingsScreens/ProfileSettings";
 import Auth from "../components/Auth";
+import UserProfile from "../Screens/Main/[userProfile]";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -184,6 +185,16 @@ const Tabs = () => {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="viewProfile"
+        component={UserProfile}
+        options={{
+          headerStyle: {
+            backgroundColor: "#403d3d",
+          },
+          headerTitleStyle: { color: "#f5f1ed" },
+        }}
+      ></Stack.Screen>
     </Stack.Navigator>
   );
 };

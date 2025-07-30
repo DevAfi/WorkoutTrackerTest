@@ -10,7 +10,6 @@ import {
 import { FlashList } from "@shopify/flash-list";
 import { getAllUsers } from "../../components/Account";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { supabase } from "../../lib/supabase";
 
 // function to get user data, then will be used to highlight your own account
 
@@ -30,7 +29,16 @@ const SocialScreen = ({ navigation }) => {
           data={users}
           renderItem={({ item }) => (
             <View style={styles.userItem}>
-              <TouchableOpacity style={styles.touchableItem}>
+              <TouchableOpacity
+                style={styles.touchableItem}
+                onPress={() =>
+                  navigation.navigate("viewProfile", {
+                    username: item.username,
+                    full_name: item.full_name,
+                    goal: item.goal,
+                  })
+                }
+              >
                 <MaterialIcons
                   name="account-circle"
                   size={30}

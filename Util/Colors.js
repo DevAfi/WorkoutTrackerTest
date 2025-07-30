@@ -1,5 +1,5 @@
 /*
 Main background: #252323
-Elements: #70798c
+Elements: #AF125A
 Text: #f5f1ed
 */
