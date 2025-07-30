@@ -1,8 +1,9 @@
 import React, { useLayoutEffect } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
+import ViewAvatar from "../../components/viewAvatar";
 
 const UserProfile = ({ route, navigation }) => {
-  const { username, full_name, goal } = route.params;
+  const { username, full_name, goal, avatar_url } = route.params;
 
   // Set the screen title dynamically
   useLayoutEffect(() => {
@@ -14,9 +15,7 @@ const UserProfile = ({ route, navigation }) => {
       <ScrollView style={{ width: "100%", height: "100%" }}>
         <View style={styles.topSectionContainer}>
           <View style={styles.pfp}>
-            <Text style={{ fontSize: 24, fontWeight: "bold" }}>
-              {full_name[0]}
-            </Text>
+            <ViewAvatar url={avatar_url} />
           </View>
           <View style={styles.topSectionText}>
             <Text style={{ fontSize: 24, color: "white" }}>@{username}</Text>
@@ -50,12 +49,11 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   pfp: {
-    backgroundColor: "pink",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 100,
-    width: 50,
-    height: 50,
+    width: 75,
+    height: 75,
   },
   topSectionText: {
     gap: 1,

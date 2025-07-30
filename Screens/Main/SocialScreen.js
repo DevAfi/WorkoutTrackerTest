@@ -10,6 +10,7 @@ import {
 import { FlashList } from "@shopify/flash-list";
 import { getAllUsers } from "../../components/Account";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import ViewAvatar from "../../components/viewAvatar";
 
 // function to get user data, then will be used to highlight your own account
 
@@ -35,14 +36,13 @@ const SocialScreen = ({ navigation }) => {
                   username: item.username,
                   full_name: item.full_name,
                   goal: item.goal,
+                  avatar_url: item.avatar_url,
                 })
               }
             >
               <View style={styles.topSectionContainer}>
                 <View style={styles.pfp}>
-                  <Text style={{ fontSize: 24, fontWeight: "bold" }}>
-                    {item.full_name[0]}
-                  </Text>
+                  <ViewAvatar url={item.avatar_url} />
                 </View>
                 <View style={styles.topSectionText}>
                   <Text style={{ fontSize: 24, color: "white" }}>
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingHorizontal: 5,
     borderRadius: 10,
     gap: 20,
   },
@@ -122,8 +122,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 100,
-    width: 50,
-    height: 50,
+    width: 75,
+    height: 75,
   },
   topSectionText: {
     gap: 1,

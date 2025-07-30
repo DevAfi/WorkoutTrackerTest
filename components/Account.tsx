@@ -11,6 +11,7 @@ import {
 import { Button, Input } from "@rneui/themed";
 import { Session } from "@supabase/supabase-js";
 import { useNavigation } from "@react-navigation/native";
+import Avatar from "./Avatar";
 
 export async function getAllUsers() {
   const { data, error } = await supabase.from("profiles").select("*");
@@ -67,10 +68,12 @@ export default function Account({ session }: { session: Session }) {
     username,
     goal,
     full_name,
+    avatar_url,
   }: {
     username: string;
     goal: string;
     full_name: string;
+    avatar_url: string;
   }) {
     try {
       console.log(username, full_name, goal);
@@ -82,7 +85,7 @@ export default function Account({ session }: { session: Session }) {
         username,
         goal,
         full_name: name,
-
+        avatar_url: avatarUrl,
         updated_at: new Date(),
       };
 
@@ -105,12 +108,21 @@ export default function Account({ session }: { session: Session }) {
     <TouchableWithoutFeedback>
       <SafeAreaView style={styles.container}>
         <Text style={styles.headerText}>Finish signing up</Text>
-        <View style={[styles.verticallySpaced, styles.mt20]}>
+        <View style={styles.emailText}>
           <Input
             label="Email"
             value={session?.user?.email}
             disabled
             style={styles.inputText}
+          />
+        </View>
+        <View>
+          <Avatar
+            size={125}
+            url={avatarUrl}
+            onUpload={(url: string) => {
+              setAvatarUrl(url);
+            }}
           />
         </View>
         <View style={styles.verticallySpaced}>
@@ -137,11 +149,17 @@ export default function Account({ session }: { session: Session }) {
             style={styles.inputText}
           />
         </View>
-
         <View style={[styles.verticallySpaced, styles.mt20]}>
           <Button
             title={loading ? "Loading ..." : "Update"}
-            onPress={() => updateProfile({ username, goal, full_name: name })}
+            onPress={() =>
+              updateProfile({
+                username,
+                goal,
+                full_name: name,
+                avatar_url: avatarUrl,
+              })
+            }
             disabled={loading}
             buttonStyle={styles.button}
           />
@@ -156,7 +174,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#252323",
     flex: 1,
-    gap: 20,
+    gap: 18,
   },
   headerText: {
     fontSize: 36,
@@ -164,8 +182,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#f5f1ed",
     textAlign: "center",
-    paddingBottom: 50,
     paddingTop: 15,
+  },
+  emailText: {
+    paddingTop: 4,
+    paddingBottom: 4,
+    alignSelf: "stretch",
   },
   verticallySpaced: {
     paddingTop: 4,
@@ -182,5 +204,6 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 20,
     backgroundColor: "#AF125A",
+    paddingVertical: 25,
   },
 });
