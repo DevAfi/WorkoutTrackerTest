@@ -28,26 +28,35 @@ const SocialScreen = ({ navigation }) => {
         <FlashList
           data={users}
           renderItem={({ item }) => (
-            <View style={styles.userItem}>
-              <TouchableOpacity
-                style={styles.touchableItem}
-                onPress={() =>
-                  navigation.navigate("viewProfile", {
-                    username: item.username,
-                    full_name: item.full_name,
-                    goal: item.goal,
-                  })
-                }
-              >
-                <MaterialIcons
-                  name="account-circle"
-                  size={30}
-                  color={"#f5f1ed"}
-                />
-
-                <Text style={styles.userText}>{item.username}</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.touchableItem}
+              onPress={() =>
+                navigation.navigate("viewProfile", {
+                  username: item.username,
+                  full_name: item.full_name,
+                  goal: item.goal,
+                })
+              }
+            >
+              <View style={styles.topSectionContainer}>
+                <View style={styles.pfp}>
+                  <Text style={{ fontSize: 24, fontWeight: "bold" }}>
+                    {item.full_name[0]}
+                  </Text>
+                </View>
+                <View style={styles.topSectionText}>
+                  <Text style={{ fontSize: 24, color: "white" }}>
+                    @{item.username}
+                  </Text>
+                  <Text style={{ fontSize: 14, color: "grey" }}>
+                    {item.full_name}
+                  </Text>
+                  <Text style={{ fontSize: 14, color: "grey" }}>
+                    "{item.goal}"
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
           )}
         />
       </View>
@@ -72,7 +81,7 @@ const styles = StyleSheet.create({
   userList: {
     flex: 1,
     width: "100%",
-    padding: 20,
+    padding: 10,
     borderColor: "#333",
     borderRadius: 10,
     borderWidth: 3,
@@ -81,10 +90,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    padding: 10,
+    padding: 5,
     width: "100%",
-    backgroundColor: "#333",
-    borderRadius: 10,
   },
   userItem: {
     flexDirection: "row",
@@ -98,6 +105,28 @@ const styles = StyleSheet.create({
     fontFamily: "Arial",
     fontWeight: "bold",
     paddingVertical: 10,
+  },
+
+  topSectionContainer: {
+    backgroundColor: "#3C3939",
+    width: "100%",
+    alignItems: "center",
+    flexDirection: "row",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    gap: 20,
+  },
+  pfp: {
+    backgroundColor: "pink",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 100,
+    width: 50,
+    height: 50,
+  },
+  topSectionText: {
+    gap: 1,
   },
 });
 

@@ -20,8 +20,8 @@ const UserProfile = ({ route, navigation }) => {
           </View>
           <View style={styles.topSectionText}>
             <Text style={{ fontSize: 24, color: "white" }}>@{username}</Text>
-            <Text style={{ fontSize: 12, color: "grey" }}>{full_name}</Text>
-            <Text style={{ fontSize: 12, color: "grey" }}>Goal: {goal}</Text>
+            <Text style={{ fontSize: 14, color: "grey" }}>{full_name}</Text>
+            <Text style={{ fontSize: 14, color: "grey" }}>"{goal}"</Text>
           </View>
         </View>
       </ScrollView>
@@ -39,7 +39,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   topSectionContainer: {
-    backgroundColor: "#3C3939",
+    borderColor: "#3C3939",
+    borderWidth: 1,
     width: "100%",
     alignItems: "center",
     flexDirection: "row",
@@ -55,6 +56,9 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     width: 50,
     height: 50,
+  },
+  topSectionText: {
+    gap: 1,
   },
 });
 export default UserProfile;
