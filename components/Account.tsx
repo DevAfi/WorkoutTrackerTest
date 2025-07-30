@@ -1,56 +1,58 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
-import { StyleSheet, View, Alert } from 'react-native'
-import { Button, Input } from '@rneui/themed'
-import { Session } from '@supabase/supabase-js'
-import { useNavigation } from '@react-navigation/native'
-
+import { useState, useEffect } from "react";
+import { supabase } from "../lib/supabase";
+import { StyleSheet, View, Alert } from "react-native";
+import { Button, Input } from "@rneui/themed";
+import { Session } from "@supabase/supabase-js";
+import { useNavigation } from "@react-navigation/native";
 
 export async function getAllUsers() {
-  const { data, error } = await supabase.from('profiles').select('*')
-  if (error) throw error
-  return data
+  const { data, error } = await supabase.from("profiles").select("*");
+  if (error) throw error;
+  return data;
 }
 
 export default function Account({ session }: { session: Session }) {
-  const navigation = useNavigation()
-  const [loading, setLoading] = useState(true)
-  const [username, setUsername] = useState('')
-  const [goal, setgoal] = useState('')
-  const [name, setName] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState("");
+  const [goal, setgoal] = useState("");
+  const [name, setName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   useEffect(() => {
-    if (session) getProfile()
-  }, [session])
+    if (session) getProfile();
+  }, [session]);
 
   async function getProfile() {
     try {
-      setLoading(true)
-      if (!session?.user) throw new Error('No user on the session!')
+      setLoading(true);
+      if (!session?.user) throw new Error("No user on the session!");
 
       const { data, error, status } = await supabase
-        .from('profiles')
+        .from("profiles")
         .select(`username, goal, avatar_url, full_name`)
-        .eq('id', session?.user.id)
-        .single()
+        .eq("id", session?.user.id)
+        .single();
       if (error && status !== 406) {
-        throw error
+        throw error;
       }
 
       if (data) {
-        setUsername(data.username)
-        setgoal(data.goal)
-        setAvatarUrl(data.avatar_url)
-        setName(data.full_name)
+        setUsername(data.username);
+        setgoal(data.goal);
+        setAvatarUrl(data.avatar_url);
+        setName(data.full_name);
+      }
+      if (data.username && data.full_name) {
+        navigation.navigate("Tabs");
+        return;
       }
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert(error.message)
+        Alert.alert(error.message);
       }
     } finally {
-      setLoading(false)
-
+      setLoading(false);
     }
   }
 
@@ -58,16 +60,15 @@ export default function Account({ session }: { session: Session }) {
     username,
     goal,
     full_name,
-    
   }: {
-    username: string
-    goal: string
-    full_name: string
+    username: string;
+    goal: string;
+    full_name: string;
   }) {
     try {
-      console.log(username, full_name, goal)
-      setLoading(true)
-      if (!session?.user) throw new Error('No user on the session!')
+      console.log(username, full_name, goal);
+      setLoading(true);
+      if (!session?.user) throw new Error("No user on the session!");
 
       const updates = {
         id: session?.user.id,
@@ -76,20 +77,20 @@ export default function Account({ session }: { session: Session }) {
         full_name: name,
 
         updated_at: new Date(),
-      }
+      };
 
-      const { error } = await supabase.from('profiles').upsert(updates)
+      const { error } = await supabase.from("profiles").upsert(updates);
 
       if (error) {
-        throw error
+        throw error;
       }
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert(error.message)
+        Alert.alert(error.message);
       }
     } finally {
-      setLoading(false)
-      navigation.navigate('MainTabs')
+      setLoading(false);
+      navigation.navigate("Tabs");
     }
   }
 
@@ -99,18 +100,30 @@ export default function Account({ session }: { session: Session }) {
         <Input label="Email" value={session?.user?.email} disabled />
       </View>
       <View style={styles.verticallySpaced}>
-        <Input label="Name" value={name || ''} onChangeText={(text) => setName(text)} />
+        <Input
+          label="Name"
+          value={name || ""}
+          onChangeText={(text) => setName(text)}
+        />
       </View>
       <View style={styles.verticallySpaced}>
-        <Input label="Username" value={username || ''} onChangeText={(text) => setUsername(text)} />
+        <Input
+          label="Username"
+          value={username || ""}
+          onChangeText={(text) => setUsername(text)}
+        />
       </View>
       <View style={styles.verticallySpaced}>
-        <Input label="goal" value={goal || ''} onChangeText={(text) => setgoal(text)} />
+        <Input
+          label="goal"
+          value={goal || ""}
+          onChangeText={(text) => setgoal(text)}
+        />
       </View>
-      
+
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Button
-          title={loading ? 'Loading ...' : 'Update'}
+          title={loading ? "Loading ..." : "Update"}
           onPress={() => updateProfile({ username, goal, full_name: name })}
           disabled={loading}
         />
@@ -120,7 +133,7 @@ export default function Account({ session }: { session: Session }) {
         <Button title="Sign Out" onPress={() => supabase.auth.signOut()} />
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -131,9 +144,9 @@ const styles = StyleSheet.create({
   verticallySpaced: {
     paddingTop: 4,
     paddingBottom: 4,
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
   },
   mt20: {
     marginTop: 20,
   },
-})
+});

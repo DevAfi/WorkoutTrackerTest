@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   signOutText: {
     color: "red",
     fontSize: 23,
-    paddingVertical: 10,
+    paddingVertical: 15,
     paddingHorizontal: 15,
     fontFamily: "Arial",
     textDecorationLine: "underline",

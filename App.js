@@ -38,7 +38,7 @@ export default function App() {
             <Stack.Screen name="Account">
               {(props) => <Account {...props} session={session} />}
             </Stack.Screen>
-            <Stack.Screen name="MainTabs" component={Tabs} />
+            <Stack.Screen name="Tabs" component={Tabs} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={Auth} />
