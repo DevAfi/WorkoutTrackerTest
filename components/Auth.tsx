@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Alert, StyleSheet, View, AppState } from "react-native";
+import {
+  Alert,
+  StyleSheet,
+  View,
+  AppState,
+  SafeAreaView,
+  Text,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { supabase } from "../lib/supabase";
 import { Button, Input } from "@rneui/themed";
 import { useNavigation } from "@react-navigation/native";
@@ -51,50 +59,68 @@ export default function Auth() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Input
-          label="Email"
-          leftIcon={{ type: "font-awesome", name: "envelope" }}
-          onChangeText={(text) => setEmail(text)}
-          value={email}
-          placeholder="email@address.com"
-          autoCapitalize={"none"}
-        />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Input
-          label="Password"
-          leftIcon={{ type: "font-awesome", name: "lock" }}
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          secureTextEntry={true}
-          placeholder="Password"
-          autoCapitalize={"none"}
-        />
-      </View>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Button
-          title="Sign in"
-          disabled={loading}
-          onPress={() => signInWithEmail()}
-        />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Button
-          title="Sign up"
-          disabled={loading}
-          onPress={() => signUpWithEmail()}
-        />
-      </View>
-    </View>
+    <TouchableWithoutFeedback>
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.headerText}>Build the best you</Text>
+        <View style={[styles.verticallySpaced, styles.mt20]}>
+          <Input
+            label="Email"
+            leftIcon={{ type: "font-awesome", name: "envelope" }}
+            onChangeText={(text) => setEmail(text)}
+            value={email}
+            placeholder="email@address.com"
+            autoCapitalize={"none"}
+            style={styles.inputText}
+          />
+        </View>
+        <View style={styles.verticallySpaced}>
+          <Input
+            label="Password"
+            leftIcon={{ type: "font-awesome", name: "lock" }}
+            onChangeText={(text) => setPassword(text)}
+            value={password}
+            secureTextEntry={true}
+            placeholder="Password"
+            autoCapitalize={"none"}
+            style={styles.inputText}
+          />
+        </View>
+        <View style={[styles.verticallySpaced, styles.mt20]}>
+          <Button
+            title="Sign in"
+            disabled={loading}
+            onPress={() => signInWithEmail()}
+            buttonStyle={styles.button}
+          />
+        </View>
+        <View style={styles.verticallySpaced}>
+          <Button
+            title="Sign up"
+            disabled={loading}
+            onPress={() => signUpWithEmail()}
+            buttonStyle={styles.button}
+          />
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
-    padding: 12,
+    padding: 16,
+    backgroundColor: "#252323",
+    flex: 1,
+    gap: 20,
+  },
+  headerText: {
+    fontSize: 36,
+    fontFamily: "Arial",
+    fontWeight: "bold",
+    color: "#f5f1ed",
+    textAlign: "center",
+    paddingBottom: 50,
+    paddingTop: 15,
   },
   verticallySpaced: {
     paddingTop: 4,
@@ -103,5 +129,13 @@ const styles = StyleSheet.create({
   },
   mt20: {
     marginTop: 20,
+  },
+  inputText: {
+    color: "white",
+    paddingVertical: 10,
+  },
+  button: {
+    marginTop: 20,
+    backgroundColor: "#AF125A",
   },
 });

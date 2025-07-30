@@ -8,6 +8,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { supabase } from "../../lib/supabase";
+import { useState } from "react";
 
 const ProfileScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);

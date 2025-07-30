@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
-import { StyleSheet, View, Alert } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Alert,
+  SafeAreaView,
+  Text,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { Button, Input } from "@rneui/themed";
 import { Session } from "@supabase/supabase-js";
 import { useNavigation } from "@react-navigation/native";
@@ -95,51 +102,70 @@ export default function Account({ session }: { session: Session }) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Input label="Email" value={session?.user?.email} disabled />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Input
-          label="Name"
-          value={name || ""}
-          onChangeText={(text) => setName(text)}
-        />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Input
-          label="Username"
-          value={username || ""}
-          onChangeText={(text) => setUsername(text)}
-        />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Input
-          label="goal"
-          value={goal || ""}
-          onChangeText={(text) => setgoal(text)}
-        />
-      </View>
+    <TouchableWithoutFeedback>
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.headerText}>Finish signing up</Text>
+        <View style={[styles.verticallySpaced, styles.mt20]}>
+          <Input
+            label="Email"
+            value={session?.user?.email}
+            disabled
+            style={styles.inputText}
+          />
+        </View>
+        <View style={styles.verticallySpaced}>
+          <Input
+            label="Name"
+            value={name || ""}
+            onChangeText={(text) => setName(text)}
+            style={styles.inputText}
+          />
+        </View>
+        <View style={styles.verticallySpaced}>
+          <Input
+            label="Username"
+            value={username || ""}
+            onChangeText={(text) => setUsername(text)}
+            style={styles.inputText}
+          />
+        </View>
+        <View style={styles.verticallySpaced}>
+          <Input
+            label="goal"
+            value={goal || ""}
+            onChangeText={(text) => setgoal(text)}
+            style={styles.inputText}
+          />
+        </View>
 
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Button
-          title={loading ? "Loading ..." : "Update"}
-          onPress={() => updateProfile({ username, goal, full_name: name })}
-          disabled={loading}
-        />
-      </View>
-
-      <View style={styles.verticallySpaced}>
-        <Button title="Sign Out" onPress={() => supabase.auth.signOut()} />
-      </View>
-    </View>
+        <View style={[styles.verticallySpaced, styles.mt20]}>
+          <Button
+            title={loading ? "Loading ..." : "Update"}
+            onPress={() => updateProfile({ username, goal, full_name: name })}
+            disabled={loading}
+            buttonStyle={styles.button}
+          />
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
-    padding: 12,
+    padding: 16,
+    backgroundColor: "#252323",
+    flex: 1,
+    gap: 20,
+  },
+  headerText: {
+    fontSize: 36,
+    fontFamily: "Arial",
+    fontWeight: "bold",
+    color: "#f5f1ed",
+    textAlign: "center",
+    paddingBottom: 50,
+    paddingTop: 15,
   },
   verticallySpaced: {
     paddingTop: 4,
@@ -148,5 +174,13 @@ const styles = StyleSheet.create({
   },
   mt20: {
     marginTop: 20,
+  },
+  inputText: {
+    color: "white",
+    paddingVertical: 10,
+  },
+  button: {
+    marginTop: 20,
+    backgroundColor: "#AF125A",
   },
 });
