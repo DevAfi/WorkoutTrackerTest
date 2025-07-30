@@ -30,12 +30,15 @@ const SocialScreen = ({ navigation }) => {
           data={users}
           renderItem={({ item }) => (
             <View style={styles.userItem}>
-              <MaterialIcons
-                name="account-circle"
-                size={30}
-                color={"#f5f1ed"}
-              />
-              <Text style={styles.userText}>{item.username}</Text>
+              <TouchableOpacity style={styles.touchableItem}>
+                <MaterialIcons
+                  name="account-circle"
+                  size={30}
+                  color={"#f5f1ed"}
+                />
+
+                <Text style={styles.userText}>{item.username}</Text>
+              </TouchableOpacity>
             </View>
           )}
         />
@@ -65,6 +68,15 @@ const styles = StyleSheet.create({
     borderColor: "#333",
     borderRadius: 10,
     borderWidth: 3,
+  },
+  touchableItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 10,
+    width: "100%",
+    backgroundColor: "#333",
+    borderRadius: 10,
   },
   userItem: {
     flexDirection: "row",
