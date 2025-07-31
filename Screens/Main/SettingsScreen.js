@@ -34,14 +34,12 @@ const SettingsScreen = ({ navigation }) => {
           {/* Personal settings */}
           <View style={styles.settingsSection}>
             <Text style={styles.settingsSubtext}>Personal</Text>
-            <TouchableOpacity style={styles.settingsButton}>
+            <TouchableOpacity
+              style={styles.settingsButton}
+              onPress={() => navigation.navigate("ProfileSettings")}
+            >
               <MaterialIcons name="person" color={"#f5f1ed"} size={35} />
-              <Text
-                style={styles.settingsText}
-                onPress={() => navigation.navigate("ProfileSettings")}
-              >
-                Profile
-              </Text>
+              <Text style={styles.settingsText}>Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.settingsButton}>
               <MaterialIcons name="share" color={"#f5f1ed"} size={35} />

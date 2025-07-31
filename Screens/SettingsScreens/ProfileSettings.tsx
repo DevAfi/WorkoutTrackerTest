@@ -10,6 +10,7 @@ import {
 import { Input, Button } from "@rneui/themed";
 import { supabase } from "../../lib/supabase";
 import { useNavigation } from "@react-navigation/native";
+import Avatar from "../../components/Avatar";
 
 export default function ProfileSettings() {
   const navigation = useNavigation();
@@ -87,6 +88,13 @@ export default function ProfileSettings() {
       <SafeAreaView style={styles.container}>
         <Text style={styles.headerText}>Profile Settings</Text>
         <View style={styles.inputContainer}>
+          <Avatar
+            size={125}
+            url={avatarUrl}
+            onUpload={(url: string) => {
+              setAvatarUrl(url);
+            }}
+          />
           <Input
             label="Email"
             value={email}
@@ -109,12 +117,6 @@ export default function ProfileSettings() {
             label="Goal"
             value={goal}
             onChangeText={setGoal}
-            style={styles.inputText}
-          />
-          <Input
-            label="Avatar URL"
-            value={avatarUrl}
-            onChangeText={setAvatarUrl}
             style={styles.inputText}
           />
         </View>
