@@ -7,10 +7,32 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
+import { useState } from "react";
+import StartWorkButton from "../../components/startWorkButton";
+import EndWorkoutButton from "../../components/endWorkButton";
 const WorkoutScreen = ({ navigation }) => {
+  const [sessionId, setSessionId] = useState("");
+
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.titleText}>Workouts</Text>
+      <View>
+        {!sessionId ? (
+          <StartWorkButton onSessionCreated={(id) => setSessionId(id)} />
+        ) : (
+          <Text>Workout started! Session ID: {sessionId}</Text>
+        )}
+      </View>
+      <View>
+        {sessionId ? (
+          <EndWorkoutButton
+            onEnded={() => {
+              setSessionId(null);
+            }}
+          />
+        ) : (
+          <Text>Workout Ended!</Text>
+        )}
+      </View>
     </SafeAreaView>
   );
 };
