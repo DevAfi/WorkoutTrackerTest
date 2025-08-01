@@ -5,7 +5,6 @@ import ViewAvatar from "../../components/viewAvatar";
 const UserProfile = ({ route, navigation }) => {
   const { username, full_name, goal, avatar_url } = route.params;
 
-  // Set the screen title dynamically
   useLayoutEffect(() => {
     navigation.setOptions({ title: username });
   }, [navigation, username]);

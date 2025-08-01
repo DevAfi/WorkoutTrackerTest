@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { supabase } from "../../lib/supabase";
 import { useState } from "react";
+import Exercise from "../../components/workoutComponents/[Exercise}";
 
 const ProfileScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
@@ -19,16 +20,16 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.titleText}>Profile</Text>
+      <Exercise />
     </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: "column",
     backgroundColor: "#252323",
     alignItems: "center",
-    justifyContent: "space-around",
   },
   titleText: {
     fontSize: 24,

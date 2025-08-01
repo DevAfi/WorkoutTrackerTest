@@ -4,42 +4,41 @@ import {
   View,
   SafeAreaView,
   Text,
-  Input,
   TouchableOpacity,
   StyleSheet,
+  TextInput,
 } from "react-native";
+import { Input } from "@rneui/themed";
 
-const Set = (setNumber) => {
-  const [reps, setReps] = useState("");
+const Set = ({ setID }) => {
+  const [reps, setReps] = useState(null);
   const [weight, setWeight] = useState("");
   const [RPE, setRPE] = useState("");
 
   return (
     <View style={styles.container}>
-      <Text>{setNumber}</Text>
       <View style={styles.inputContainer}>
-        <Input
-          label="Weight"
+        <Text style={styles.setNumberText}>1</Text>
+        <TextInput
           placeholder="Weight (kg)"
           value={weight}
-          autocapitalise={"none"}
+          keyboardType="numeric"
           style={styles.inputText}
           onChangeText={(text) => setWeight(text)}
         />
-        <Input
-          label="Reps"
+        <TextInput
           placeholder="reps"
           value={reps}
-          autocapitalise={"none"}
+          keyboardType="numeric"
           style={styles.inputText}
           onChangeText={(text) => setReps(text)}
         />
-        <Input
+        <TextInput
           label="rpe"
           placeholder="RPE"
           value={RPE}
-          autocapitalise={"none"}
-          style={styles.inputText}
+          keyboardType="numeric"
+          style={styles.inputTextShort}
           onChangeText={(text) => setRPE(text)}
         />
       </View>
@@ -49,23 +48,44 @@ const Set = (setNumber) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    maxWidth: "100%",
     paddingHorizontal: 5,
-    paddingVertical: 12,
+    paddingVertical: 1,
     flexDirection: "row",
+    alignItems: "center",
     gap: 5,
   },
   inputContainer: {
     flexDirection: "row",
-    gap: 7,
+    gap: 10,
   },
   inputText: {
     fontSize: 18,
+    width: 120,
+    height: 40,
     fontWeight: "bold",
     textAlign: "center",
     backgroundColor: "rgba(37, 35, 35, 0.42)",
     color: "#f5f1ed",
+    borderRadius: 15,
+    color: "white",
+  },
+  inputTextShort: {
+    fontSize: 18,
+    width: 50,
+    height: 50,
+    fontWeight: "bold",
+
+    backgroundColor: "rgba(37, 35, 35, 0.42)",
+    color: "#f5f1ed",
     borderRadius: 5,
+    color: "white",
+  },
+  setNumberText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    paddingRight: 30,
+    color: "white",
   },
 });
 
