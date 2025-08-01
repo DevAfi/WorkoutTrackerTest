@@ -15,6 +15,10 @@ import Set from "./Set";
 export default function Exercise() {
   const [sets, setSets] = useState([{ id: 1 }]);
 
+  useLayoutEffect(() => {
+    navigation.setOptions({ title: exerciseName });
+  }, [navigation, exerciseName]);
+
   const addSet = () => {
     const newId = sets.length > 0 ? sets[sets.length - 1].id + 1 : 1;
     setSets([...sets, { id: newId }]);

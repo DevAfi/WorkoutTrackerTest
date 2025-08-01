@@ -7,6 +7,7 @@ import {
   Alert,
 } from "react-native";
 import { supabase } from "../lib/supabase";
+import { useNavigation } from "@react-navigation/native";
 
 const StartWorkButton = ({
   onSessionCreated,
@@ -15,6 +16,7 @@ const StartWorkButton = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [note, setNote] = useState("");
+  const navigation = useNavigation();
 
   const startWorkout = async () => {
     setLoading(true);
@@ -63,7 +65,13 @@ const StartWorkButton = ({
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <Button title="Start Workout" onPress={startWorkout} />
+        <Button
+          title="Start Workout"
+          onPress={() => {
+            startWorkout;
+            navigation.navigate("currentWorkoutScreen");
+          }}
+        />
       )}
     </View>
   );
