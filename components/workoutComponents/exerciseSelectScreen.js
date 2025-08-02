@@ -34,7 +34,11 @@ const ExerciseSelectScreen = () => {
   };
 
   const confirmSelection = () => {
-    navigation.navigate("currentWorkoutScreen", { newExercises: selected });
+    navigation.navigate({
+      name: "currentWorkoutScreen",
+      params: { newExercises: selected },
+      merge: true,
+    });
   };
 
   const isSelected = (exercise) => selected.some((e) => e.id === exercise.id);
@@ -52,7 +56,13 @@ const ExerciseSelectScreen = () => {
         renderItem={({ item }) => (
           <View>
             <TouchableOpacity onPress={() => toggleSelect(item)}>
-              <Text style={{ color: "white" }}>
+              <Text
+                style={
+                  isSelected(item)
+                    ? styles.selectedExercise
+                    : styles.unselectedExercise
+                }
+              >
                 {item.name || JSON.stringify(item)}
               </Text>
             </TouchableOpacity>
@@ -69,5 +79,22 @@ const ExerciseSelectScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  selectedExercise: {
+    fontFamily: "Arial",
+    color: "#f5f1ed",
+    fontSize: 20,
+    fontWeight: "700",
+    backgroundColor: "#252323",
+    borderRadius: 10,
+    padding: 10,
+  },
+  unselectedExercise: {
+    fontFamily: "Arial",
+    color: "#f5f1ed",
+    fontSize: 20,
+    fontWeight: "500",
+    marginVertical: 10,
+  },
+});
 export default ExerciseSelectScreen;

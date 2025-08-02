@@ -24,7 +24,6 @@ const CurrentWorkoutScreen = () => {
         })),
       ]);
 
-      // Clear param to prevent repeated addition
       navigation.setParams({ newExercises: null });
     }
   }, [route.params?.newExercises]);

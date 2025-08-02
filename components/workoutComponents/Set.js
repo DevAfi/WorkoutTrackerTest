@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     gap: 10,
-    justifyContent: "space-between",
+    alignItems: "center",
   },
   inputText: {
     fontSize: 18,
