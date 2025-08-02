@@ -11,13 +11,10 @@ import {
   Button,
 } from "react-native";
 import Set from "./Set";
-
+import { useNavigation } from "@react-navigation/native";
 export default function Exercise() {
+  const navigation = useNavigation();
   const [sets, setSets] = useState([{ id: 1 }]);
-
-  useLayoutEffect(() => {
-    navigation.setOptions({ title: exerciseName });
-  }, [navigation, exerciseName]);
 
   const addSet = () => {
     const newId = sets.length > 0 ? sets[sets.length - 1].id + 1 : 1;

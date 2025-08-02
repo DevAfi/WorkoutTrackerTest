@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { View, Button, ScrollView, Text } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { View, Button, ScrollView, Text, StyleSheet } from "react-native";
 import {
   useNavigation,
   useIsFocused,
   useRoute,
+  useFocusEffect,
 } from "@react-navigation/native";
+import Exercise from "../../components/workoutComponents/[Exercise}";
 
 const currentWorkoutScreen = () => {
   const navigation = useNavigation();
@@ -13,24 +15,28 @@ const currentWorkoutScreen = () => {
 
   const [exercises, setExercises] = useState([]);
 
-  useEffect(() => {
-    if (isFocused && route.params?.newExercises) {
-      setExercises((prev) => [
-        ...prev,
-        ...route.params.newExercises.map((ex, idx) => ({
-          ...ex,
-          sets: [{ id: 1 }],
-        })),
-      ]);
-      navigation.setParams({ newExercises: null });
-    }
-  }, [route.params?.newExercises, isFocused]);
+  useFocusEffect(
+    useCallback(() => {
+      if (route.params?.newExercises) {
+        console.log("Received new exercises:", route.params.newExercises); // 🧪 TEST LOG
+        setExercises((prev) => [
+          ...prev,
+          ...route.params.newExercises.map((ex) => ({
+            ...ex,
+            sets: [{ id: 1 }],
+          })),
+        ]);
+
+        navigation.setParams({ newExercises: null }); // clear to avoid double adding
+      }
+    }, [route.params?.newExercises])
+  );
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
-      <ScrollView>
+      <ScrollView style={styles.exercisesContainer}>
         {exercises.map((exercise, index) => (
-          <ExerciseEntry key={index} exercise={exercise} />
+          <Exercise key={index} exercise={exercise} />
         ))}
       </ScrollView>
 
@@ -42,4 +48,9 @@ const currentWorkoutScreen = () => {
   );
 };
 
+const styles = StyleSheet.create({
+  exercisesContainer: {
+    paddingVertical: 10,
+  },
+});
 export default currentWorkoutScreen;
