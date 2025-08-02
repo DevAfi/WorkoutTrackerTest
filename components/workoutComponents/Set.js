@@ -58,27 +58,29 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     gap: 10,
+    justifyContent: "space-between",
   },
   inputText: {
     fontSize: 18,
     width: 120,
-    height: 40,
+    height: 50,
     fontWeight: "bold",
     textAlign: "center",
     backgroundColor: "rgba(37, 35, 35, 0.42)",
     color: "#f5f1ed",
     borderRadius: 15,
     color: "white",
+    marginVertical: 5,
   },
   inputTextShort: {
     fontSize: 18,
     width: 50,
     height: 50,
     fontWeight: "bold",
-
+    textAlign: "center",
     backgroundColor: "rgba(37, 35, 35, 0.42)",
     color: "#f5f1ed",
-    borderRadius: 5,
+    borderRadius: 15,
     color: "white",
   },
   setNumberText: {

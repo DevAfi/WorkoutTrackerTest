@@ -12,7 +12,8 @@ import {
 } from "react-native";
 import Set from "./Set";
 import { useNavigation } from "@react-navigation/native";
-export default function Exercise() {
+
+export default function Exercise({ exercise }) {
   const navigation = useNavigation();
   const [sets, setSets] = useState([{ id: 1 }]);
 
@@ -28,6 +29,7 @@ export default function Exercise() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.exerciseName}>{exercise.name}</Text>
       <ScrollView>
         {sets.map((set) => (
           <Set key={set.id} id={set.id} />
@@ -57,6 +59,15 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     flexDirection: "collumn",
     gap: 5,
+    borderRadius: 20,
+    marginVertical: 10,
+  },
+  exerciseName: {
+    textAlign: "center",
+    color: "#f5f1ed",
+    fontSize: 16,
+    fontWeight: "bold",
+    paddingBottom: 5,
   },
   buttonContainer: {
     flexDirection: "row",

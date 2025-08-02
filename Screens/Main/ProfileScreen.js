@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { supabase } from "../../lib/supabase";
 import { useState } from "react";
-import Exercise from "../../components/workoutComponents/[Exercise}";
+import Exercise from "../../components/workoutComponents/Exercise";
 
 const ProfileScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);

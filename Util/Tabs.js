@@ -16,7 +16,7 @@ import Account from "../components/Account";
 import ProfileSettings from "../Screens/SettingsScreens/ProfileSettings";
 import Auth from "../components/Auth";
 import UserProfile from "../Screens/Main/[userProfile]";
-import currentWorkoutScreen from "../Screens/Main/currentWorkoutScreen";
+import CurrentWorkoutScreen from "../Screens/Main/CurrentWorkoutScreen";
 import ExerciseSelectScreen from "../components/workoutComponents/exerciseSelectScreen";
 
 const Tab = createBottomTabNavigator();
@@ -199,12 +199,13 @@ const Tabs = () => {
       />
       <Stack.Screen
         name="currentWorkoutScreen"
-        component={currentWorkoutScreen}
+        component={CurrentWorkoutScreen}
         options={{
           headerStyle: {
             backgroundColor: "#403d3d",
           },
           headerTitleStyle: { color: "#f5f1ed" },
+          gestureEnabled: false,
         }}
       />
       <Stack.Screen
