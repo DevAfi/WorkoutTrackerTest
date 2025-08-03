@@ -204,6 +204,7 @@ const Tabs = () => {
           headerStyle: {
             backgroundColor: "#403d3d",
           },
+          headerShown: false,
           headerTitleStyle: { color: "#f5f1ed" },
           gestureEnabled: false,
         }}

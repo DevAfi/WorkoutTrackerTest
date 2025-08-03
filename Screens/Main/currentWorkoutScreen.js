@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
-import { View, Button, ScrollView, Text, StyleSheet } from "react-native";
+import {
+  View,
+  Button,
+  ScrollView,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+} from "react-native";
 import {
   useNavigation,
   useIsFocused,
@@ -12,6 +20,7 @@ const CurrentWorkoutScreen = () => {
   const route = useRoute();
   const isFocused = useIsFocused();
   const [exercises, setExercises] = useState([]);
+  const [totalWeight, setTotalWeight] = useState("0");
 
   useEffect(() => {
     if (route.params?.newExercises) {
@@ -29,28 +38,57 @@ const CurrentWorkoutScreen = () => {
   }, [route.params?.newExercises]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.titleText}>Log your workout</Text>
+      <Text style={styles.weightText}>Total Weight: {totalWeight}</Text>
+
       <ScrollView style={styles.exercisesContainer}>
         {exercises.map((exercise, index) => (
           <Exercise key={index} exercise={exercise} />
         ))}
       </ScrollView>
 
-      <Button
-        title="Add Exercise"
+      <TouchableOpacity
         onPress={() => navigation.navigate("selectExercise")}
-      />
-    </View>
+        style={styles.addButtonContainer}
+      >
+        <Text style={styles.addButton}>Add exercises</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#252323",
+  },
+  titleText: {
+    fontSize: 26,
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#f5f1ed",
+  },
+  weightText: {
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
+    paddingTop: 15,
+    color: "#f5f1ed",
   },
   exercisesContainer: {
+    marginTop: 15,
     paddingVertical: 10,
-    backgroundColor: "blue",
+    //backgroundColor: "blue",
+  },
+  addButtonContainer: {},
+  addButton: {
+    fontSize: 20,
+    color: "#f5f1ed",
+
+    textAlign: "center",
+    height: 50,
+    top: "25%",
   },
 });
 export default CurrentWorkoutScreen;

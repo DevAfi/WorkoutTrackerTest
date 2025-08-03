@@ -31,8 +31,8 @@ export default function Exercise({ exercise }) {
     <View style={styles.container}>
       <Text style={styles.exerciseName}>{exercise.name}</Text>
       <ScrollView>
-        {sets.map((set) => (
-          <Set key={set.id} id={set.id} />
+        {sets.map((set, index) => (
+          <Set key={set.id} setNumber={index + 1} />
         ))}
       </ScrollView>
       <View style={styles.buttonContainer}>

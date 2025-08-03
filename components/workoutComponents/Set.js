@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Input } from "@rneui/themed";
 
-const Set = ({ setID }) => {
+const Set = ({ setNumber }) => {
   const [reps, setReps] = useState(null);
   const [weight, setWeight] = useState("");
   const [RPE, setRPE] = useState("");
@@ -18,9 +18,10 @@ const Set = ({ setID }) => {
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
-        <Text style={styles.setNumberText}>1</Text>
+        <Text style={styles.setNumberText}>{setNumber}</Text>
         <TextInput
           placeholder="Weight (kg)"
+          placeholderTextColor={"#f5f1ed"}
           value={weight}
           keyboardType="numeric"
           style={styles.inputText}
@@ -28,6 +29,7 @@ const Set = ({ setID }) => {
         />
         <TextInput
           placeholder="reps"
+          placeholderTextColor={"#f5f1ed"}
           value={reps}
           keyboardType="numeric"
           style={styles.inputText}
@@ -36,6 +38,7 @@ const Set = ({ setID }) => {
         <TextInput
           label="rpe"
           placeholder="RPE"
+          placeholderTextColor={"#f5f1ed"}
           value={RPE}
           keyboardType="numeric"
           style={styles.inputTextShort}
