@@ -18,7 +18,7 @@ const EndWorkoutButton = ({
       .from("workout_sessions")
       .update({ ended_at: new Date().toISOString() })
       .eq("id", sessionId);
-
+    console.log("Ended");
     setLoading(false);
 
     if (error) {
@@ -29,6 +29,7 @@ const EndWorkoutButton = ({
 
     Alert.alert("Workout Complete", "Session has been ended.");
     if (onEnded) onEnded(); // Optional callback for parent
+    console.log("Last Line");
   };
 
   return loading ? (

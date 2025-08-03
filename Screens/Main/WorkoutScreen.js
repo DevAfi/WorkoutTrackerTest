@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useState } from "react";
 import StartWorkButton from "../../components/startWorkButton";
+import EndWorkoutButton from "../../components/endWorkButton";
 const WorkoutScreen = ({ navigation }) => {
   const [sessionId, setSessionId] = useState("");
 
@@ -21,6 +22,7 @@ const WorkoutScreen = ({ navigation }) => {
           <Text>Workout started! Session ID: {sessionId}</Text>
         )}
       </View>
+      <EndWorkoutButton sessionId={sessionId} />
     </SafeAreaView>
   );
 };

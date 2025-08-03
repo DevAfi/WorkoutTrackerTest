@@ -37,7 +37,7 @@ const StartWorkButton = ({
       .insert([{ user_id: userData.user.id, notes: note || null }])
       .select()
       .single();
-
+    console.log("logged");
     setLoading(false);
 
     if (error) {
@@ -47,6 +47,7 @@ const StartWorkButton = ({
     }
 
     onSessionCreated(data.id); // Pass the session ID upward
+    console.log("not logged");
   };
 
   return (
@@ -68,8 +69,8 @@ const StartWorkButton = ({
         <Button
           title="Start Workout"
           onPress={() => {
-            startWorkout;
-            navigation.navigate("currentWorkoutScreen");
+            startWorkout();
+            //navigation.navigate("currentWorkoutScreen");
           }}
         />
       )}
