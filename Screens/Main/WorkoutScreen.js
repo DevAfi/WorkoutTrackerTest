@@ -22,7 +22,6 @@ const WorkoutScreen = ({ navigation }) => {
           <Text>Workout started! Session ID: {sessionId}</Text>
         )}
       </View>
-      <EndWorkoutButton sessionId={sessionId} />
     </SafeAreaView>
   );
 };

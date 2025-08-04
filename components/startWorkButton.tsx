@@ -15,7 +15,6 @@ const StartWorkButton = ({
   onSessionCreated: (id: string) => void;
 }) => {
   const [loading, setLoading] = useState(false);
-  const [note, setNote] = useState("");
   const navigation = useNavigation();
 
   const startWorkout = async () => {
@@ -34,7 +33,7 @@ const StartWorkButton = ({
 
     const { data, error } = await supabase
       .from("workout_sessions")
-      .insert([{ user_id: userData.user.id, notes: note || null }])
+      .insert([{ user_id: userData.user.id }])
       .select()
       .single();
 
@@ -52,17 +51,6 @@ const StartWorkButton = ({
 
   return (
     <View>
-      <TextInput
-        placeholder="Add an optional note..."
-        value={note}
-        onChangeText={setNote}
-        style={{
-          borderColor: "#ccc",
-          borderWidth: 1,
-          padding: 8,
-          marginBottom: 10,
-        }}
-      />
       {loading ? (
         <ActivityIndicator />
       ) : (

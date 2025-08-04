@@ -15,7 +15,7 @@ import {
 } from "@react-navigation/native";
 import Exercise from "../../components/workoutComponents/Exercise";
 import EndWorkoutButton from "../../components/endWorkButton";
-import WorkoutScreen from "./WorkoutScreen";
+import AddNote from "../../components/workoutComponents/addNote";
 
 const CurrentWorkoutScreen = () => {
   const navigation = useNavigation();
@@ -67,12 +67,13 @@ const CurrentWorkoutScreen = () => {
         >
           <Text style={styles.addButton}>Add exercises</Text>
         </TouchableOpacity>
+        {sessionId && <AddNote sessionId={sessionId} />}
         {sessionId ? (
           <View style={{ margin: 16 }}>
             <EndWorkoutButton
               sessionId={sessionId}
               onEnded={() => {
-                navigation.navigate("Workouts");
+                navigation.navigate("MainTabs");
               }}
             />
           </View>
