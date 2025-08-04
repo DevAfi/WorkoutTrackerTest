@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import {
   View,
   TextInput,
-  Button,
+  Text,
+  StyleSheet,
   ActivityIndicator,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import { supabase } from "../lib/supabase";
 import { useNavigation } from "@react-navigation/native";
@@ -50,22 +52,38 @@ const StartWorkButton = ({
   };
 
   return (
-    <View>
+    <View style={styles.buttonContainer}>
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <Button
-          title="Start Workout"
+        <TouchableOpacity
           onPress={async () => {
             const sessionId = await startWorkout();
             if (sessionId) {
               navigation.navigate("currentWorkoutScreen", { sessionId });
             }
           }}
-        />
+        >
+          <Text style={styles.buttonText}>Start Workout</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
 };
-
+const styles = StyleSheet.create({
+  buttonContainer: {
+    backgroundColor: "#0D0C0C",
+    padding: 7,
+    borderRadius: 10,
+    width: 350,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#f5f1ed",
+    fontSize: 28,
+    fontWeight: "600",
+  },
+});
 export default StartWorkButton;

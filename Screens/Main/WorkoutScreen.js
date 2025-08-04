@@ -15,7 +15,27 @@ const WorkoutScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View>
+      <View style={styles.topButtonsContainer}>
+        <Text style={styles.titleText}>
+          ---------------------------------------------
+        </Text>
+      </View>
+      <View style={styles.dateContainer}>
+        <Text style={styles.titleText}>
+          ---------------------------------------------
+        </Text>
+      </View>
+      <View style={styles.streakContainer}>
+        <Text style={styles.titleText}>
+          ---------------------------------------------
+        </Text>
+      </View>
+      <View style={styles.activityContainer}>
+        <Text style={styles.titleText}>
+          ---------------------------------------------
+        </Text>
+      </View>
+      <View style={styles.startButton}>
         {!sessionId ? (
           <StartWorkButton onSessionCreated={(id) => setSessionId(id)} />
         ) : (
@@ -30,7 +50,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#252323",
     alignItems: "center",
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
   },
   titleText: {
     fontSize: 24,
@@ -39,19 +59,20 @@ const styles = StyleSheet.create({
     color: "#f5f1ed",
     fontFamily: "Arial",
   },
-
-  calcButton: {
-    backgroundColor: "#70798c",
-    padding: "30",
-    width: "80%",
-    alignItems: "center",
-    borderRadius: 10,
+  topButtonsContainer: {
+    backgroundColor: "red",
   },
-  calcButtonText: {
-    color: "#d0d8c3",
-    fontSize: 18,
-    fontWeight: "bold",
-    fontFamily: "Arial",
+  dateContainer: {
+    backgroundColor: "red",
+  },
+  streakContainer: {
+    backgroundColor: "red",
+  },
+  activityContainer: {
+    backgroundColor: "red",
+  },
+  startButton: {
+    marginTop: 100,
   },
 });
 
