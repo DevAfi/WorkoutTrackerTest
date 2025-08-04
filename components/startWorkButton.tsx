@@ -57,7 +57,7 @@ const StartWorkButton = ({
         <Button
           title="Start Workout"
           onPress={async () => {
-            const sessionId = await startWorkout(); // Modify startWorkout to return sessionId
+            const sessionId = await startWorkout();
             if (sessionId) {
               navigation.navigate("currentWorkoutScreen", { sessionId });
             }

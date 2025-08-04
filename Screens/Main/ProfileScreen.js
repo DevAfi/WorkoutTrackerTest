@@ -20,7 +20,7 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Exercise />
+      <Text>Profile</Text>
     </SafeAreaView>
   );
 };
