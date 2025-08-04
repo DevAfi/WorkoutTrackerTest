@@ -14,6 +14,8 @@ import {
   useRoute,
 } from "@react-navigation/native";
 import Exercise from "../../components/workoutComponents/Exercise";
+import EndWorkoutButton from "../../components/endWorkButton";
+import WorkoutScreen from "./WorkoutScreen";
 
 const CurrentWorkoutScreen = () => {
   const navigation = useNavigation();
@@ -21,6 +23,17 @@ const CurrentWorkoutScreen = () => {
   const isFocused = useIsFocused();
   const [exercises, setExercises] = useState([]);
   const [totalWeight, setTotalWeight] = useState("0");
+  const initialSessionId = route.params?.sessionId;
+  const [sessionId, setSessionId] = useState(initialSessionId);
+
+  useEffect(() => {
+    console.log("Session ID:", sessionId);
+  }, [sessionId]);
+  useEffect(() => {
+    if (route.params?.sessionId && route.params.sessionId !== sessionId) {
+      setSessionId(route.params.sessionId);
+    }
+  }, [route.params?.sessionId]);
 
   useEffect(() => {
     if (route.params?.newExercises) {
@@ -47,13 +60,28 @@ const CurrentWorkoutScreen = () => {
           <Exercise key={index} exercise={exercise} />
         ))}
       </ScrollView>
-
-      <TouchableOpacity
-        onPress={() => navigation.navigate("selectExercise")}
-        style={styles.addButtonContainer}
-      >
-        <Text style={styles.addButton}>Add exercises</Text>
-      </TouchableOpacity>
+      <View style={styles.bottomButtonContainer}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("selectExercise", { sessionId })}
+          style={styles.addButtonContainer}
+        >
+          <Text style={styles.addButton}>Add exercises</Text>
+        </TouchableOpacity>
+        {sessionId ? (
+          <View style={{ margin: 16 }}>
+            <EndWorkoutButton
+              sessionId={sessionId}
+              onEnded={() => {
+                navigation.navigate("Workouts");
+              }}
+            />
+          </View>
+        ) : (
+          <View>
+            <Text>Debug ending</Text>
+          </View>
+        )}
+      </View>
     </SafeAreaView>
   );
 };
@@ -89,6 +117,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     height: 50,
     top: "25%",
+  },
+  bottomButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
 });
 export default CurrentWorkoutScreen;

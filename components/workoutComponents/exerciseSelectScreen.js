@@ -7,7 +7,7 @@ import {
   Button,
   StyleSheet,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { supabase } from "../../lib/supabase";
 
 async function fetchExercises() {
@@ -24,6 +24,8 @@ const ExerciseSelectScreen = () => {
   const navigation = useNavigation();
   const [allExercises, setAllExercises] = useState([]);
   const [selected, setSelected] = useState([]);
+  const route = useRoute();
+  const sessionId = route.params?.sessionId;
 
   const toggleSelect = (exercise) => {
     setSelected((prev) =>
@@ -36,7 +38,7 @@ const ExerciseSelectScreen = () => {
   const confirmSelection = () => {
     navigation.navigate({
       name: "currentWorkoutScreen",
-      params: { newExercises: selected },
+      params: { newExercises: selected, sessionId },
       merge: true,
     });
   };

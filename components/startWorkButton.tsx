@@ -29,7 +29,7 @@ const StartWorkButton = ({
         "You must be logged in to start a workout."
       );
       setLoading(false);
-      return;
+      return null;
     }
 
     const { data, error } = await supabase
@@ -37,17 +37,17 @@ const StartWorkButton = ({
       .insert([{ user_id: userData.user.id, notes: note || null }])
       .select()
       .single();
-    console.log("logged");
+
     setLoading(false);
 
     if (error) {
       console.error("Session creation error:", error.message);
       Alert.alert("Error", "Could not start workout. Try again.");
-      return;
+      return null;
     }
 
-    onSessionCreated(data.id); // Pass the session ID upward
-    console.log("not logged");
+    onSessionCreated(data.id);
+    return data.id;
   };
 
   return (
@@ -68,9 +68,11 @@ const StartWorkButton = ({
       ) : (
         <Button
           title="Start Workout"
-          onPress={() => {
-            startWorkout();
-            //navigation.navigate("currentWorkoutScreen");
+          onPress={async () => {
+            const sessionId = await startWorkout(); // Modify startWorkout to return sessionId
+            if (sessionId) {
+              navigation.navigate("currentWorkoutScreen", { sessionId });
+            }
           }}
         />
       )}
