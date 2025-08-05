@@ -239,6 +239,7 @@ const Tabs = () => {
             backgroundColor: "#403d3d",
           },
           headerTitleStyle: { color: "#f5f1ed" },
+          headerTitle: "Select An Exercise",
         }}
       />
     </Stack.Navigator>

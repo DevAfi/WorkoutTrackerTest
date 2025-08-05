@@ -16,9 +16,15 @@ const WorkoutScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topButtonsContainer}>
-        <Text style={styles.titleText}>
-          ---------------------------------------------
-        </Text>
+        <TouchableOpacity style={styles.topButton}>
+          <Text style={styles.topButtonText}>Workouts</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.topButton}
+          onPress={() => navigation.navigate("viewExercises")}
+        >
+          <Text style={styles.topButtonText}>View Exercises</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.dateContainer}>
         <Text style={styles.titleText}>
@@ -50,7 +56,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#252323",
     alignItems: "center",
-    justifyContent: "space-evenly",
+    justifyContent: "space-around",
   },
   titleText: {
     fontSize: 24,
@@ -60,7 +66,26 @@ const styles = StyleSheet.create({
     fontFamily: "Arial",
   },
   topButtonsContainer: {
-    backgroundColor: "red",
+    //backgroundColor: "red",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    gap: 10,
+    position: "absolute",
+    top: 0,
+  },
+  topButton: {
+    backgroundColor: "#0D0C0C",
+    height: 50,
+    width: 200,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 15,
+  },
+  topButtonText: {
+    fontFamily: "Arial",
+    fontWeight: "600",
+    fontSize: 20,
+    color: "#f5f1ed",
   },
   dateContainer: {
     backgroundColor: "red",
@@ -71,9 +96,7 @@ const styles = StyleSheet.create({
   activityContainer: {
     backgroundColor: "red",
   },
-  startButton: {
-    marginTop: 100,
-  },
+  startButton: {},
 });
 
 export default WorkoutScreen;
