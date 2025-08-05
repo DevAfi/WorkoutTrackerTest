@@ -21,17 +21,17 @@ const ViewExerciseDetails = ({ route, navigation }) => {
       <ScrollView style={styles.scrollView}>
         <View style={styles.detailsContainer}>
           <Text style={styles.title}>{name}</Text>
+          <View style={styles.secondSection}>
+            <View style={styles.detailItem}>
+              <Text style={styles.label}>Muscle Group:</Text>
+              <Text style={styles.value}>{category}</Text>
+            </View>
 
-          <View style={styles.detailItem}>
-            <Text style={styles.label}>Muscle Group:</Text>
-            <Text style={styles.value}>{category}</Text>
+            <View style={styles.detailItem}>
+              <Text style={styles.label}>Equipment:</Text>
+              <Text style={styles.value}>{equipment}</Text>
+            </View>
           </View>
-
-          <View style={styles.detailItem}>
-            <Text style={styles.label}>Equipment:</Text>
-            <Text style={styles.value}>{equipment}</Text>
-          </View>
-
           <View style={styles.detailItem}>
             <Text style={styles.label}>Instructions:</Text>
             <Text
@@ -69,27 +69,33 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
     color: "#f5f1ed",
     marginBottom: 20,
     textAlign: "center",
     fontFamily: "arial",
   },
+  secondSection: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    gap: 65,
+  },
   detailItem: {
     marginBottom: 20,
   },
   label: {
-    fontSize: 19,
+    fontSize: 16,
     fontWeight: "600",
     color: "#f5f1ed",
     marginBottom: 5,
     fontFamily: "arial",
   },
   value: {
-    fontSize: 18,
+    fontSize: 14,
     color: "#cccccc",
     fontFamily: "arial",
+    textAlign: "center",
   },
   instructions: {
     fontSize: 14,

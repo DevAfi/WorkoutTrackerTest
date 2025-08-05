@@ -26,20 +26,22 @@ const WorkoutScreen = ({ navigation }) => {
           <Text style={styles.topButtonText}>View Exercises</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.dateContainer}>
-        <Text style={styles.titleText}>
-          ---------------------------------------------
-        </Text>
-      </View>
-      <View style={styles.streakContainer}>
-        <Text style={styles.titleText}>
-          ---------------------------------------------
-        </Text>
-      </View>
-      <View style={styles.activityContainer}>
-        <Text style={styles.titleText}>
-          ---------------------------------------------
-        </Text>
+      <View style={styles.nonAbsoluteContainer}>
+        <View style={styles.dateContainer}>
+          <Text style={styles.titleText}>
+            ---------------------------------------------
+          </Text>
+        </View>
+        <View style={styles.streakContainer}>
+          <Text style={styles.titleText}>
+            ---------------------------------------------
+          </Text>
+        </View>
+        <View style={styles.activityContainer}>
+          <Text style={styles.titleText}>
+            ---------------------------------------------
+          </Text>
+        </View>
       </View>
       <View style={styles.startButton}>
         {!sessionId ? (
@@ -85,7 +87,12 @@ const styles = StyleSheet.create({
     fontFamily: "Arial",
     fontWeight: "600",
     fontSize: 20,
-    color: "#f5f1ed",
+    color: "#AF125A",
+  },
+  nonAbsoluteContainer: {
+    flexDirection: "collumn",
+    justifyContent: "space-evenly",
+    gap: "25%",
   },
   dateContainer: {
     backgroundColor: "red",
@@ -96,7 +103,10 @@ const styles = StyleSheet.create({
   activityContainer: {
     backgroundColor: "red",
   },
-  startButton: {},
+  startButton: {
+    position: "absolute",
+    bottom: 90,
+  },
 });
 
 export default WorkoutScreen;
