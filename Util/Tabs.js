@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
+import viewAllExercises from "../components/workoutComponents/viewAllExercises";
 import DashboardScreen from "../Screens/Main/DashboardScreen";
 import SocialScreen from "../Screens/Main/SocialScreen";
 import ProfileScreen from "../Screens/Main/ProfileScreen";
@@ -16,6 +17,7 @@ import Account from "../components/Account";
 import ProfileSettings from "../Screens/SettingsScreens/ProfileSettings";
 import Auth from "../components/Auth";
 import UserProfile from "../Screens/Main/[userProfile]";
+import ViewExerciseDetails from "./[exerciseDetails]";
 import CurrentWorkoutScreen from "../Screens/Main/CurrentWorkoutScreen";
 import ExerciseSelectScreen from "../components/workoutComponents/exerciseSelectScreen";
 
@@ -198,6 +200,16 @@ const Tabs = () => {
         }}
       />
       <Stack.Screen
+        name="exerciseDetailsPage"
+        component={ViewExerciseDetails}
+        options={{
+          headerStyle: {
+            backgroundColor: "#403d3d",
+          },
+          headerTitleStyle: { color: "#f5f1ed" },
+        }}
+      />
+      <Stack.Screen
         name="currentWorkoutScreen"
         component={CurrentWorkoutScreen}
         options={{
@@ -212,6 +224,16 @@ const Tabs = () => {
       <Stack.Screen
         name="selectExercise"
         component={ExerciseSelectScreen}
+        options={{
+          headerStyle: {
+            backgroundColor: "#403d3d",
+          },
+          headerTitleStyle: { color: "#f5f1ed" },
+        }}
+      />
+      <Stack.Screen
+        name="viewExercises"
+        component={viewAllExercises}
         options={{
           headerStyle: {
             backgroundColor: "#403d3d",

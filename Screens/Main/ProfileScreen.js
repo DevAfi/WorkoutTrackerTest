@@ -7,9 +7,11 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
-import { supabase } from "../../lib/supabase";
+import { useNavigation } from "@react-navigation/native";
+
 import { useState } from "react";
-import Exercise from "../../components/workoutComponents/Exercise";
+
+import viewAllExercises from "../../components/workoutComponents/viewAllExercises";
 
 const ProfileScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
@@ -20,7 +22,9 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Profile</Text>
+      <TouchableOpacity onPress={() => navigation.navigate("viewExercises")}>
+        <Text>GO TO EXERCISES</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
