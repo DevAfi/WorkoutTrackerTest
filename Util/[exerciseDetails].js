@@ -6,11 +6,13 @@ import {
   ScrollView,
   Image,
   SafeAreaView,
+  TouchableOpacity,
 } from "react-native";
 
 const ViewExerciseDetails = ({ route, navigation }) => {
   const { exerciseId, name, category, equipment, instructions } = route.params;
   const [isExpanded, setIsExpanded] = useState(false);
+  const [historySelected, setHistorySelected] = useState(true);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: name });
@@ -48,6 +50,31 @@ const ViewExerciseDetails = ({ route, navigation }) => {
             </Text>
           </View>
         </View>
+        <View style={styles.topButtonsContainer}>
+          <TouchableOpacity
+            style={styles.topButton}
+            onPress={() => setHistorySelected(true)}
+          >
+            <Text style={styles.topButtonText}>History</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.topButton}
+            onPress={() => setHistorySelected(false)}
+          >
+            <Text style={styles.topButtonText}>Stats</Text>
+          </TouchableOpacity>
+        </View>
+        {/* BELOW HERE IM GONNA DISPLAY EITHER THE HISTORY OR THE STATS AS A SCROLLABLE PAGE */}
+
+        {historySelected == true ? (
+          <View>
+            <Text>History</Text>
+          </View>
+        ) : (
+          <View>
+            <Text>Stats</Text>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -56,16 +83,15 @@ const ViewExerciseDetails = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#252323",
   },
   scrollView: {
-    paddingVertical: 15,
-    paddingHorizontal: 5,
-    backgroundColor: "red",
+    backgroundColor: "#252323",
   },
   detailsContainer: {
     backgroundColor: "#1a1a1a",
-    borderRadius: 10,
+    borderBottomRightRadius: 10,
+    borderBottomLeftRadius: 10,
     padding: 20,
   },
   title: {
@@ -108,6 +134,27 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "right",
     marginTop: 5,
+  },
+  topButtonsContainer: {
+    //backgroundColor: "red",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    gap: 10,
+    paddingTop: 20,
+  },
+  topButton: {
+    backgroundColor: "#0D0C0C",
+    height: 50,
+    width: 200,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 15,
+  },
+  topButtonText: {
+    fontFamily: "Arial",
+    fontWeight: "600",
+    fontSize: 20,
+    color: "#AF125A",
   },
 });
 
