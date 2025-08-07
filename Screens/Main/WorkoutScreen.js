@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   topButton: {
     backgroundColor: "#0D0C0C",
     height: 50,
-    width: 200,
+    width: 190,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 15,

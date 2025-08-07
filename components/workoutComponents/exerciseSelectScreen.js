@@ -156,7 +156,6 @@ const ExerciseSelectScreen = () => {
   React.useEffect(() => {
     fetchExercises().then((data) => {
       setAllExercises(data);
-      // Default to alphabetical grouping
       const grouped = groupExercisesByLetter(data);
       setGroupedExercises(grouped);
     });
