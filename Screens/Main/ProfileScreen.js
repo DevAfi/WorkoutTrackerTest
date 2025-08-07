@@ -22,9 +22,7 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.navigate("viewExercises")}>
-        <Text>GO TO EXERCISES</Text>
-      </TouchableOpacity>
+      <Text>ProfileScreen</Text>
     </SafeAreaView>
   );
 };
