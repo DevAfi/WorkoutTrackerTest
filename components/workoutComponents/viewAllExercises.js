@@ -24,7 +24,7 @@ const viewAllExercises = () => {
   const [allExercises, setAllExercises] = useState([]);
   const [groupedExercises, setGroupedExercises] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [sortBy, setSortBy] = useState("name"); // "name" or "muscle"
+  const [sortBy, setSortBy] = useState("name");
   const [expandedSections, setExpandedSections] = useState(new Set());
   const route = useRoute();
   const sessionId = route.params?.sessionId;
@@ -65,7 +65,6 @@ const viewAllExercises = () => {
       groups[firstLetter].push(exercise);
     });
 
-    // Convert to array format for FlatList
     return Object.keys(groups)
       .sort()
       .map((letter) => ({
@@ -86,7 +85,6 @@ const viewAllExercises = () => {
       groups[muscle].push(exercise);
     });
 
-    // Convert to array format for FlatList
     return Object.keys(groups)
       .sort()
       .map((muscle) => ({
@@ -99,7 +97,7 @@ const viewAllExercises = () => {
 
   const handleSortChange = (newSortType) => {
     setSortBy(newSortType);
-    setExpandedSections(new Set()); // Collapse all sections when changing sort
+    setExpandedSections(new Set());
 
     let grouped;
     if (newSortType === "name") {
@@ -262,7 +260,7 @@ const styles = StyleSheet.create({
     borderColor: "#4a9eff",
   },
   sortButtonText: {
-    color: "#ccc",
+    color: "#AF125A",
     fontSize: 16,
     fontWeight: "500",
   },
@@ -282,13 +280,13 @@ const styles = StyleSheet.create({
   sectionHeaderText: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#4a9eff",
+    color: "#AF125A",
     textTransform: "uppercase",
   },
   expandIcon: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#4a9eff",
+    color: "#AF125A",
   },
 });
 
