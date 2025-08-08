@@ -99,13 +99,14 @@ const styles = StyleSheet.create({
     color: "#f5f1ed",
     fontWeight: "600",
     fontFamily: "Arial",
-    fontSize: 18,
+    fontSize: 20,
   },
   liftNumber: {
     color: "#f5f1ed",
-    fontWeight: "600",
+    fontWeight: "200",
     fontFamily: "Arial",
-    fontSize: 18,
+    fontSize: 16,
+    paddingTop: 5,
   },
 });
 export default UserProfile;

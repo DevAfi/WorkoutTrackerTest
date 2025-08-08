@@ -7,6 +7,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  Modal,
 } from "react-native";
 import {
   useNavigation,
@@ -25,6 +26,8 @@ const CurrentWorkoutScreen = () => {
   const [totalWeight, setTotalWeight] = useState("0");
   const initialSessionId = route.params?.sessionId;
   const [sessionId, setSessionId] = useState(initialSessionId);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     console.log("Session ID:", sessionId);
@@ -52,8 +55,32 @@ const CurrentWorkoutScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Modal for notes */}
+
       <Text style={styles.titleText}>Log your workout</Text>
       <Text style={styles.weightText}>Total Weight: {totalWeight}</Text>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            {sessionId && <AddNote sessionId={sessionId} />}
+            <TouchableOpacity
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => setModalVisible(!modalVisible)}
+            >
+              <Text style={styles.textStyle}>Hide Modal</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <ScrollView style={styles.exercisesContainer}>
         {exercises.map((exercise, index) => (
@@ -67,7 +94,13 @@ const CurrentWorkoutScreen = () => {
         >
           <Text style={styles.addButton}>Add exercises</Text>
         </TouchableOpacity>
-        {sessionId && <AddNote sessionId={sessionId} />}
+        <TouchableOpacity
+          style={[styles.button, styles.buttonOpen]}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={styles.textStyle}>Show Modal</Text>
+        </TouchableOpacity>
+
         {sessionId ? (
           <View style={{ margin: 16 }}>
             <EndWorkoutButton
