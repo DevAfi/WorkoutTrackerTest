@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
   container: {
     marginHorizontal: 16,
     marginVertical: 10,
+    width: "100%",
   },
   input: {
     backgroundColor: "#f5f1ed",

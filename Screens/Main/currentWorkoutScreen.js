@@ -62,18 +62,16 @@ const CurrentWorkoutScreen = () => {
 
       <Modal
         animationType="slide"
+        transparent={true} // <- important to not cover entire screen with white background
         visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalVisible(!modalVisible);
-        }}
+        onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
+        <View style={styles.modalBackground}>
+          <View style={styles.bottomHalfModal}>
             {sessionId && <AddNote sessionId={sessionId} />}
             <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}
+              onPress={() => setModalVisible(false)}
             >
               <Text style={styles.textStyle}>Hide Notes</Text>
             </TouchableOpacity>
@@ -156,26 +154,25 @@ const styles = StyleSheet.create({
   },
 
   // Modal //
-  centeredView: {
+  modalBackground: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-end", // push modal to bottom
+    backgroundColor: "rgba(0,0,0,0.5)", // dimmed background
   },
-  modalView: {
-    margin: 20,
+  bottomHalfModal: {
+    height: "50%",
     backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
   },
+
   button: {
     borderRadius: 20,
     padding: 10,
