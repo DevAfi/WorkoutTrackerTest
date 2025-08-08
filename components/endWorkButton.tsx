@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Button, ActivityIndicator, Alert } from "react-native";
+import {
+  Button,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+} from "react-native";
 import { supabase } from "../lib/supabase";
 
 const EndWorkoutButton = ({
@@ -35,8 +42,21 @@ const EndWorkoutButton = ({
   return loading ? (
     <ActivityIndicator />
   ) : (
-    <Button title="End Workout" onPress={endWorkout} color="crimson" />
+    <TouchableOpacity onPress={endWorkout}>
+      <Text style={styles.endText}>End Workout</Text>
+    </TouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create({
+  button: {},
+  endText: {
+    color: "crimson",
+    textAlign: "center",
+    height: 50,
+    top: "25%",
+    fontSize: 20,
+  },
+});
 
 export default EndWorkoutButton;

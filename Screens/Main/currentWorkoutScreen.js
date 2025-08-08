@@ -146,7 +146,6 @@ const styles = StyleSheet.create({
   addButton: {
     fontSize: 20,
     color: "#f5f1ed",
-
     textAlign: "center",
     height: 50,
     top: "25%",
@@ -155,6 +154,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
   },
+
+  // Modal //
   centeredView: {
     flex: 1,
     justifyContent: "center",
@@ -181,7 +182,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   buttonOpen: {
-    backgroundColor: "#F194FF",
+    backgroundColor: "#0D0C0C",
   },
   buttonClose: {
     backgroundColor: "#2196F3",
