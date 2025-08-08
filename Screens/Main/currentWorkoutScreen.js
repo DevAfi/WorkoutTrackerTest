@@ -99,7 +99,7 @@ const CurrentWorkoutScreen = () => {
         </TouchableOpacity>
 
         {sessionId ? (
-          <View style={{ margin: 16 }}>
+          <View>
             <EndWorkoutButton
               sessionId={sessionId}
               onEnded={() => {
@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
   bottomButtonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
+    alignItems: "center",
   },
 
   // Modal //
