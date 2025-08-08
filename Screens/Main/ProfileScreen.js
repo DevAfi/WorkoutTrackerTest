@@ -1,5 +1,12 @@
 import React, { useLayoutEffect, useState, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import ViewAvatar from "../../components/viewAvatar";
 import { supabase } from "../../lib/supabase";
 
@@ -82,6 +89,21 @@ const ProfileScreen = ({ route, navigation }) => {
             <Text style={styles.liftNumber}>999</Text>
           </View>
         </View>
+        {/* Buttons below */}
+        <View style={styles.topButtonsContainer}>
+          <TouchableOpacity
+            style={styles.topButton}
+            onPress={() => setSeeFeed(true)}
+          >
+            <Text style={styles.topButtonText}>Feed</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.topButton}
+            onPress={() => setSeeFeed(false)}
+          >
+            <Text style={styles.topButtonText}>Progress</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -151,6 +173,28 @@ const styles = StyleSheet.create({
     fontFamily: "Arial",
     fontSize: 16,
     paddingTop: 5,
+  },
+  topButtonsContainer: {
+    //backgroundColor: "red",
+    flexDirection: "row",
+    alignSelf: "center",
+    justifyContent: "space-evenly",
+    gap: 25,
+    paddingTop: 20,
+  },
+  topButton: {
+    backgroundColor: "#0D0C0C",
+    height: 50,
+    width: 175,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 15,
+  },
+  topButtonText: {
+    fontFamily: "Arial",
+    fontWeight: "600",
+    fontSize: 20,
+    color: "#AF125A",
   },
 });
 export default ProfileScreen;
