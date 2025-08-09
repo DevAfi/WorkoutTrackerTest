@@ -1,54 +1,27 @@
 import React, { useState } from "react";
 import {
   View,
-  TextInput,
   Text,
   StyleSheet,
   ActivityIndicator,
-  Alert,
   TouchableOpacity,
 } from "react-native";
-import { supabase } from "../lib/supabase";
 import { useNavigation } from "@react-navigation/native";
+import { useWorkout } from "../context/WorkoutContext.js";
 
-const StartWorkButton = ({
-  onSessionCreated,
-}: {
-  onSessionCreated: (id: string) => void;
-}) => {
+const StartWorkButton = () => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
+  const { startWorkout } = useWorkout();
 
-  const startWorkout = async () => {
+  const handleStart = async () => {
     setLoading(true);
-
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !userData?.user) {
-      Alert.alert(
-        "Authentication Error",
-        "You must be logged in to start a workout."
-      );
-      setLoading(false);
-      return null;
-    }
-
-    const { data, error } = await supabase
-      .from("workout_sessions")
-      .insert([{ user_id: userData.user.id }])
-      .select()
-      .single();
-
+    const workoutId = await startWorkout();
     setLoading(false);
 
-    if (error) {
-      console.error("Session creation error:", error.message);
-      Alert.alert("Error", "Could not start workout. Try again.");
-      return null;
+    if (workoutId) {
+      navigation.navigate("currentWorkoutScreen", { sessionId: workoutId });
     }
-
-    onSessionCreated(data.id);
-    return data.id;
   };
 
   return (
@@ -56,20 +29,14 @@ const StartWorkButton = ({
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <TouchableOpacity
-          onPress={async () => {
-            const sessionId = await startWorkout();
-            if (sessionId) {
-              navigation.navigate("currentWorkoutScreen", { sessionId });
-            }
-          }}
-        >
+        <TouchableOpacity onPress={handleStart}>
           <Text style={styles.buttonText}>Start Workout</Text>
         </TouchableOpacity>
       )}
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   buttonContainer: {
     backgroundColor: "#0D0C0C",
@@ -86,4 +53,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
+
 export default StartWorkButton;
