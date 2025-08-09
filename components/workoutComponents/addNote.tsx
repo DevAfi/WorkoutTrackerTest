@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, Button, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import { supabase } from "../../lib/supabase";
-
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 const AddNote = ({ sessionId }: { sessionId: string }) => {
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState(null);
+  const [sentiment, setSentiment] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // Optional: Fetch existing note
@@ -25,7 +33,7 @@ const AddNote = ({ sessionId }: { sessionId: string }) => {
     setLoading(true);
     const { error } = await supabase
       .from("workout_sessions")
-      .update({ notes: note })
+      .update({ notes: note, score: sentiment })
       .eq("id", sessionId);
 
     setLoading(false);
@@ -48,6 +56,45 @@ const AddNote = ({ sessionId }: { sessionId: string }) => {
         style={styles.input}
         multiline
       />
+
+      <View style={styles.sentimentContainer}>
+        <TouchableOpacity onPress={() => setSentiment(0)}>
+          <MaterialIcons
+            name="sentiment-very-dissatisfied"
+            color={sentiment === 0 ? "#AF125A" : "#ffffff"}
+            size={40}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSentiment(3.5)}>
+          <MaterialIcons
+            name="sentiment-dissatisfied"
+            color={sentiment === 3.5 ? "#AF125A" : "#ffffff"}
+            size={40}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSentiment(5)}>
+          <MaterialIcons
+            name="sentiment-neutral"
+            color={sentiment === 5 ? "#AF125A" : "#ffffff"}
+            size={40}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSentiment(7.5)}>
+          <MaterialIcons
+            name="sentiment-satisfied"
+            color={sentiment === 7.5 ? "#AF125A" : "#ffffff"}
+            size={40}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSentiment(10)}>
+          <MaterialIcons
+            name="sentiment-satisfied-alt"
+            color={sentiment === 10 ? "#AF125A" : "#ffffff"}
+            size={40}
+          />
+        </TouchableOpacity>
+      </View>
+
       <Button
         title={loading ? "Saving..." : "Save Note"}
         color={"#f5f1ed"}
@@ -72,6 +119,10 @@ const styles = StyleSheet.create({
     minHeight: 60,
     marginBottom: 8,
     maxHeight: 280,
+  },
+  sentimentContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
 

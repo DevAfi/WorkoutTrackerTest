@@ -10,7 +10,17 @@ import {
 const StatsScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.titleText}>Stats</Text>
+      <View style={styles.topButtonsContainer}>
+        <TouchableOpacity style={styles.topButton}>
+          <Text style={styles.topButtonText}>Personal</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.topButton}
+          onPress={() => navigation.navigate("viewExercises")}
+        >
+          <Text style={styles.topButtonText}>Exercises</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -21,26 +31,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-around",
   },
-  titleText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 10,
-    color: "#f5f1ed",
-    fontFamily: "Arial",
+  topButtonsContainer: {
+    //backgroundColor: "red",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    gap: 10,
+    position: "absolute",
+    top: 0,
   },
-
-  calcButton: {
-    backgroundColor: "#70798c",
-    padding: "30",
-    width: "80%",
+  topButton: {
+    backgroundColor: "#0D0C0C",
+    height: 50,
+    width: 190,
+    justifyContent: "center",
     alignItems: "center",
-    borderRadius: 10,
+    borderRadius: 15,
   },
-  calcButtonText: {
-    color: "#d0d8c3",
-    fontSize: 18,
-    fontWeight: "bold",
+  topButtonText: {
     fontFamily: "Arial",
+    fontWeight: "600",
+    fontSize: 20,
+    color: "#AF125A",
   },
 });
 
