@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
     gap: 20,
     borderColor: "#AF125A",
     borderWidth: 2,
+    marginBottom: 10,
   },
   topText: {
     fontSize: 24,

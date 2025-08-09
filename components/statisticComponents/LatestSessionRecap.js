@@ -188,9 +188,9 @@ const LatestSessionRecap = ({ onPress }) => {
 
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>
-            {Math.round(latestSession.totalWeight).toLocaleString()}
+            {Math.round(latestSession.totalWeight).toLocaleString()}kg
           </Text>
-          <Text style={styles.statLabel}>Total Kg</Text>
+          <Text style={styles.statLabel}>Total Volume</Text>
         </View>
       </View>
 
@@ -224,6 +224,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1,
     borderColor: "#333",
+    width: "85%",
   },
   header: {
     flexDirection: "row",
