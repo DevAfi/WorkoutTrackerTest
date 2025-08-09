@@ -9,26 +9,25 @@ import {
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { supabase } from "../../lib/supabase";
+import { useWorkout } from "../../context/WorkoutContext";
 
 async function fetchExercises() {
   const { data, error } = await supabase
     .from("exercises")
     .select("*")
     .order("name", { ascending: true });
-  console.log("fetching exercises");
   if (error) throw error;
   return data;
 }
 
 const ExerciseSelectScreen = () => {
   const navigation = useNavigation();
+  const { addExerciseToWorkout } = useWorkout();
   const [allExercises, setAllExercises] = useState([]);
   const [groupedExercises, setGroupedExercises] = useState([]);
   const [selected, setSelected] = useState([]);
   const [sortBy, setSortBy] = useState("name");
   const [expandedSections, setExpandedSections] = useState(new Set());
-  const route = useRoute();
-  const sessionId = route.params?.sessionId;
 
   const toggleSelect = (exercise) => {
     setSelected((prev) =>
@@ -38,12 +37,11 @@ const ExerciseSelectScreen = () => {
     );
   };
 
-  const confirmSelection = () => {
-    navigation.navigate({
-      name: "currentWorkoutScreen",
-      params: { newExercises: selected, sessionId },
-      merge: true,
-    });
+  const confirmSelection = async () => {
+    for (let i = 0; i < selected.length; i++) {
+      await addExerciseToWorkout(selected[i].id, i + 1);
+    }
+    navigation.goBack();
   };
 
   const groupExercisesByLetter = (exercises) => {
@@ -129,23 +127,21 @@ const ExerciseSelectScreen = () => {
 
           {isExpanded &&
             item.exercises.map((exercise) => (
-              <View key={exercise.id}>
-                <TouchableOpacity
-                  onPress={() => toggleSelect(exercise)}
-                  style={styles.exerciseContainer}
+              <TouchableOpacity
+                key={exercise.id}
+                onPress={() => toggleSelect(exercise)}
+                style={styles.exerciseContainer}
+              >
+                <Text
+                  style={
+                    isSelected(exercise)
+                      ? styles.selectedExercise
+                      : styles.unselectedExercise
+                  }
                 >
-                  <Text
-                    style={
-                      isSelected(exercise)
-                        ? styles.selectedExercise
-                        : styles.unselectedExercise
-                    }
-                  >
-                    {exercise.name || JSON.stringify(exercise)}
-                  </Text>
-                </TouchableOpacity>
-                <Text>Test</Text>
-              </View>
+                  {exercise.name}
+                </Text>
+              </TouchableOpacity>
             ))}
         </View>
       );
@@ -153,7 +149,7 @@ const ExerciseSelectScreen = () => {
     return null;
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchExercises().then((data) => {
       setAllExercises(data);
       const grouped = groupExercisesByLetter(data);
@@ -163,7 +159,6 @@ const ExerciseSelectScreen = () => {
 
   return (
     <View style={{ flex: 1, padding: 16, backgroundColor: "black" }}>
-      {/* Sort buttons */}
       <View style={styles.sortContainer}>
         <TouchableOpacity
           style={[
@@ -216,7 +211,6 @@ const ExerciseSelectScreen = () => {
 
 const styles = StyleSheet.create({
   selectedExercise: {
-    fontFamily: "Arial",
     color: "#f5f1ed",
     fontSize: 20,
     fontWeight: "700",
@@ -225,7 +219,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   unselectedExercise: {
-    fontFamily: "Arial",
     color: "#f5f1ed",
     fontSize: 20,
     fontWeight: "500",

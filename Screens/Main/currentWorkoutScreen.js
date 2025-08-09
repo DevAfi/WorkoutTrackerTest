@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+// screens/workout/CurrentWorkoutScreen.js
+import React, { useState, useEffect } from "react";
 import {
   View,
-  Button,
   ScrollView,
   Text,
   StyleSheet,
@@ -9,66 +9,65 @@ import {
   TouchableOpacity,
   Modal,
 } from "react-native";
-import {
-  useNavigation,
-  useIsFocused,
-  useRoute,
-} from "@react-navigation/native";
+import { useWorkout } from "../../context/WorkoutContext";
+import { supabase } from "../../lib/supabase";
 import Exercise from "../../components/workoutComponents/Exercise";
 import EndWorkoutButton from "../../components/endWorkButton";
 import AddNote from "../../components/workoutComponents/addNote";
 
-const CurrentWorkoutScreen = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const isFocused = useIsFocused();
+const CurrentWorkoutScreen = ({ navigation }) => {
+  const { activeWorkoutId } = useWorkout();
   const [exercises, setExercises] = useState([]);
-  const [totalWeight, setTotalWeight] = useState("0");
-  const initialSessionId = route.params?.sessionId;
-  const [sessionId, setSessionId] = useState(initialSessionId);
-
+  const [totalWeight, setTotalWeight] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    console.log("Session ID:", sessionId);
-  }, [sessionId]);
-  useEffect(() => {
-    if (route.params?.sessionId && route.params.sessionId !== sessionId) {
-      setSessionId(route.params.sessionId);
-    }
-  }, [route.params?.sessionId]);
+    if (!activeWorkoutId) return;
+    fetchWorkoutData();
+  }, [activeWorkoutId]);
 
-  useEffect(() => {
-    if (route.params?.newExercises) {
-      console.log("Received from ExerciseSelect:", route.params.newExercises);
-      setExercises((prev) => [
-        ...prev,
-        ...route.params.newExercises.map((ex) => ({
-          ...ex,
-          sets: [{ id: 1 }],
-        })),
-      ]);
+  const fetchWorkoutData = async () => {
+    const { data, error } = await supabase
+      .from("workouts")
+      .select(
+        `
+        id,
+        workout_exercises (
+          id,
+          exercise:exercise_id ( name ),
+          sets ( set_number, reps, weight )
+        )
+      `
+      )
+      .eq("id", activeWorkoutId)
+      .single();
 
-      navigation.setParams({ newExercises: null });
+    if (!error && data) {
+      setExercises(data.workout_exercises || []);
+      const total = data.workout_exercises.reduce((sum, ex) => {
+        return (
+          sum +
+          ex.sets.reduce((s, set) => s + (set.weight || 0) * (set.reps || 0), 0)
+        );
+      }, 0);
+      setTotalWeight(total);
     }
-  }, [route.params?.newExercises]);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Modal for notes */}
-
       <Text style={styles.titleText}>Log your workout</Text>
       <Text style={styles.weightText}>Total Weight: {totalWeight}</Text>
 
       <Modal
         animationType="slide"
-        transparent={true} // <- important to not cover entire screen with white background
+        transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalBackground}>
           <View style={styles.bottomHalfModal}>
-            {sessionId && <AddNote sessionId={sessionId} />}
+            {activeWorkoutId && <AddNote sessionId={activeWorkoutId} />}
             <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
               onPress={() => setModalVisible(false)}
@@ -80,13 +79,14 @@ const CurrentWorkoutScreen = () => {
       </Modal>
 
       <ScrollView style={styles.exercisesContainer}>
-        {exercises.map((exercise, index) => (
-          <Exercise key={index} exercise={exercise} />
+        {exercises.map((exercise) => (
+          <Exercise key={exercise.id} exercise={exercise} />
         ))}
       </ScrollView>
+
       <View style={styles.bottomButtonContainer}>
         <TouchableOpacity
-          onPress={() => navigation.navigate("selectExercise", { sessionId })}
+          onPress={() => navigation.navigate("selectExercise")}
           style={styles.addButtonContainer}
         >
           <Text style={styles.addButton}>Add exercises</Text>
@@ -97,20 +97,8 @@ const CurrentWorkoutScreen = () => {
         >
           <Text style={styles.textStyle}>Show Notes</Text>
         </TouchableOpacity>
-
-        {sessionId ? (
-          <View>
-            <EndWorkoutButton
-              sessionId={sessionId}
-              onEnded={() => {
-                navigation.navigate("MainTabs");
-              }}
-            />
-          </View>
-        ) : (
-          <View>
-            <Text>Debug ending</Text>
-          </View>
+        {activeWorkoutId && (
+          <EndWorkoutButton onEnded={() => navigation.navigate("MainTabs")} />
         )}
       </View>
     </SafeAreaView>
@@ -118,10 +106,7 @@ const CurrentWorkoutScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#252323",
-  },
+  container: { flex: 1, backgroundColor: "#252323" },
   titleText: {
     fontSize: 26,
     fontWeight: "bold",
@@ -135,12 +120,7 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     color: "#f5f1ed",
   },
-  exercisesContainer: {
-    marginTop: 15,
-    paddingVertical: 10,
-    //backgroundColor: "blue",
-  },
-  addButtonContainer: {},
+  exercisesContainer: { marginTop: 15, paddingVertical: 10 },
   addButton: {
     fontSize: 20,
     color: "#f5f1ed",
@@ -153,12 +133,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center",
   },
-
-  // Modal //
   modalBackground: {
     flex: 1,
-    justifyContent: "flex-end", // push modal to bottom
-    backgroundColor: "rgba(0,0,0,0.5)", // dimmed background
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   bottomHalfModal: {
     height: "50%",
@@ -167,32 +145,11 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     padding: 20,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
-
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: "#0D0C0C",
-  },
-  buttonClose: {
-    backgroundColor: "#2196F3",
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
-  },
+  button: { borderRadius: 20, padding: 10, elevation: 2 },
+  buttonOpen: { backgroundColor: "#0D0C0C" },
+  buttonClose: { backgroundColor: "#2196F3" },
+  textStyle: { color: "white", fontWeight: "bold", textAlign: "center" },
 });
+
 export default CurrentWorkoutScreen;

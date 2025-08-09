@@ -1,55 +1,33 @@
 import React, { useState } from "react";
 import {
-  Button,
   ActivityIndicator,
-  Alert,
-  StyleSheet,
   TouchableOpacity,
   Text,
+  StyleSheet,
 } from "react-native";
-import { supabase } from "../lib/supabase";
+import { useWorkout } from "../context/WorkoutContext";
 
-const EndWorkoutButton = ({
-  sessionId,
-  onEnded,
-}: {
-  sessionId: string;
-  onEnded?: () => void;
-}) => {
+const EndWorkoutButton = ({ onEnded }) => {
   const [loading, setLoading] = useState(false);
+  const { endWorkout } = useWorkout();
 
-  const endWorkout = async () => {
+  const handleEnd = async () => {
     setLoading(true);
-
-    const { error } = await supabase
-      .from("workout_sessions")
-      .update({ ended_at: new Date().toISOString() })
-      .eq("id", sessionId);
-    console.log("Ended");
+    await endWorkout();
     setLoading(false);
-
-    if (error) {
-      console.error("Error ending workout:", error);
-      Alert.alert("Error", "Failed to end workout.");
-      return;
-    }
-
-    Alert.alert("Workout Complete", "Session has been ended.");
-    if (onEnded) onEnded(); // Optional callback for parent
-    console.log("Last Line");
+    if (onEnded) onEnded();
   };
 
   return loading ? (
     <ActivityIndicator />
   ) : (
-    <TouchableOpacity onPress={endWorkout}>
+    <TouchableOpacity onPress={handleEnd}>
       <Text style={styles.endText}>End Workout</Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  button: {},
   endText: {
     color: "crimson",
     textAlign: "center",
