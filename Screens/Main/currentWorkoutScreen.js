@@ -1,4 +1,3 @@
-// screens/workout/CurrentWorkoutScreen.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -79,8 +78,12 @@ const CurrentWorkoutScreen = ({ navigation }) => {
       </Modal>
 
       <ScrollView style={styles.exercisesContainer}>
-        {exercises.map((exercise) => (
-          <Exercise key={exercise.id} exercise={exercise} />
+        {exercises.map((exercise, index) => (
+          <Exercise
+            key={index}
+            exercise={exercise.exercise}
+            workoutExerciseId={exercise.id}
+          />
         ))}
       </ScrollView>
 

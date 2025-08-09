@@ -1,82 +1,135 @@
-import React, { useLayoutEffect } from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
-  SafeAreaView,
   Text,
-  Input,
+  TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
-  Button,
 } from "react-native";
-import Set from "./Set";
-import { useNavigation } from "@react-navigation/native";
+import { supabase } from "../../lib/supabase";
 
-export default function Exercise({ exercise }) {
-  const navigation = useNavigation();
-  const [sets, setSets] = useState([{ id: 1 }]);
+const Exercise = ({ exercise, workoutExerciseId }) => {
+  const [sets, setSets] = useState([]);
+  const [reps, setReps] = useState("");
+  const [weight, setWeight] = useState("");
 
-  const addSet = () => {
-    const newId = sets.length > 0 ? sets[sets.length - 1].id + 1 : 1;
-    setSets([...sets, { id: newId }]);
-  };
-  const removeSet = (idToRemove) => {
-    if (sets.length > 1) {
-      setSets(sets.slice(0, -1));
+  const fetchSets = async () => {
+    if (!workoutExerciseId) return;
+    const { data, error } = await supabase
+      .from("sets")
+      .select("*")
+      .eq("workout_exercise_id", workoutExerciseId)
+      .order("set_number", { ascending: true });
+
+    if (!error) {
+      setSets(data || []);
+    } else {
+      console.error("Error fetching sets:", error);
     }
   };
 
+  useEffect(() => {
+    fetchSets();
+  }, [workoutExerciseId]);
+
+  // Add new set
+  const handleAddSet = async () => {
+    if (!reps || !weight) return;
+
+    const { error } = await supabase.from("sets").insert([
+      {
+        workout_exercise_id: workoutExerciseId,
+        reps: parseInt(reps),
+        weight: parseFloat(weight),
+      },
+    ]);
+
+    if (error) {
+      console.error("Error adding set:", error);
+      return;
+    }
+
+    setReps("");
+    setWeight("");
+    fetchSets(); // refresh
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={styles.exerciseContainer}>
       <Text style={styles.exerciseName}>{exercise.name}</Text>
-      <ScrollView>
-        {sets.map((set, index) => (
-          <Set key={set.id} setNumber={index + 1} />
-        ))}
-      </ScrollView>
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Add Set"
-          onPress={addSet}
-          style={styles.addButtonStyle}
+
+      {/* List all sets */}
+      {sets.map((set, index) => (
+        <Text key={set.id} style={styles.setText}>
+          Set {index + 1}: {set.reps} reps × {set.weight} kg
+        </Text>
+      ))}
+
+      {/* Inputs for new set */}
+      <View style={styles.setInputRow}>
+        <TextInput
+          style={styles.setInput}
+          placeholder="Reps"
+          keyboardType="numeric"
+          value={reps}
+          onChangeText={setReps}
         />
-        <Button
-          title="Remove Set"
-          onPress={removeSet}
-          style={styles.removeButtonStyle}
+        <TextInput
+          style={styles.setInput}
+          placeholder="Weight"
+          keyboardType="numeric"
+          value={weight}
+          onChangeText={setWeight}
         />
+        <TouchableOpacity style={styles.addSetButton} onPress={handleAddSet}>
+          <Text style={styles.addSetButtonText}>Add</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    backgroundColor: "#3C3939",
-    paddingHorizontal: 5,
-    paddingVertical: 12,
-    flexDirection: "collumn",
-    gap: 5,
-    borderRadius: 20,
-    marginVertical: 10,
+  exerciseContainer: {
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: "#1a1a1a",
+    borderRadius: 8,
   },
   exerciseName: {
-    textAlign: "center",
-    color: "#f5f1ed",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    paddingBottom: 5,
+    color: "#fff",
+    marginBottom: 5,
   },
-  buttonContainer: {
+  setText: {
+    fontSize: 16,
+    color: "#ccc",
+    marginBottom: 3,
+  },
+  setInputRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 12,
+    alignItems: "center",
+    marginTop: 8,
   },
-  addButtonStyle: {
-    borderRadius: 10,
-    backgroundColor: "green",
+  setInput: {
+    flex: 1,
+    backgroundColor: "#333",
+    color: "#fff",
+    padding: 8,
+    marginRight: 5,
+    borderRadius: 5,
   },
-  removeButtonStyle: { borderRadius: 10, backgroundColor: "red" },
+  addSetButton: {
+    backgroundColor: "#4a9eff",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+  },
+  addSetButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
 });
+
+export default Exercise;

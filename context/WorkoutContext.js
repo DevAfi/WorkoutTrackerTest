@@ -89,6 +89,7 @@ export const WorkoutProvider = ({ children }) => {
       .update({ ended_at: new Date() })
       .eq("id", activeWorkoutId);
 
+    Alert.alert("Workout Logged!");
     if (error) {
       console.error("Error ending workout:", error);
       Alert.alert("Error", "Could not end workout.");
