@@ -41,7 +41,7 @@ const ExerciseSelectScreen = () => {
     for (let i = 0; i < selected.length; i++) {
       await addExerciseToWorkout(selected[i].id, i + 1);
     }
-    navigation.goBack();
+    navigation.navigate("currentWorkoutScreen");
   };
 
   const groupExercisesByLetter = (exercises) => {

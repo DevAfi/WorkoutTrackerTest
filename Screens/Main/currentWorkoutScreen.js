@@ -28,16 +28,16 @@ const CurrentWorkoutScreen = ({ navigation }) => {
 
   const fetchWorkoutData = async () => {
     const { data, error } = await supabase
-      .from("workouts")
+      .from("workout_sessions")
       .select(
         `
-        id,
-        workout_exercises (
-          id,
-          exercise:exercise_id ( name ),
-          sets ( set_number, reps, weight )
-        )
-      `
+    id,
+    workout_exercises (
+      id,
+      exercise:exercise_id ( name ),
+      sets ( set_number, reps, weight )
+    )
+  `
       )
       .eq("id", activeWorkoutId)
       .single();
