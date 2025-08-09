@@ -72,6 +72,7 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
         <TextInput
           style={styles.setInput}
           placeholder="Weight (kg)"
+          placeholderTextColor={"rgb(108, 101, 101)"}
           keyboardType="numeric"
           value={weight}
           onChangeText={setWeight}
@@ -79,6 +80,7 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
         <TextInput
           style={styles.setInput}
           placeholder="Reps"
+          placeholderTextColor={"rgb(108, 101, 101)"}
           keyboardType="numeric"
           value={reps}
           onChangeText={setReps}
@@ -86,6 +88,7 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
         <TextInput
           style={styles.setInput}
           placeholder="RPE"
+          placeholderTextColor={"rgb(108, 101, 101)"}
           keyboardType="numeric"
           value={rpe}
           onChangeText={setRpe}

@@ -42,6 +42,7 @@ const AddNote = ({ sessionId }: { sessionId: string }) => {
     <View style={styles.container}>
       <TextInput
         placeholder="Add a workout note..."
+        placeholderTextColor={"rgb(108, 101, 101)"}
         value={note}
         onChangeText={setNote}
         style={styles.input}
