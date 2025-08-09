@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   },
   bottomHalfModal: {
     height: "50%",
-    backgroundColor: "white",
+    backgroundColor: "#252323",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -148,8 +148,8 @@ const styles = StyleSheet.create({
   },
   button: { borderRadius: 20, padding: 10, elevation: 2 },
   buttonOpen: { backgroundColor: "#0D0C0C" },
-  buttonClose: { backgroundColor: "#2196F3" },
-  textStyle: { color: "white", fontWeight: "bold", textAlign: "center" },
+  buttonClose: { backgroundColor: "#0D0C0C" },
+  textStyle: { color: "#AF125A", fontWeight: "bold", textAlign: "center" },
 });
 
 export default CurrentWorkoutScreen;

@@ -49,6 +49,7 @@ const AddNote = ({ sessionId }: { sessionId: string }) => {
       />
       <Button
         title={loading ? "Saving..." : "Save Note"}
+        color={"#f5f1ed"}
         onPress={saveNote}
         disabled={loading}
       />
@@ -63,11 +64,13 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   input: {
-    backgroundColor: "#f5f1ed",
+    color: "#f5f1ed",
     padding: 10,
+    backgroundColor: "#0D0C0C",
     borderRadius: 8,
     minHeight: 60,
     marginBottom: 8,
+    maxHeight: 280,
   },
 });
 
