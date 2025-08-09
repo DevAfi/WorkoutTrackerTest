@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   addSetButton: {
-    backgroundColor: "#4a9eff",
+    backgroundColor: "#AF125A",
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 5,
