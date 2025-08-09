@@ -67,7 +67,7 @@ const SocialScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#252323",
+    backgroundColor: "black",
     alignItems: "center",
     justifyContent: "space-around",
     paddingBottom: 100,
@@ -109,7 +109,9 @@ const styles = StyleSheet.create({
   },
 
   topSectionContainer: {
-    backgroundColor: "#3C3939",
+    backgroundColor: "#1a1a1a",
+    borderColor: "#333",
+    borderWidth: 2,
     width: "100%",
     alignItems: "center",
     flexDirection: "row",

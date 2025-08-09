@@ -17,7 +17,6 @@ import AddNote from "../../components/workoutComponents/addNote";
 const CurrentWorkoutScreen = ({ navigation }) => {
   const { activeWorkoutId } = useWorkout();
   const [exercises, setExercises] = useState([]);
-  const [totalWeight, setTotalWeight] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
@@ -49,14 +48,12 @@ const CurrentWorkoutScreen = ({ navigation }) => {
           ex.sets.reduce((s, set) => s + (set.weight || 0) * (set.reps || 0), 0)
         );
       }, 0);
-      setTotalWeight(total);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.titleText}>Log your workout</Text>
-      <Text style={styles.weightText}>Total Weight: {totalWeight}</Text>
 
       <Modal
         animationType="slide"
@@ -109,7 +106,7 @@ const CurrentWorkoutScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#252323" },
+  container: { flex: 1, backgroundColor: "black" },
   titleText: {
     fontSize: 26,
     fontWeight: "bold",

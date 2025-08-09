@@ -89,6 +89,7 @@ const MainTabs = () => {
           headerStyle: {
             backgroundColor: "#252323",
           },
+          headerShown: false,
         }}
       />
       <Tab.Screen
@@ -143,6 +144,7 @@ const MainTabs = () => {
           headerStyle: {
             backgroundColor: "#252323",
           },
+          headerShown: false,
         })}
       />
     </Tab.Navigator>
@@ -155,7 +157,7 @@ const Tabs = () => {
       <Stack.Screen
         name="MainTabs"
         component={MainTabs}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
       <Stack.Screen
         name="Settings"

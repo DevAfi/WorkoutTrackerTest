@@ -35,7 +35,7 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
 
   // Add new set
   const handleAddSet = async () => {
-    if (!reps || !weight) return;
+    if (!reps || !weight || !rpe) return;
 
     const { error } = await supabase.from("sets").insert([
       {
@@ -53,6 +53,7 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
 
     setReps("");
     setWeight("");
+    setRpe("");
     fetchSets(); // refresh
   };
 

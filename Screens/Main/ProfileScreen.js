@@ -6,6 +6,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  SafeAreaView,
 } from "react-native";
 import ViewAvatar from "../../components/viewAvatar";
 import { supabase } from "../../lib/supabase";
@@ -58,7 +59,7 @@ const ProfileScreen = ({ route, navigation }) => {
   }, [navigation, username]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView style={{ width: "100%", height: "100%" }}>
         <View style={styles.topSectionContainer}>
           <View style={styles.pfp}>
@@ -105,14 +106,14 @@ const ProfileScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#252323",
+    backgroundColor: "black",
     alignItems: "center",
     flexDirection: "column",
     paddingVertical: 10,
@@ -183,9 +184,9 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   topButton: {
-    backgroundColor: "#0D0C0C",
-    height: 50,
-    width: 175,
+    backgroundColor: "#333",
+    height: "65%",
+    width: "45%",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 15,
