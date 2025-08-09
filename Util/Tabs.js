@@ -20,6 +20,7 @@ import UserProfile from "../Screens/Main/[userProfile]";
 import ViewExerciseDetails from "./[exerciseDetails]";
 import CurrentWorkoutScreen from "../Screens/Main/CurrentWorkoutScreen";
 import ExerciseSelectScreen from "../components/workoutComponents/exerciseSelectScreen";
+import SessionDetailScreen from "../Screens/StatsScreens/SessionDetailScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -240,6 +241,14 @@ const Tabs = () => {
           },
           headerTitleStyle: { color: "#f5f1ed" },
           headerTitle: "Select An Exercise",
+        }}
+      />
+      <Stack.Screen
+        name="SessionDetail"
+        component={SessionDetailScreen}
+        options={{
+          title: "Session Details",
+          headerStyle: { backgroundColor: "black" },
         }}
       />
     </Stack.Navigator>

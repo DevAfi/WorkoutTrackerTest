@@ -8,6 +8,8 @@ import {
   SafeAreaView,
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import LatestSessionRecap from "../../components/statisticComponents/LatestSessionRecap";
+
 const DashboardScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
@@ -21,6 +23,11 @@ const DashboardScreen = ({ navigation }) => {
         <MaterialIcons name="home" size={36} color={"white"}></MaterialIcons>
         <Text style={styles.topText}>Weekly Activity</Text>
       </View>
+      <LatestSessionRecap
+        onPress={(session) =>
+          navigation.navigate("SessionDetail", { sessionId: session.id })
+        }
+      />
     </SafeAreaView>
   );
 };
