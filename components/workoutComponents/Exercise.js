@@ -12,6 +12,7 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
   const [sets, setSets] = useState([]);
   const [reps, setReps] = useState("");
   const [weight, setWeight] = useState("");
+  const [rpe, setRpe] = useState("");
 
   const fetchSets = async () => {
     if (!workoutExerciseId) return;
@@ -41,6 +42,7 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
         workout_exercise_id: workoutExerciseId,
         reps: parseInt(reps),
         weight: parseFloat(weight),
+        rpe: parseFloat(rpe),
       },
     ]);
 
@@ -61,12 +63,19 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
       {/* List all sets */}
       {sets.map((set, index) => (
         <Text key={set.id} style={styles.setText}>
-          Set {index + 1}: {set.reps} reps × {set.weight} kg
+          Set {index + 1}: {set.reps} reps × {set.weight} kg @ RPE: {set.rpe}
         </Text>
       ))}
 
       {/* Inputs for new set */}
       <View style={styles.setInputRow}>
+        <TextInput
+          style={styles.setInput}
+          placeholder="Weight (kg)"
+          keyboardType="numeric"
+          value={weight}
+          onChangeText={setWeight}
+        />
         <TextInput
           style={styles.setInput}
           placeholder="Reps"
@@ -76,10 +85,10 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
         />
         <TextInput
           style={styles.setInput}
-          placeholder="Weight"
+          placeholder="RPE"
           keyboardType="numeric"
-          value={weight}
-          onChangeText={setWeight}
+          value={rpe}
+          onChangeText={setRpe}
         />
         <TouchableOpacity style={styles.addSetButton} onPress={handleAddSet}>
           <Text style={styles.addSetButtonText}>Add</Text>
