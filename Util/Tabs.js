@@ -21,6 +21,7 @@ import ViewExerciseDetails from "./[exerciseDetails]";
 import CurrentWorkoutScreen from "../Screens/Main/CurrentWorkoutScreen";
 import ExerciseSelectScreen from "../components/workoutComponents/exerciseSelectScreen";
 import SessionDetailScreen from "../Screens/StatsScreens/SessionDetailScreen";
+import workoutHub from "../Screens/workoutScreens/workoutsHubScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -249,6 +250,14 @@ const Tabs = () => {
         options={{
           title: "Session Details",
           headerStyle: { backgroundColor: "black" },
+        }}
+      />
+      <Stack.Screen
+        name="allWorkoutsScreen"
+        component={workoutHub}
+        options={{
+          title: "All Workouts",
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

@@ -16,7 +16,10 @@ const WorkoutScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topButtonsContainer}>
-        <TouchableOpacity style={styles.topButton}>
+        <TouchableOpacity
+          style={styles.topButton}
+          onPress={() => navigation.navigate("allWorkoutsScreen")}
+        >
           <Text style={styles.topButtonText}>Workouts</Text>
         </TouchableOpacity>
         <TouchableOpacity
