@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Button,
   StyleSheet,
+  TextInput,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { supabase } from "../../lib/supabase";
@@ -24,10 +25,12 @@ const ExerciseSelectScreen = () => {
   const navigation = useNavigation();
   const { addExerciseToWorkout } = useWorkout();
   const [allExercises, setAllExercises] = useState([]);
+  const [filteredExercises, setFilteredExercises] = useState([]);
   const [groupedExercises, setGroupedExercises] = useState([]);
   const [selected, setSelected] = useState([]);
   const [sortBy, setSortBy] = useState("name");
   const [expandedSections, setExpandedSections] = useState(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
 
   const toggleSelect = (exercise) => {
     setSelected((prev) =>
@@ -42,6 +45,17 @@ const ExerciseSelectScreen = () => {
       await addExerciseToWorkout(selected[i].id, i + 1);
     }
     navigation.navigate("currentWorkoutScreen");
+  };
+
+  const filterExercises = (exercises, query) => {
+    if (!query.trim()) return exercises;
+
+    return exercises.filter(
+      (exercise) =>
+        exercise.name?.toLowerCase().includes(query.toLowerCase()) ||
+        exercise.category?.toLowerCase().includes(query.toLowerCase()) ||
+        exercise.equipment?.toLowerCase().includes(query.toLowerCase())
+    );
   };
 
   const groupExercisesByLetter = (exercises) => {
@@ -67,7 +81,7 @@ const ExerciseSelectScreen = () => {
   const groupExercisesByMuscle = (exercises) => {
     const groups = {};
     exercises.forEach((exercise) => {
-      const muscle = exercise.category;
+      const muscle = exercise.category || "Unknown";
       if (!groups[muscle]) {
         groups[muscle] = [];
       }
@@ -84,18 +98,47 @@ const ExerciseSelectScreen = () => {
       }));
   };
 
+  const updateGroupedExercises = (exercises, sortType) => {
+    let grouped;
+    if (sortType === "name") {
+      grouped = groupExercisesByLetter(exercises);
+    } else if (sortType === "muscle") {
+      grouped = groupExercisesByMuscle(exercises);
+    }
+    setGroupedExercises(grouped);
+  };
+
   const handleSortChange = (newSortType) => {
     setSortBy(newSortType);
     setExpandedSections(new Set());
+    updateGroupedExercises(filteredExercises, newSortType);
+  };
 
-    let grouped;
-    if (newSortType === "name") {
-      grouped = groupExercisesByLetter(allExercises);
-    } else if (newSortType === "muscle") {
-      grouped = groupExercisesByMuscle(allExercises);
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+    const filtered = filterExercises(allExercises, query);
+    setFilteredExercises(filtered);
+    updateGroupedExercises(filtered, sortBy);
+
+    // Auto-expand sections if searching
+    if (query.trim()) {
+      const allSectionIds = new Set();
+      const grouped =
+        sortBy === "name"
+          ? groupExercisesByLetter(filtered)
+          : groupExercisesByMuscle(filtered);
+      grouped.forEach((section) => allSectionIds.add(section.id));
+      setExpandedSections(allSectionIds);
+    } else {
+      setExpandedSections(new Set());
     }
+  };
 
-    setGroupedExercises(grouped);
+  const clearSearch = () => {
+    setSearchQuery("");
+    setFilteredExercises(allExercises);
+    updateGroupedExercises(allExercises, sortBy);
+    setExpandedSections(new Set());
   };
 
   const toggleSection = (sectionId) => {
@@ -109,6 +152,13 @@ const ExerciseSelectScreen = () => {
   };
 
   const isSelected = (exercise) => selected.some((e) => e.id === exercise.id);
+
+  const highlightSearchTerm = (text, searchTerm) => {
+    if (!searchTerm.trim()) return text;
+
+    const regex = new RegExp(`(${searchTerm})`, "gi");
+    return text.replace(regex, "**$1**"); // Simple highlighting placeholder
+  };
 
   const renderItem = ({ item }) => {
     if (item.type === "header") {
@@ -132,15 +182,23 @@ const ExerciseSelectScreen = () => {
                 onPress={() => toggleSelect(exercise)}
                 style={styles.exerciseContainer}
               >
-                <Text
-                  style={
-                    isSelected(exercise)
-                      ? styles.selectedExercise
-                      : styles.unselectedExercise
-                  }
-                >
-                  {exercise.name}
-                </Text>
+                <View>
+                  <Text
+                    style={
+                      isSelected(exercise)
+                        ? styles.selectedExercise
+                        : styles.unselectedExercise
+                    }
+                  >
+                    {exercise.name}
+                  </Text>
+                  {searchQuery.trim() && (
+                    <Text style={styles.exerciseDetails}>
+                      {exercise.category || "Unknown"} •{" "}
+                      {exercise.equipment || "No equipment"}
+                    </Text>
+                  )}
+                </View>
               </TouchableOpacity>
             ))}
         </View>
@@ -152,6 +210,7 @@ const ExerciseSelectScreen = () => {
   useEffect(() => {
     fetchExercises().then((data) => {
       setAllExercises(data);
+      setFilteredExercises(data);
       const grouped = groupExercisesByLetter(data);
       setGroupedExercises(grouped);
     });
@@ -159,6 +218,31 @@ const ExerciseSelectScreen = () => {
 
   return (
     <View style={{ flex: 1, padding: 16, backgroundColor: "black" }}>
+      {/* Search Input */}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search exercises, muscle groups, or equipment..."
+          placeholderTextColor="#888"
+          value={searchQuery}
+          onChangeText={handleSearchChange}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>✕</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Results counter */}
+      {searchQuery.trim() && (
+        <Text style={styles.resultsCounter}>
+          {filteredExercises.length} result
+          {filteredExercises.length !== 1 ? "s" : ""} found
+        </Text>
+      )}
+
+      {/* Sort buttons */}
       <View style={styles.sortContainer}>
         <TouchableOpacity
           style={[
@@ -199,9 +283,13 @@ const ExerciseSelectScreen = () => {
         data={groupedExercises}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        showsVerticalScrollIndicator={false}
       />
+
       <Button
-        title="Add Exercise(s)"
+        title={`Add Exercise${selected.length !== 1 ? "s" : ""} (${
+          selected.length
+        })`}
         onPress={confirmSelection}
         disabled={selected.length === 0}
       />
@@ -210,6 +298,44 @@ const ExerciseSelectScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    position: "relative",
+  },
+  searchInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#555",
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: "#f5f1ed",
+    backgroundColor: "#1a1a1a",
+  },
+  clearButton: {
+    position: "absolute",
+    right: 15,
+    padding: 5,
+  },
+  clearButtonText: {
+    color: "#AF125A",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  resultsCounter: {
+    color: "#888",
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  exerciseDetails: {
+    color: "#888",
+    fontSize: 14,
+    marginTop: 2,
+  },
   selectedExercise: {
     color: "#f5f1ed",
     fontSize: 20,
