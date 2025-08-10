@@ -54,7 +54,9 @@ const StatsScreen = ({ navigation }) => {
           <View style={styles.topStatsSection}>
             <View style={styles.rectangleStatsBox}>
               <Text style={styles.statisticTitle}>Total Volume</Text>
-              <Text style={styles.statisticText}>{stats.total_volume}</Text>
+              <Text style={styles.statisticText}>
+                {Math.round(stats.total_volume).toLocaleString()} kg
+              </Text>
             </View>
             <View style={styles.rectangleStatsBox}>
               <Text style={styles.statisticTitle}>Duration</Text>
