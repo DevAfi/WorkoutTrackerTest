@@ -6,13 +6,19 @@ import {
   View,
   TouchableOpacity,
   SafeAreaView,
+  Button,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { getWorkoutStats } from "../../Util/getWorkoutStats";
 import { supabase } from "../../lib/supabase";
+import { fetchVolumeOverTime } from "../../Util/volumeStats";
+import VolumeChart from "../../components/statisticComponents/volumeChart";
+
 const StatsScreen = ({ navigation }) => {
   const [personal, setPersonal] = useState(true);
   const [stats, setStats] = useState(null);
+  const [volumeData, setVolumeData] = useState(null);
+  const [period, setPeriod] = useState("day");
 
   useEffect(() => {
     async function loadStats() {
@@ -29,9 +35,27 @@ const StatsScreen = ({ navigation }) => {
     }
 
     loadStats();
-  }, []);
+  }, [navigation]);
 
-  if (!stats) return <Text>Loading stats...</Text>;
+  useEffect(() => {
+    async function loadVolumeData() {
+      console.log("Vol 1");
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) {
+        console.error("No user data found");
+        return;
+      }
+
+      const userId = userData.user.id;
+      const results = await fetchVolumeOverTime(userId, period);
+      console.log("Volume data results:", results);
+      setVolumeData(results);
+    }
+
+    loadVolumeData();
+  }, [period]);
+
+  if (!stats || !volumeData) return <Text>Loading stats...</Text>;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -80,6 +104,32 @@ const StatsScreen = ({ navigation }) => {
                 {stats.total_workouts}
               </Text>
             </View>
+          </View>
+
+          {volumeData ? (
+            <VolumeChart data={volumeData} period={period} />
+          ) : (
+            <Text>Loading...</Text>
+          )}
+
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-around",
+              marginTop: 20,
+            }}
+          >
+            {["day", "week", "month", "year"].map((p) => (
+              <Button
+                key={p}
+                title={p.charAt(0).toUpperCase() + p.slice(1)}
+                onPress={() => {
+                  console.log("Setting period:", p);
+                  setPeriod(p);
+                }}
+                color={period === p ? "blue" : "gray"}
+              />
+            ))}
           </View>
         </View>
       ) : (
