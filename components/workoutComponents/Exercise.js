@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { supabase } from "../../lib/supabase";
 
@@ -33,9 +34,16 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
     fetchSets();
   }, [workoutExerciseId]);
 
-  // Add new set
   const handleAddSet = async () => {
     if (!reps || !weight || !rpe) return;
+    if (rpe < 1 || rpe > 10) {
+      Alert.alert("RPE must be between 1 and 10");
+      return;
+    }
+    if (reps <= 0 || weight <= 0) {
+      Alert.alert("Reps and weight must be greater than 0");
+      return;
+    }
 
     const { error } = await supabase.from("sets").insert([
       {
