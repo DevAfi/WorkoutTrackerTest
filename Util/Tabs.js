@@ -126,6 +126,7 @@ const MainTabs = () => {
           headerStyle: {
             backgroundColor: "#252323",
           },
+          headerShown: false,
         }}
       />
       <Tab.Screen
