@@ -117,17 +117,17 @@ export default function VolumeChart({ data, period }) {
   return (
     <LineChart
       data={chartData}
-      width={screenWidth - 40}
+      width={screenWidth - 50}
       height={220}
       chartConfig={{
-        backgroundColor: "#333",
-        backgroundGradientFrom: "#333",
-        backgroundGradientTo: "#333",
+        backgroundColor: "#252222",
+        backgroundGradientFrom: "#252222",
+        backgroundGradientTo: "#252222",
         decimalPlaces: 0,
-        color: (opacity = 1) => `rgba(0, 123, 255, ${opacity})`,
+        color: (opacity = 1) => `rgba(175, 18, 90, ${opacity})`,
         labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
       }}
-      style={{ marginVertical: 8, borderRadius: 16 }}
+      style={{ marginBottom: 8, borderRadius: 16 }}
       bezier
     />
   );

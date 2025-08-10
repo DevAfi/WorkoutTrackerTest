@@ -105,31 +105,27 @@ const StatsScreen = ({ navigation }) => {
               </Text>
             </View>
           </View>
+          <View style={styles.graphsContainer}>
+            <Text style={styles.graphTitle}>Volume</Text>
+            {volumeData ? (
+              <VolumeChart data={volumeData} period={period} />
+            ) : (
+              <Text>Loading...</Text>
+            )}
 
-          {volumeData ? (
-            <VolumeChart data={volumeData} period={period} />
-          ) : (
-            <Text>Loading...</Text>
-          )}
-
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-around",
-              marginTop: 20,
-            }}
-          >
-            {["day", "week", "month", "year"].map((p) => (
-              <Button
-                key={p}
-                title={p.charAt(0).toUpperCase() + p.slice(1)}
-                onPress={() => {
-                  console.log("Setting period:", p);
-                  setPeriod(p);
-                }}
-                color={period === p ? "blue" : "gray"}
-              />
-            ))}
+            <View style={styles.periodButtons}>
+              {["day", "week", "month", "year"].map((p) => (
+                <Button
+                  key={p}
+                  title={p.charAt(0).toUpperCase() + p.slice(1)}
+                  onPress={() => {
+                    console.log("Setting period:", p);
+                    setPeriod(p);
+                  }}
+                  color={period === p ? "blue" : "gray"}
+                />
+              ))}
+            </View>
           </View>
         </View>
       ) : (
@@ -174,7 +170,7 @@ const styles = StyleSheet.create({
   //  Stats screen
   //
   statsContainer: {
-    //backgroundColor: "white",   // debugging
+    //backgroundColor: "white", // debugging
     width: "100%",
     flexDirection: "column",
     paddingHorizontal: "7.5%",
@@ -183,7 +179,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-evenly",
     width: "100%",
-    //backgroundColor: "blue",    // debugging
+    //backgroundColor: "blue", // debugging
   },
   rectangleStatsBox: {
     marginTop: "0.75%",
@@ -235,6 +231,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: "5%",
     borderWidth: 1,
     borderColor: "#333",
+  },
+
+  // Graphs
+  graphsContainer: { alignItems: "center", marginTop: "5%" },
+  graphTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#AF125A",
+  },
+  periodButtons: {
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
 });
 
