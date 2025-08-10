@@ -17,10 +17,14 @@ const StatsScreen = ({ navigation }) => {
   useEffect(() => {
     async function loadStats() {
       const { data: userData } = await supabase.auth.getUser();
-      if (!userData?.user) return;
+      if (!userData?.user) {
+        console.error("No user data found");
+      }
+      console.log("1");
 
       const userId = userData.user.id;
       const results = await getWorkoutStats(userId);
+      console.log("Workout stats results:", results);
       setStats(results);
     }
 

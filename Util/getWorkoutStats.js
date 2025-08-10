@@ -1,9 +1,8 @@
 import { supabase } from "../lib/supabase";
 
 export async function getWorkoutStats(userId) {
-  console.log("get 1");
   const { data, error } = await supabase.rpc("get_user_workout_stats", {
-    uuid: userId,
+    uid: userId,
   });
 
   if (error) throw error;
