@@ -54,6 +54,19 @@ function getLastNMonths(n) {
   return months;
 }
 
+function getMonthsInCurrentYear() {
+  const months = [];
+  const today = new Date();
+  const currentYear = today.getFullYear();
+
+  // Generate Jan-Dec of current year
+  for (let i = 0; i < 12; i++) {
+    months.push(new Date(currentYear, i, 1));
+  }
+
+  return months;
+}
+
 function formatChartData(volumeData, period) {
   let fullRange = [];
   let periodKeys = [];
@@ -73,7 +86,7 @@ function formatChartData(volumeData, period) {
     periodKeys = fullRange.map((d) => d.toISOString().slice(0, 10)); // YYYY-MM-DD
   } else if (period === "month") {
     console.log("month");
-    fullRange = getLastNMonths(12);
+    fullRange = getMonthsInCurrentYear();
     periodKeys = fullRange.map(
       (d) =>
         `${d.getFullYear()}-${(d.getMonth() + 1)

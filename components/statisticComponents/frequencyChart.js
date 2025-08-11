@@ -53,6 +53,18 @@ function getLastNMonths(n) {
   }
   return months;
 }
+function getMonthsInCurrentYear() {
+  const months = [];
+  const today = new Date();
+  const currentYear = today.getFullYear();
+
+  // Generate Jan-Dec of current year
+  for (let i = 0; i < 12; i++) {
+    months.push(new Date(currentYear, i, 1));
+  }
+
+  return months;
+}
 
 function formatChartData(freqData, period) {
   let fullRange = [];
@@ -72,7 +84,7 @@ function formatChartData(freqData, period) {
     fullRange = getWeeksInCurrentMonth();
     periodKeys = fullRange.map((d) => d.toISOString().slice(0, 10));
   } else if (period === "month") {
-    fullRange = getLastNMonths(12);
+    fullRange = getMonthsInCurrentYear();
     periodKeys = fullRange.map(
       (d) =>
         `${d.getFullYear()}-${(d.getMonth() + 1)
@@ -135,9 +147,12 @@ export default function FrequencyChart({ data, period }) {
         decimalPlaces: 0,
         color: (opacity = 1) => `rgba(0, 200, 83, ${opacity})`,
         labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+        barPercentage: 0.5,
+        formatYLabel: () => "",
       }}
-      style={{ marginVertical: 8, borderRadius: 16 }}
+      style={{ marginVertical: 8, borderRadius: 16, paddingRight: 5 }}
       fromZero
+      showValuesOnTopOfBars
     />
   );
 }
