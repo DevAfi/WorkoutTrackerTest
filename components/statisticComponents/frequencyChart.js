@@ -22,14 +22,13 @@ function getWeeksInCurrentMonth() {
 
   // Find the first Monday of the month
   const firstMonday = new Date(firstDayOfMonth);
-  const dayOfWeek = firstDayOfMonth.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7; // Days to add to get to Monday
+  const dayOfWeek = firstDayOfMonth.getDay();
+  const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7;
   firstMonday.setDate(firstDayOfMonth.getDate() + daysUntilMonday);
 
   const weeks = [];
   let currentWeekStart = new Date(firstMonday);
 
-  // Generate weeks starting from first Monday of month
   while (currentWeekStart <= lastDayOfMonth) {
     weeks.push(new Date(currentWeekStart));
     currentWeekStart.setDate(currentWeekStart.getDate() + 7);
@@ -58,7 +57,17 @@ function getLastNMonths(n) {
 function formatChartData(freqData, period) {
   let fullRange = [];
   let periodKeys = [];
+  if (period === "year") {
+    console.log("year f");
 
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    for (let i = 4; i >= 0; i--) {
+      fullRange.push(new Date(currentYear - i, 0, 1));
+    }
+    console.log("FR", fullRange);
+    periodKeys = fullRange.map((d) => d.getFullYear().toString());
+  }
   if (period === "week") {
     fullRange = getWeeksInCurrentMonth();
     periodKeys = fullRange.map((d) => d.toISOString().slice(0, 10));
@@ -77,16 +86,27 @@ function formatChartData(freqData, period) {
 
   const dataMap = {};
   freqData.forEach(({ period_start, workout_count }) => {
-    dataMap[period_start] = workout_count;
+    if (period === "year") {
+      const yearKey = new Date(period_start).getFullYear().toString();
+      dataMap[yearKey] = Number(workout_count);
+    } else {
+      dataMap[period_start] = Number(workout_count);
+    }
   });
 
+  // Fill missing with zeros
   const dataPoints = periodKeys.map((key) => dataMap[key] || 0);
 
+  console.log("FR2", fullRange);
   const labels = fullRange.map((d) => {
+    if (period === "year") {
+      console.log("year dates f: ", d);
+      return d.getFullYear().toString();
+    }
     if (period === "week") {
       return `${d.getMonth() + 1}/${d.getDate()}`;
     } else if (period === "month") {
-      return d.toLocaleString("default", { month: "short", year: "numeric" });
+      return d.toLocaleString("default", { month: "short" });
     } else {
       return `${d.getMonth() + 1}/${d.getDate()}`;
     }
@@ -99,6 +119,8 @@ function formatChartData(freqData, period) {
 }
 
 export default function FrequencyChart({ data, period }) {
+  console.log("Frequency chartData: ", chartData);
+
   const chartData = formatChartData(data, period);
 
   return (

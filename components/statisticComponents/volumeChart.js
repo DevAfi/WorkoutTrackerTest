@@ -22,14 +22,13 @@ function getWeeksInCurrentMonth() {
 
   // Find the first Monday of the month
   const firstMonday = new Date(firstDayOfMonth);
-  const dayOfWeek = firstDayOfMonth.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7; // Days to add to get to Monday
+  const dayOfWeek = firstDayOfMonth.getDay();
+  const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7;
   firstMonday.setDate(firstDayOfMonth.getDate() + daysUntilMonday);
 
   const weeks = [];
   let currentWeekStart = new Date(firstMonday);
 
-  // Generate weeks starting from first Monday of month
   while (currentWeekStart <= lastDayOfMonth) {
     weeks.push(new Date(currentWeekStart));
     currentWeekStart.setDate(currentWeekStart.getDate() + 7);
@@ -61,11 +60,11 @@ function formatChartData(volumeData, period) {
 
   if (period === "year") {
     console.log("year");
-    // Get last 5 years for example (adjust as needed)
+
     const today = new Date();
     const currentYear = today.getFullYear();
     for (let i = 4; i >= 0; i--) {
-      fullRange.push(new Date(currentYear - i, 0, 1)); // Jan 1 of each year
+      fullRange.push(new Date(currentYear - i, 0, 1));
     }
     periodKeys = fullRange.map((d) => d.getFullYear().toString());
   } else if (period === "week") {
@@ -92,7 +91,6 @@ function formatChartData(volumeData, period) {
   const dataMap = {};
   volumeData.forEach(({ period_start, total_volume }) => {
     if (period === "year") {
-      // year key: just the year string
       const yearKey = new Date(period_start).getFullYear().toString();
       dataMap[yearKey] = Number(total_volume);
     } else {
@@ -103,7 +101,6 @@ function formatChartData(volumeData, period) {
   // Fill missing with zeros
   const dataPoints = periodKeys.map((key) => dataMap[key] || 0);
 
-  // Labels simplified — just starting date or year string
   const labels = fullRange.map((d) => {
     if (period === "year") {
       console.log("year dates: ", d);
@@ -132,7 +129,7 @@ function formatChartData(volumeData, period) {
 
 export default function VolumeChart({ data, period }) {
   const chartData = formatChartData(data, period);
-  console.log(chartData);
+  console.log("Volume chartData ", chartData);
 
   return (
     <LineChart
