@@ -4,18 +4,15 @@ import { PieChart } from "react-native-chart-kit";
 
 const screenWidth = Dimensions.get("window").width;
 const COLORS = [
-  "#FF6384",
-  "#36A2EB",
-  "#FFCE56",
-  "#4BC0C0",
-  "#9966FF",
-  "#FF9F40",
-  "#C9CBCF",
+  "#AF125A", // my main accent
+  "#666666", // Medium grey
+  "#D91A72", // Light magenta
+  "#404040", // Dark grey
+  "#999999", // Light grey
 ];
-
 function groupMuscleData(rawData, muscleGroupMap) {
   if (!rawData || !Array.isArray(rawData)) {
-    console.log("Invalid rawData:", rawData);
+    //console.log("Invalid rawData:", rawData);
     return [];
   }
 
@@ -69,7 +66,7 @@ function groupMuscleData(rawData, muscleGroupMap) {
     .filter((entry) => entry !== null)
     .sort((a, b) => b.population - a.population);
 
-  console.log("Final chart data validation:");
+  //console.log("Final chart data validation:");
   result.forEach((entry, index) => {
     if (!entry.color) {
       console.error(`Entry ${index} missing color:`, entry);
@@ -92,8 +89,8 @@ export default function MuscleDistributionPieChart({ data, muscleGroupMap }) {
 
   const chartData = groupMuscleData(data, muscleGroupMap);
 
-  console.log("Raw data:", data);
-  console.log("Pie chartData:", chartData);
+  //console.log("Raw data:", data);
+  //console.log("Pie chartData:", chartData);
 
   if (!chartData || chartData.length === 0) {
     return (

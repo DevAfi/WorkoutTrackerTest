@@ -15,17 +15,26 @@ function getLastNDays(n) {
   return days;
 }
 
-function getLastNWeeks(n) {
-  const weeks = [];
+function getWeeksInCurrentMonth() {
   const today = new Date();
-  const dayOfWeek = today.getDay() || 7; // Sunday=0, convert to 7
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - dayOfWeek + 1);
-  for (let i = n - 1; i >= 0; i--) {
-    const weekStart = new Date(monday);
-    weekStart.setDate(monday.getDate() - i * 7);
-    weeks.push(weekStart);
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+  // Find the first Monday of the month
+  const firstMonday = new Date(firstDayOfMonth);
+  const dayOfWeek = firstDayOfMonth.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7; // Days to add to get to Monday
+  firstMonday.setDate(firstDayOfMonth.getDate() + daysUntilMonday);
+
+  const weeks = [];
+  let currentWeekStart = new Date(firstMonday);
+
+  // Generate weeks starting from first Monday of month
+  while (currentWeekStart <= lastDayOfMonth) {
+    weeks.push(new Date(currentWeekStart));
+    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
   }
+
   return weeks;
 }
 
@@ -51,6 +60,7 @@ function formatChartData(volumeData, period) {
   let periodKeys = [];
 
   if (period === "year") {
+    console.log("year");
     // Get last 5 years for example (adjust as needed)
     const today = new Date();
     const currentYear = today.getFullYear();
@@ -59,9 +69,11 @@ function formatChartData(volumeData, period) {
     }
     periodKeys = fullRange.map((d) => d.getFullYear().toString());
   } else if (period === "week") {
-    fullRange = getLastNWeeks(4);
+    console.log("week");
+    fullRange = getWeeksInCurrentMonth();
     periodKeys = fullRange.map((d) => d.toISOString().slice(0, 10)); // YYYY-MM-DD
   } else if (period === "month") {
+    console.log("month");
     fullRange = getLastNMonths(12);
     periodKeys = fullRange.map(
       (d) =>
@@ -71,6 +83,7 @@ function formatChartData(volumeData, period) {
     );
   } else {
     // default day = last 7 days
+    console.log("day");
     fullRange = getLastNDays(7);
     periodKeys = fullRange.map((d) => d.toISOString().slice(0, 10));
   }
@@ -93,14 +106,20 @@ function formatChartData(volumeData, period) {
   // Labels simplified — just starting date or year string
   const labels = fullRange.map((d) => {
     if (period === "year") {
+      console.log("year dates: ", d);
       return d.getFullYear().toString();
     } else if (period === "week") {
-      // Only show start date (MM/DD)
+      console.log("week dates: ", d);
+      // Show week number or date range
+      const endDate = new Date(d);
+      endDate.setDate(d.getDate() + 6);
       return `${d.getMonth() + 1}/${d.getDate()}`;
     } else if (period === "month") {
+      console.log("month dates: ", d);
       return d.toLocaleString("default", { month: "short" });
     } else {
       // day
+      console.log("day dates: ", d);
       return `${d.getMonth() + 1}/${d.getDate()}`;
     }
   });
@@ -113,6 +132,7 @@ function formatChartData(volumeData, period) {
 
 export default function VolumeChart({ data, period }) {
   const chartData = formatChartData(data, period);
+  console.log(chartData);
 
   return (
     <LineChart

@@ -15,17 +15,26 @@ function getLastNDays(n) {
   return days;
 }
 
-function getLastNWeeks(n) {
-  const weeks = [];
+function getWeeksInCurrentMonth() {
   const today = new Date();
-  const dayOfWeek = today.getDay() || 7; // Sunday=0 → 7
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - dayOfWeek + 1);
-  for (let i = n - 1; i >= 0; i--) {
-    const weekStart = new Date(monday);
-    weekStart.setDate(monday.getDate() - i * 7);
-    weeks.push(weekStart);
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+  // Find the first Monday of the month
+  const firstMonday = new Date(firstDayOfMonth);
+  const dayOfWeek = firstDayOfMonth.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const daysUntilMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7; // Days to add to get to Monday
+  firstMonday.setDate(firstDayOfMonth.getDate() + daysUntilMonday);
+
+  const weeks = [];
+  let currentWeekStart = new Date(firstMonday);
+
+  // Generate weeks starting from first Monday of month
+  while (currentWeekStart <= lastDayOfMonth) {
+    weeks.push(new Date(currentWeekStart));
+    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
   }
+
   return weeks;
 }
 
@@ -51,7 +60,7 @@ function formatChartData(freqData, period) {
   let periodKeys = [];
 
   if (period === "week") {
-    fullRange = getLastNWeeks(4);
+    fullRange = getWeeksInCurrentMonth();
     periodKeys = fullRange.map((d) => d.toISOString().slice(0, 10));
   } else if (period === "month") {
     fullRange = getLastNMonths(12);

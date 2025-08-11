@@ -151,7 +151,9 @@ const StatsScreen = ({ navigation }) => {
               <View style={styles.rectangleStatsBox}>
                 <Text style={styles.statisticTitle}>Duration</Text>
                 <Text style={styles.statisticText}>
-                  {(stats.total_duration_seconds / 60).toFixed(1)} mins
+                  {stats.total_duration_seconds / 60 > 60
+                    ? (stats.total_duration_seconds / 3600).toFixed(1) + " hrs"
+                    : (stats.total_duration_seconds / 60).toFixed(1) + " mins"}
                 </Text>
               </View>
             </View>
