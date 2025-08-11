@@ -7,17 +7,23 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Button,
+  ScrollView,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { getWorkoutStats } from "../../Util/getWorkoutStats";
 import { supabase } from "../../lib/supabase";
-import { fetchVolumeOverTime } from "../../Util/volumeStats";
+import {
+  fetchVolumeOverTime,
+  fetchWorkoutFrequency,
+} from "../../Util/volumeStats";
 import VolumeChart from "../../components/statisticComponents/volumeChart";
+import FrequencyChart from "../../components/statisticComponents/frequencyChart";
 
 const StatsScreen = ({ navigation }) => {
   const [personal, setPersonal] = useState(true);
   const [stats, setStats] = useState(null);
   const [volumeData, setVolumeData] = useState(null);
+  const [frequencyData, setFrequencyData] = useState(null);
   const [period, setPeriod] = useState("day");
 
   useEffect(() => {
@@ -54,92 +60,123 @@ const StatsScreen = ({ navigation }) => {
 
     loadVolumeData();
   }, [period]);
+  useEffect(() => {
+    async function loadWorkoutFrequencyData() {
+      console.log("Freq 1");
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) {
+        console.error("No user data found");
+        return;
+      }
+
+      const userId = userData.user.id;
+      const results = await fetchWorkoutFrequency(userId, period);
+      console.log("frequence data results:", results);
+      setFrequencyData(results);
+    }
+
+    loadWorkoutFrequencyData();
+  }, [period]);
 
   if (!stats || !volumeData) return <Text>Loading stats...</Text>;
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.topButtonsContainer}>
-        <TouchableOpacity
-          style={styles.topButton}
-          onPress={() => setPersonal(true)}
-        >
-          <Text style={styles.topButtonText}>Personal</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.topButton}
-          onPress={() => setPersonal(false)}
-        >
-          <Text style={styles.topButtonText}>Exercises</Text>
-        </TouchableOpacity>
-      </View>
-      {personal == true ? (
-        <View style={styles.statsContainer}>
-          <View style={styles.topStatsSection}>
-            <View style={styles.rectangleStatsBox}>
-              <Text style={styles.statisticTitle}>Total Volume</Text>
-              <Text style={styles.statisticText}>
-                {Math.round(stats.total_volume).toLocaleString()} kg
-              </Text>
+      <ScrollView>
+        <View style={styles.topButtonsContainer}>
+          <TouchableOpacity
+            style={styles.topButton}
+            onPress={() => setPersonal(true)}
+          >
+            <Text style={styles.topButtonText}>Personal</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.topButton}
+            onPress={() => setPersonal(false)}
+          >
+            <Text style={styles.topButtonText}>Exercises</Text>
+          </TouchableOpacity>
+        </View>
+        {personal == true ? (
+          <View style={styles.statsContainer}>
+            <View style={styles.topStatsSection}>
+              <View style={styles.rectangleStatsBox}>
+                <Text style={styles.statisticTitle}>Total Volume</Text>
+                <Text style={styles.statisticText}>
+                  {Math.round(stats.total_volume).toLocaleString()} kg
+                </Text>
+              </View>
+              <View style={styles.rectangleStatsBox}>
+                <Text style={styles.statisticTitle}>Duration</Text>
+                <Text style={styles.statisticText}>
+                  {(stats.total_duration_seconds / 60).toFixed(1)} mins
+                </Text>
+              </View>
             </View>
-            <View style={styles.rectangleStatsBox}>
-              <Text style={styles.statisticTitle}>Duration</Text>
-              <Text style={styles.statisticText}>
-                {(stats.total_duration_seconds / 60).toFixed(1)} mins
-              </Text>
+            <View style={styles.topStatsSection}>
+              <View style={styles.squareStatsBox}>
+                <Text style={styles.squareStatisticTitle}>Reps</Text>
+                <Text style={styles.squareStatisticText}>
+                  {stats.total_reps}
+                </Text>
+              </View>
+              <View style={styles.squareStatsBox}>
+                <Text style={styles.squareStatisticTitle}>Sets</Text>
+                <Text style={styles.squareStatisticText}>
+                  {stats.total_sets}
+                </Text>
+              </View>
+              <View style={styles.squareStatsBox}>
+                <Text style={styles.squareStatisticTitle}>Workouts</Text>
+                <Text style={styles.squareStatisticText}>
+                  {stats.total_workouts}
+                </Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.topStatsSection}>
-            <View style={styles.squareStatsBox}>
-              <Text style={styles.squareStatisticTitle}>Reps</Text>
-              <Text style={styles.squareStatisticText}>{stats.total_reps}</Text>
-            </View>
-            <View style={styles.squareStatsBox}>
-              <Text style={styles.squareStatisticTitle}>Sets</Text>
-              <Text style={styles.squareStatisticText}>{stats.total_sets}</Text>
-            </View>
-            <View style={styles.squareStatsBox}>
-              <Text style={styles.squareStatisticTitle}>Workouts</Text>
-              <Text style={styles.squareStatisticText}>
-                {stats.total_workouts}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.graphsContainer}>
-            <Text style={styles.graphTitle}>Volume</Text>
-            {volumeData ? (
-              <VolumeChart data={volumeData} period={period} />
-            ) : (
-              <Text>Loading...</Text>
-            )}
+            <View style={styles.graphsContainer}>
+              <Text style={styles.graphTitle}>Volume</Text>
+              {volumeData ? (
+                <VolumeChart data={volumeData} period={period} />
+              ) : (
+                <Text>Loading...</Text>
+              )}
+              <Text style={styles.graphTitle}>Frequency</Text>
 
-            <View style={styles.periodButtons}>
-              {["day", "week", "month", "year"].map((p) => (
-                <Button
-                  key={p}
-                  title={p.charAt(0).toUpperCase() + p.slice(1)}
-                  onPress={() => {
-                    console.log("Setting period:", p);
-                    setPeriod(p);
-                  }}
-                  color={period === p ? "blue" : "gray"}
-                />
-              ))}
+              {frequencyData ? (
+                <FrequencyChart data={frequencyData} period={period} />
+              ) : (
+                <Text>Loading frequency data...</Text>
+              )}
+
+              <View style={styles.periodButtons}>
+                {["day", "week", "month", "year"].map((p) => (
+                  <Button
+                    key={p}
+                    title={p.charAt(0).toUpperCase() + p.slice(1)}
+                    onPress={() => {
+                      console.log("Setting period:", p);
+                      setPeriod(p);
+                    }}
+                    color={period === p ? "blue" : "gray"}
+                  />
+                ))}
+              </View>
             </View>
           </View>
-        </View>
-      ) : (
-        <View style={styles.statsContainer}>
-          {/* exercise stats */}
-          <Text style={{ color: "white" }}>2</Text>
-        </View>
-      )}
+        ) : (
+          <View style={styles.statsContainer}>
+            {/* exercise stats */}
+            <Text style={{ color: "white" }}>2</Text>
+          </View>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+
     backgroundColor: "black",
     alignItems: "center",
     justifyContent: "flex-start",

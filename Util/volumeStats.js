@@ -12,3 +12,16 @@ export async function fetchVolumeOverTime(userId, period = "day") {
   }
   return data;
 }
+
+export async function fetchWorkoutFrequency(userId, period = "day") {
+  const { data, error } = await supabase.rpc("get_workout_frequency", {
+    target_user_id: userId,
+    period,
+  });
+
+  if (error) {
+    console.error("Error fetching workout frequency:", error);
+    return [];
+  }
+  return data;
+}
