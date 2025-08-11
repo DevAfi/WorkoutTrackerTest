@@ -25,3 +25,15 @@ export async function fetchWorkoutFrequency(userId, period = "day") {
   }
   return data;
 }
+
+export async function fetchVolumeByMuscleGroup(userId) {
+  const { data, error } = await supabase.rpc("get_volume_by_muscle_group", {
+    target_user_id: userId,
+  });
+
+  if (error) {
+    console.error("Error fetching volume by muscle group:", error);
+    return [];
+  }
+  return data;
+}

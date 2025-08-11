@@ -89,7 +89,7 @@ function formatChartData(freqData, period) {
   };
 }
 
-export default function frequencyChart({ data, period }) {
+export default function FrequencyChart({ data, period }) {
   const chartData = formatChartData(data, period);
 
   return (

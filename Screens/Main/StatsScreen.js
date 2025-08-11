@@ -15,15 +15,42 @@ import { supabase } from "../../lib/supabase";
 import {
   fetchVolumeOverTime,
   fetchWorkoutFrequency,
+  fetchVolumeByMuscleGroup,
 } from "../../Util/volumeStats";
 import VolumeChart from "../../components/statisticComponents/volumeChart";
 import FrequencyChart from "../../components/statisticComponents/frequencyChart";
+import MuscleDistributionPieChart from "../../components/statisticComponents/muscleDistributionPie";
+
+const muscleGroupMap = {
+  ["abdominals"]: "core",
+  ["abductors"]: "legs",
+  ["adductors"]: "legs",
+  ["biceps"]: "arms",
+  ["calves"]: "legs",
+  ["chest"]: "chest",
+  ["forearms"]: "arms",
+  ["front_deltoids"]: "shoulders",
+  ["glutes"]: "legs",
+  ["hamstrings"]: "legs",
+  ["lateral_deltoids"]: "shoulders",
+  ["lats"]: "back",
+  ["lower_back"]: "back",
+  ["lower_chest"]: "chest",
+  ["middle_back"]: "back",
+  ["neck"]: "back",
+  ["quadriceps"]: "legs",
+  ["rear_deltoids"]: "shoulders",
+  ["traps"]: "back",
+  ["upper_chest"]: "chest",
+  ["triceps"]: "arms",
+};
 
 const StatsScreen = ({ navigation }) => {
   const [personal, setPersonal] = useState(true);
   const [stats, setStats] = useState(null);
   const [volumeData, setVolumeData] = useState(null);
   const [frequencyData, setFrequencyData] = useState(null);
+  const [muscleData, setMuscleData] = useState(null);
   const [period, setPeriod] = useState("day");
 
   useEffect(() => {
@@ -36,7 +63,7 @@ const StatsScreen = ({ navigation }) => {
 
       const userId = userData.user.id;
       const results = await getWorkoutStats(userId);
-      console.log("Workout stats results:", results);
+      //console.log("Workout stats results:", results);
       setStats(results);
     }
 
@@ -54,12 +81,13 @@ const StatsScreen = ({ navigation }) => {
 
       const userId = userData.user.id;
       const results = await fetchVolumeOverTime(userId, period);
-      console.log("Volume data results:", results);
+      //console.log("Volume data results:", results);
       setVolumeData(results);
     }
 
     loadVolumeData();
   }, [period]);
+
   useEffect(() => {
     async function loadWorkoutFrequencyData() {
       console.log("Freq 1");
@@ -71,18 +99,32 @@ const StatsScreen = ({ navigation }) => {
 
       const userId = userData.user.id;
       const results = await fetchWorkoutFrequency(userId, period);
-      console.log("frequence data results:", results);
+      //console.log("frequency data results:", results);
       setFrequencyData(results);
     }
 
     loadWorkoutFrequencyData();
   }, [period]);
 
-  if (!stats || !volumeData) return <Text>Loading stats...</Text>;
+  useEffect(() => {
+    async function loadMuscleData() {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) return;
+      const userId = userData.user.id;
+      const data = await fetchVolumeByMuscleGroup(userId);
+      setMuscleData(data);
+      console.log(data);
+    }
+
+    loadMuscleData();
+  }, []);
+
+  if (!stats || !volumeData || !muscleData)
+    return <Text>Loading stats...</Text>;
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView style={styles.scrollviewContainer}>
         <View style={styles.topButtonsContainer}>
           <TouchableOpacity
             style={styles.topButton}
@@ -148,6 +190,15 @@ const StatsScreen = ({ navigation }) => {
                 <Text>Loading frequency data...</Text>
               )}
 
+              <View>
+                {muscleData && (
+                  <MuscleDistributionPieChart
+                    data={muscleData}
+                    muscleGroupMap={muscleGroupMap}
+                  />
+                )}
+              </View>
+
               <View style={styles.periodButtons}>
                 {["day", "week", "month", "year"].map((p) => (
                   <Button
@@ -176,10 +227,13 @@ const StatsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     backgroundColor: "black",
     alignItems: "center",
     justifyContent: "flex-start",
+  },
+  scrollviewContainer: {
+    height: "80%",
+    width: "100%",
   },
   topButtonsContainer: {
     //backgroundColor: "red",
