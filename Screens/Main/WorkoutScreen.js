@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   startButton: {
     position: "absolute",
-    bottom: 90,
+    bottom: "1%",
   },
 });
 

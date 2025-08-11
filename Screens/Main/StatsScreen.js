@@ -208,7 +208,7 @@ const StatsScreen = ({ navigation }) => {
                       console.log("Setting period:", p);
                       setPeriod(p);
                     }}
-                    color={period === p ? "blue" : "gray"}
+                    color={period === p ? "#AF125A" : "gray"}
                   />
                 ))}
               </View>
