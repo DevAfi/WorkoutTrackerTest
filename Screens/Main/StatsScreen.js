@@ -145,13 +145,21 @@ const StatsScreen = ({ navigation }) => {
               <View style={styles.rectangleStatsBox}>
                 <Text style={styles.statisticTitle}>Total Volume</Text>
                 <Text style={styles.statisticText}>
-                  {Math.round(stats.total_volume).toLocaleString()} kg
+                  {stats.total_volume > 999999
+                    ? Math.round(stats.total_volume / 100000).toLocaleString() /
+                        10 +
+                      "m "
+                    : Math.round(stats.total_volume).toLocaleString()}
+                  kg
                 </Text>
               </View>
               <View style={styles.rectangleStatsBox}>
                 <Text style={styles.statisticTitle}>Duration</Text>
                 <Text style={styles.statisticText}>
-                  {stats.total_duration_seconds / 60 > 60
+                  {stats.total_duration_seconds / 3600 > 24
+                    ? (stats.total_duration_seconds / 86400).toFixed(1) +
+                      " days"
+                    : stats.total_duration_seconds / 60 > 60
                     ? (stats.total_duration_seconds / 3600).toFixed(1) + " hrs"
                     : (stats.total_duration_seconds / 60).toFixed(1) + " mins"}
                 </Text>
