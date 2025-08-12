@@ -146,8 +146,8 @@ const StatsScreen = ({ navigation }) => {
                 <Text style={styles.statisticTitle}>Total Volume</Text>
                 <Text style={styles.statisticText}>
                   {stats.total_volume > 999999
-                    ? Math.round(stats.total_volume / 100000).toLocaleString() /
-                        10 +
+                    ? Math.round(stats.total_volume / 10000).toLocaleString() /
+                        100 +
                       "m "
                     : Math.round(stats.total_volume).toLocaleString()}
                   kg
