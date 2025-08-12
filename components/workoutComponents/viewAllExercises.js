@@ -29,29 +29,13 @@ const viewAllExercises = () => {
   const route = useRoute();
   const sessionId = route.params?.sessionId;
 
-  const toggleSelect = (exercise) => {
-    setSelected((prev) =>
-      prev.find((e) => e.id === exercise.id)
-        ? prev.filter((e) => e.id !== exercise.id)
-        : [...prev, exercise]
-    );
-  };
-
   const expandSelected = (exercise) => {
     navigation.navigate("exerciseDetailsPage", {
-      exerciseId: exercise.exerciseID,
+      exerciseId: exercise.id,
       name: exercise.name,
       category: exercise.category,
       equipment: exercise.equipment,
       instructions: exercise.instructions,
-    });
-  };
-
-  const confirmSelection = () => {
-    navigation.navigate({
-      name: "currentWorkoutScreen",
-      params: { newExercises: selected, sessionId },
-      merge: true,
     });
   };
 
