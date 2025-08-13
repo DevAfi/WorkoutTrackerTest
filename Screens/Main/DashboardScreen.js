@@ -34,11 +34,13 @@ const DashboardScreen = ({ navigation }) => {
         <MaterialIcons name="home" size={36} color={"white"}></MaterialIcons>
         <Text style={styles.topText}>Weekly Activity</Text>
       </View>
-      <LatestSessionRecap
-        onPress={(session) =>
-          navigation.navigate("SessionDetail", { sessionId: session.id })
-        }
-      />
+      <View style={styles.recapContainer}>
+        <LatestSessionRecap
+          onPress={(session) =>
+            navigation.navigate("SessionDetail", { sessionId: session.id })
+          }
+        />
+      </View>
     </SafeAreaView>
   );
 };
@@ -82,6 +84,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#f5f1ed",
     fontFamily: "Arial",
+  },
+  recapContainer: {
+    width: "100%",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "white",
   },
 });
 export default DashboardScreen;
