@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   StyleSheet,
@@ -9,8 +9,25 @@ import {
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import LatestSessionRecap from "../../components/statisticComponents/LatestSessionRecap";
-
+import { fetchWorkoutHeatmap } from "../../Util/volumeStats";
+import WorkoutHeatmap from "../../components/statisticComponents/streakChart";
+import { supabase } from "../../lib/supabase";
+import StreakTracker from "../../components/streakComponent";
 const DashboardScreen = ({ navigation }) => {
+  const [heatmapData, setHeatmapData] = useState([]);
+  const [userID, setUserID] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) {
+        console.error("No user data found");
+      }
+      console.log("1");
+
+      setUserID(userData.user.id);
+    })();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       {/*  <SafeAreaView style={styles.headerBar}>
@@ -34,6 +51,7 @@ const DashboardScreen = ({ navigation }) => {
         <MaterialIcons name="home" size={36} color={"white"}></MaterialIcons>
         <Text style={styles.topText}>Weekly Activity</Text>
       </View>
+      <StreakTracker userId={userID} />
       <View style={styles.recapContainer}>
         <LatestSessionRecap
           onPress={(session) =>
@@ -88,6 +106,7 @@ const styles = StyleSheet.create({
   recapContainer: {
     width: "100%",
     alignItems: "center",
+    paddingTop: "10%",
     borderTopWidth: 1,
     borderTopColor: "white",
   },

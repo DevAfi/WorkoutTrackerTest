@@ -40,8 +40,8 @@ export async function fetchVolumeByMuscleGroup(userId) {
 
 export async function fetchWorkoutHeatmap(userId) {
   const { data, error } = await supabase.rpc("get_workout_frequency", {
+    period: "day",
     target_user_id: userId,
-    period: "day", // daily granularity for streaks
   });
 
   if (error) {
@@ -50,7 +50,7 @@ export async function fetchWorkoutHeatmap(userId) {
   }
 
   return data.map((item) => ({
-    date: new Date(item.period_start).toISOString().split("T")[0], // format YYYY-MM-DD
+    date: new Date(item.period_start).toISOString().split("T")[0],
     count: Number(item.workout_count),
   }));
 }

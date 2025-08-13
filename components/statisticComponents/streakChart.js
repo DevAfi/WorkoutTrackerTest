@@ -10,7 +10,7 @@ export default function WorkoutHeatmap({ data }) {
       <ContributionGraph
         values={data}
         endDate={new Date()}
-        numDays={90} // last 3 months
+        numDays={90}
         width={screenWidth - 20}
         height={220}
         chartConfig={{
