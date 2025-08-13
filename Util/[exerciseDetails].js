@@ -21,7 +21,14 @@ const ViewExerciseDetails = ({ route, navigation }) => {
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [selectedChart, setSelectedChart] = useState("e1rm");
+  const [selectedChart, setSelectedChart] = useState("e1rm"); // 'e1rm', 'volume', 'weight', 'alltime1rm'
+  const [tooltipPos, setTooltipPos] = useState({
+    x: 0,
+    y: 0,
+    visible: false,
+    value: 0,
+    date: "",
+  });
 
   console.log("exerciseId param:", exerciseId);
 
@@ -103,6 +110,10 @@ const ViewExerciseDetails = ({ route, navigation }) => {
   const getChartData = () => {
     if (!stats || !stats.history.length) return null;
 
+    // Limit to last 30 points for readability (Im gonna change
+    // this to have options like personal stats)
+    //
+    //    CFLO
     const points = stats.history.slice(-30);
 
     const getDataByType = () => {
@@ -164,6 +175,23 @@ const ViewExerciseDetails = ({ route, navigation }) => {
         },
       ],
     };
+  };
+
+  const getChartUnit = () => {
+    switch (selectedChart) {
+      case "volume":
+        return "kg";
+      case "weight":
+      case "alltime1rm":
+      case "e1rm":
+      default:
+        return "kg";
+    }
+  };
+
+  const getFullDataPoints = () => {
+    if (!stats || !stats.history.length) return [];
+    return stats.history.slice(-30); // testing
   };
 
   const getChartTitle = () => {
@@ -389,7 +417,90 @@ const ViewExerciseDetails = ({ route, navigation }) => {
                       withDots={true}
                       withShadow={false}
                       withScrollableDot={false}
-                      fromZero={true}
+                      decorator={() => {
+                        return tooltipPos.visible ? (
+                          <View>
+                            <View
+                              style={{
+                                position: "absolute",
+                                left: tooltipPos.x - 50,
+                                top: tooltipPos.y - 40,
+                                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                paddingHorizontal: 8,
+                                paddingVertical: 4,
+                                borderRadius: 6,
+                                minWidth: 100,
+                                alignItems: "center",
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  color: "white",
+                                  fontSize: 12,
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {tooltipPos.value} {getChartUnit()}
+                              </Text>
+                              <Text style={{ color: "#cccccc", fontSize: 10 }}>
+                                {tooltipPos.date}
+                              </Text>
+                            </View>
+                          </View>
+                        ) : null;
+                      }}
+                      onDataPointClick={(data) => {
+                        const dataPoints = getFullDataPoints();
+                        const point = dataPoints[data.index];
+                        if (point) {
+                          let value;
+                          switch (selectedChart) {
+                            case "volume":
+                              value = point.volume.toFixed(0);
+                              break;
+                            case "weight":
+                              value = point.weight.toFixed(1);
+                              break;
+                            case "alltime1rm":
+                              let maxWeight = 0;
+                              for (let i = 0; i <= data.index; i++) {
+                                if (dataPoints[i].weight > maxWeight) {
+                                  maxWeight = dataPoints[i].weight;
+                                }
+                              }
+                              value = maxWeight.toFixed(1);
+                              break;
+                            case "e1rm":
+                            default:
+                              let maxE1RM = 0;
+                              for (let i = 0; i <= data.index; i++) {
+                                if (dataPoints[i].e1rm > maxE1RM) {
+                                  maxE1RM = dataPoints[i].e1rm;
+                                }
+                              }
+                              value = maxE1RM.toFixed(1);
+                              break;
+                          }
+
+                          const date = new Date(
+                            point.date
+                          ).toLocaleDateString();
+
+                          setTooltipPos({
+                            x: data.x,
+                            y: data.y,
+                            visible: true,
+                            value: value,
+                            date: date,
+                          });
+                          setTimeout(() => {
+                            setTooltipPos((prev) => ({
+                              ...prev,
+                              visible: false,
+                            }));
+                          }, 3000);
+                        }
+                      }}
                     />
                   </View>
                 )}
@@ -422,10 +533,10 @@ const ViewExerciseDetails = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: "#252323",
   },
   scrollView: {
-    backgroundColor: "black",
+    backgroundColor: "#252323",
   },
   detailsContainer: {
     backgroundColor: "#1a1a1a",
