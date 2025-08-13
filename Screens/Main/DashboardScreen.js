@@ -18,6 +18,17 @@ const DashboardScreen = ({ navigation }) => {
       </SafeAreaView>
     */}
       <Text style={styles.titleText}>Welcome back</Text>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Settings")}
+        style={{ position: "absolute", top: "5%", right: "5%" }}
+      >
+        <MaterialIcons
+          name="settings"
+          size={30}
+          color="#f5f1ed"
+          marginRight={10}
+        />
+      </TouchableOpacity>
 
       <View style={styles.topContainer}>
         <MaterialIcons name="home" size={36} color={"white"}></MaterialIcons>
@@ -35,7 +46,7 @@ const DashboardScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#252323",
+    backgroundColor: "black",
     alignItems: "center",
   },
   headerBar: {

@@ -23,7 +23,7 @@ const ViewExerciseDetails = ({ route, navigation }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedChart, setSelectedChart] = useState("e1rm");
 
-  //console.log("exerciseId param:", exerciseId);
+  console.log("exerciseId param:", exerciseId);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: name });
@@ -83,6 +83,9 @@ const ViewExerciseDetails = ({ route, navigation }) => {
             weight: Number(day.best_set_weight),
             reps: Number(day.best_set_reps),
             e1rm: Number(day.e1rm),
+            pr_weight: Number(day.pr_weight),
+            pr_volume: Number(day.pr_volume),
+            pr_e1rm: Number(day.pr_e1rm),
           })),
         });
       } else {
@@ -116,11 +119,31 @@ const ViewExerciseDetails = ({ route, navigation }) => {
             label: "Max Weight (kg)",
             color: (opacity = 1) => `rgba(255, 193, 7, ${opacity})`,
           };
+        case "alltime1rm":
+          let currentMaxWeight = 0;
+          const progressiveWeightData = points.map((p) => {
+            if (Number(p.weight) > currentMaxWeight) {
+              currentMaxWeight = Number(p.weight);
+            }
+            return Number(currentMaxWeight.toFixed(1));
+          });
+          return {
+            data: progressiveWeightData,
+            label: "All-Time Max Weight (kg)",
+            color: (opacity = 1) => `rgba(40, 167, 69, ${opacity})`,
+          };
         case "e1rm":
         default:
+          let currentBestE1RM = 0;
+          const progressiveE1RMData = points.map((p) => {
+            if (Number(p.e1rm) > currentBestE1RM) {
+              currentBestE1RM = Number(p.e1rm);
+            }
+            return Number(currentBestE1RM.toFixed(1));
+          });
           return {
-            data: points.map((p) => Number(p.e1rm.toFixed(1))),
-            label: "Estimated 1RM (kg)",
+            data: progressiveE1RMData,
+            label: "Progressive E1RM (kg)",
             color: (opacity = 1) => `rgba(175, 18, 90, ${opacity})`,
           };
       }
@@ -149,9 +172,11 @@ const ViewExerciseDetails = ({ route, navigation }) => {
         return "Volume Progress";
       case "weight":
         return "Max Weight Progress";
+      case "alltime1rm":
+        return "All-Time Max Weight Record";
       case "e1rm":
       default:
-        return "Estimated 1RM Progress";
+        return "Progressive E1RM Record";
     }
   };
 
@@ -292,6 +317,27 @@ const ViewExerciseDetails = ({ route, navigation }) => {
                       <TouchableOpacity
                         style={[
                           styles.chartSelectorButton,
+                          selectedChart === "alltime1rm" &&
+                            styles.chartSelectorActive,
+                          { borderColor: "rgba(40, 167, 69, 0.8)" },
+                        ]}
+                        onPress={() => setSelectedChart("alltime1rm")}
+                      >
+                        <Text
+                          style={[
+                            styles.chartSelectorText,
+                            selectedChart === "alltime1rm" && {
+                              color: "rgba(40, 167, 69, 1)",
+                            },
+                          ]}
+                        >
+                          PR
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[
+                          styles.chartSelectorButton,
                           selectedChart === "volume" &&
                             styles.chartSelectorActive,
                           { borderColor: "rgba(54, 162, 235, 0.8)" },
@@ -343,6 +389,7 @@ const ViewExerciseDetails = ({ route, navigation }) => {
                       withDots={true}
                       withShadow={false}
                       withScrollableDot={false}
+                      fromZero={true}
                     />
                   </View>
                 )}
@@ -375,10 +422,10 @@ const ViewExerciseDetails = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#252323",
+    backgroundColor: "black",
   },
   scrollView: {
-    backgroundColor: "#252323",
+    backgroundColor: "black",
   },
   detailsContainer: {
     backgroundColor: "#1a1a1a",

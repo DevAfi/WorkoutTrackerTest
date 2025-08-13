@@ -56,20 +56,7 @@ const MainTabs = () => {
           headerStyle: {
             backgroundColor: "#252323",
           },
-
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Settings")}
-              style={{ marginRight: 10 }}
-            >
-              <MaterialIcons
-                name="settings"
-                size={30}
-                color="#f5f1ed"
-                marginRight={10}
-              />
-            </TouchableOpacity>
-          ),
+          headerShown: false,
         })}
       />
       <Tab.Screen

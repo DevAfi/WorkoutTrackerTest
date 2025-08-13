@@ -134,7 +134,7 @@ export default function ProfileSettings() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: "#252323",
+    backgroundColor: "black",
     flex: 1,
     gap: 20,
   },

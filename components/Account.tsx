@@ -172,7 +172,7 @@ export default function Account({ session }: { session: Session }) {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: "#252323",
+    backgroundColor: "black",
     flex: 1,
     gap: 18,
   },

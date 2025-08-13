@@ -120,7 +120,13 @@ const StatsScreen = ({ navigation }) => {
   }, []);
 
   if (!stats || !volumeData || !muscleData)
-    return <Text>Loading stats...</Text>;
+    return (
+      <View backgroundColor="black">
+        <Text textAlign="center" color="white" fontSize="20" fontFamily="Arial">
+          Loading stats...
+        </Text>
+      </View>
+    );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -134,7 +140,7 @@ const StatsScreen = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.topButton}
-            onPress={() => setPersonal(false)}
+            onPress={() => navigation.navigate("viewExercises")}
           >
             <Text style={styles.topButtonText}>Exercises</Text>
           </TouchableOpacity>

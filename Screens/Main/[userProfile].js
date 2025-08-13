@@ -47,7 +47,7 @@ const UserProfile = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#252323",
+    backgroundColor: "black",
     alignItems: "center",
     flexDirection: "column",
     paddingVertical: 10,
