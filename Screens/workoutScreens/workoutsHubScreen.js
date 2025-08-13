@@ -10,24 +10,25 @@ import {
 } from "react-native";
 
 const workoutHub = ({ navigation }) => {
+  const [workoutView, setWorkoutView] = useState("Custom");
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topButtonsContainer}>
-        <TouchableOpacity style={styles.topButton}>
-          <Text
-            style={styles.topButtonText}
-            onPress={() => console.log("PrePackaged workouts")}
-          >
-            Workouts
-          </Text>
+        <TouchableOpacity
+          style={styles.topButton}
+          onPress={() => setWorkoutView("premade")}
+        >
+          <Text style={styles.topButtonText}>Legacy Workouts</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.topButton}
-          onPress={() => console.log("custom workouts")}
+          onPress={() => setWorkoutView("custom")}
         >
-          <Text style={styles.topButtonText}>View Exercises</Text>
+          <Text style={styles.topButtonText}>Custom Workouts</Text>
         </TouchableOpacity>
       </View>
+
+      {workoutView == "premade" ? <Text>1</Text> : <Text>2</Text>}
     </SafeAreaView>
   );
 };
@@ -35,7 +36,7 @@ const workoutHub = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#252323",
+    backgroundColor: "black",
     alignItems: "center",
     justifyContent: "flex-start",
   },
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   topButton: {
-    backgroundColor: "#0D0C0C",
+    backgroundColor: "#252323",
     height: 50,
     width: 190,
     justifyContent: "center",

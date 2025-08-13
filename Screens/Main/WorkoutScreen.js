@@ -59,9 +59,9 @@ const WorkoutScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#252323",
+    backgroundColor: "black",
     alignItems: "center",
-    justifyContent: "space-around",
+    justifyContent: "flex-start",
   },
   titleText: {
     fontSize: 24,
@@ -75,11 +75,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-evenly",
     gap: 10,
-    position: "absolute",
-    top: 0,
   },
   topButton: {
-    backgroundColor: "#0D0C0C",
+    backgroundColor: "#252323",
     height: 50,
     width: 190,
     justifyContent: "center",

@@ -39,7 +39,7 @@ const StartWorkButton = () => {
 
 const styles = StyleSheet.create({
   buttonContainer: {
-    backgroundColor: "#0D0C0C",
+    backgroundColor: "#252323",
     padding: 7,
     borderRadius: 10,
     width: 350,
