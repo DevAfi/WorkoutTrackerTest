@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import ViewAvatar from "../../components/viewAvatar";
 import { supabase } from "../../lib/supabase";
+import SimpleXPBar from "../../components/GameComponents/simpleProgressBar";
 
 const ProfileScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
@@ -18,6 +19,7 @@ const ProfileScreen = ({ route, navigation }) => {
   const [fullName, setFullName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState(""); // optional
   const [seeFeed, setSeeFeed] = useState(false);
+  const [userID, setUserID] = useState("");
 
   useEffect(() => {
     fetchProfile();
@@ -50,6 +52,8 @@ const ProfileScreen = ({ route, navigation }) => {
       setFullName(data.full_name || "loading name...");
       setAvatarUrl(data.avatar_url || "loading pfp...");
     }
+    setUserID(user.id);
+    console.log("UID: ", userID);
 
     setLoading(false);
   }
@@ -61,33 +65,36 @@ const ProfileScreen = ({ route, navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={{ width: "100%", height: "100%" }}>
-        <View style={styles.topSectionContainer}>
-          <View style={styles.pfp}>
-            <ViewAvatar url={avatarUrl} />
-          </View>
-          <View style={styles.topSectionText}>
-            <Text style={{ fontSize: 21, color: "white", width: 255 }}>
-              @{username}
-            </Text>
+        <View style={{ gap: "2.5%" }}>
+          <View style={styles.topSectionContainer}>
+            <View style={styles.pfp}>
+              <ViewAvatar url={avatarUrl} />
+            </View>
+            <View style={styles.topSectionText}>
+              <Text style={{ fontSize: 21, color: "white", width: 255 }}>
+                @{username}
+              </Text>
 
-            <Text style={styles.smallTopText}>
-              {fullName} | "{goal}"
-            </Text>
+              <Text style={styles.smallTopText}>
+                {fullName} | "{goal}"
+              </Text>
+            </View>
           </View>
-        </View>
-        {/* SBD SECTION */}
-        <View style={styles.secondSectionContainer}>
-          <View style={styles.liftSection}>
-            <Text style={styles.liftBigText}>Squat</Text>
-            <Text style={styles.liftNumber}>999</Text>
-          </View>
-          <View style={styles.liftSection}>
-            <Text style={styles.liftBigText}>Bench</Text>
-            <Text style={styles.liftNumber}>999</Text>
-          </View>
-          <View style={styles.liftSection}>
-            <Text style={styles.liftBigText}>Deadlift</Text>
-            <Text style={styles.liftNumber}>999</Text>
+          <SimpleXPBar userId={userID} compact={true} />
+          {/* SBD SECTION */}
+          <View style={styles.secondSectionContainer}>
+            <View style={styles.liftSection}>
+              <Text style={styles.liftBigText}>Squat</Text>
+              <Text style={styles.liftNumber}>999</Text>
+            </View>
+            <View style={styles.liftSection}>
+              <Text style={styles.liftBigText}>Bench</Text>
+              <Text style={styles.liftNumber}>999</Text>
+            </View>
+            <View style={styles.liftSection}>
+              <Text style={styles.liftBigText}>Deadlift</Text>
+              <Text style={styles.liftNumber}>999</Text>
+            </View>
           </View>
         </View>
         {/* Buttons below */}
@@ -140,7 +147,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 10,
     gap: 20,
-    marginTop: 10,
+
     justifyContent: "space-around",
   },
   pfp: {

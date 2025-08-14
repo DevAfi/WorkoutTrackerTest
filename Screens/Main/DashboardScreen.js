@@ -6,16 +6,18 @@ import {
   View,
   TouchableOpacity,
   SafeAreaView,
+  Button,
+  Alert,
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import LatestSessionRecap from "../../components/statisticComponents/LatestSessionRecap";
-import { fetchWorkoutHeatmap } from "../../Util/volumeStats";
-import WorkoutHeatmap from "../../components/statisticComponents/streakChart";
 import { supabase } from "../../lib/supabase";
 import StreakTracker from "../../components/streakComponent";
+import XPLevelDashboard from "../../components/GameComponents/XPDashboard";
 const DashboardScreen = ({ navigation }) => {
   const [heatmapData, setHeatmapData] = useState([]);
   const [userID, setUserID] = useState("");
+  const [showXPAnimation, setShowXPAnimation] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -28,6 +30,27 @@ const DashboardScreen = ({ navigation }) => {
       setUserID(userData.user.id);
     })();
   }, []);
+
+  // Example: Manual XP award (for testing)
+  async function awardBonusXP() {
+    try {
+      const { error } = await supabase.rpc("award_xp", {
+        p_user_id: userID,
+        p_xp_amount: 100,
+      });
+
+      if (error) throw error;
+
+      setShowXPAnimation(true);
+      setTimeout(() => setShowXPAnimation(false), 2000);
+
+      Alert.alert("Bonus XP!", "You earned 100 bonus XP! 🌟");
+      console.log(userID);
+    } catch (err) {
+      console.error("Error awarding XP:", err);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {/*  <SafeAreaView style={styles.headerBar}>
@@ -51,6 +74,12 @@ const DashboardScreen = ({ navigation }) => {
         <MaterialIcons name="home" size={36} color={"white"}></MaterialIcons>
         <Text style={styles.topText}>Weekly Activity</Text>
       </View>
+      <XPLevelDashboard userId={userID} showXPAnimation={showXPAnimation} />
+      <Button
+        title="Award Bonus XP (Test)"
+        onPress={awardBonusXP}
+        color="#28a745"
+      />
       <StreakTracker userId={userID} />
       <View style={styles.recapContainer}>
         <LatestSessionRecap
