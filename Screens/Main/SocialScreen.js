@@ -37,6 +37,7 @@ const SocialScreen = ({ navigation }) => {
                   full_name: item.full_name,
                   goal: item.goal,
                   avatar_url: item.avatar_url,
+                  userId: item.id,
                 })
               }
             >
