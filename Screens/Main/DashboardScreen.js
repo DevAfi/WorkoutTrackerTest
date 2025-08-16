@@ -6,65 +6,113 @@ import {
   View,
   TouchableOpacity,
   SafeAreaView,
-  Button,
   Alert,
+  ScrollView,
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import LatestSessionRecap from "../../components/statisticComponents/LatestSessionRecap";
 import { supabase } from "../../lib/supabase";
 import StreakTracker from "../../components/streakComponent";
 import ActivityFeed from "../../components/socialComponents/activityFeed";
-import { useNavigation } from "@react-navigation/native";
 
 const DashboardScreen = ({ navigation }) => {
   const [heatmapData, setHeatmapData] = useState([]);
   const [userID, setUserID] = useState("");
   const [showXPAnimation, setShowXPAnimation] = useState(false);
+  const [userLoading, setUserLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData?.user) {
-        console.error("No user data found");
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData?.user) {
+          console.error("No user data found");
+          return;
+        }
+        console.log("User ID:", userData.user.id);
+        setUserID(userData.user.id);
+      } catch (error) {
+        console.error("Error getting user:", error);
+      } finally {
+        setUserLoading(false);
       }
-      console.log("1");
-
-      setUserID(userData.user.id);
     })();
   }, []);
 
+  const handleFriendsActivityPress = () => {
+    if (!userID) {
+      Alert.alert("Error", "User not loaded yet. Please try again.");
+      return;
+    }
+
+    console.log("Navigating with userID:", userID);
+    navigation.navigate("friendActivity", { userId: userID });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      {/*  <SafeAreaView style={styles.headerBar}>
-        <Text style={styles.headerText}>Hello</Text>
-      </SafeAreaView>
-    */}
-      <Text style={styles.titleText}>Welcome back</Text>
-      <TouchableOpacity
-        onPress={() => navigation.navigate("Settings")}
-        style={{ position: "absolute", top: "5%", right: "5%" }}
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
       >
-        <MaterialIcons
-          name="settings"
-          size={30}
-          color="#f5f1ed"
-          marginRight={10}
-        />
-      </TouchableOpacity>
+        {/* Header */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.titleText}>Welcome back</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Settings")}
+            style={styles.settingsButton}
+          >
+            <MaterialIcons name="settings" size={30} color="#f5f1ed" />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.topContainer}>
-        <MaterialIcons name="home" size={36} color={"white"}></MaterialIcons>
-        <Text style={styles.topText}>Weekly Activity</Text>
-      </View>
-      <StreakTracker userId={userID} />
-      <View style={styles.recapContainer}>
-        {/*  <LatestSessionRecap
-          onPress={(session) =>
-            navigation.navigate("SessionDetail", { sessionId: session.id })
-          }
-        /> */}
-        <ActivityFeed userId={userID} navigation={navigation} />
-      </View>
+        {/* Weekly Activity Section */}
+        <View style={styles.topContainer}>
+          <MaterialIcons name="home" size={36} color={"white"}></MaterialIcons>
+          <Text style={styles.topText}>Weekly Activity</Text>
+        </View>
+
+        {/* Streak Tracker */}
+        {userID && <StreakTracker userId={userID} />}
+
+        {/* Friend Activity Section */}
+        <View style={styles.activitySection}>
+          <View style={styles.sectionHeader}>
+            <MaterialIcons name="people" size={24} color="#007bff" />
+            <Text style={styles.sectionTitle}>Friend Activity</Text>
+            <TouchableOpacity
+              onPress={handleFriendsActivityPress}
+              disabled={userLoading || !userID}
+            >
+              <Text style={styles.seeAllText}>See All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Activity Feed Component */}
+          {userID && !userLoading ? (
+            <View style={styles.activityFeedContainer}>
+              <ActivityFeed userId={userID} navigation={navigation} />
+            </View>
+          ) : (
+            <View style={styles.loadingActivityContainer}>
+              <Text style={styles.loadingText}>
+                {userLoading ? "Loading activities..." : "No user data"}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Other sections can go here */}
+        <View style={styles.recapContainer}>
+          {/* Uncomment when ready to use LatestSessionRecap */}
+          {/*
+          <LatestSessionRecap
+            onPress={(session) =>
+              navigation.navigate("SessionDetail", { sessionId: session.id })
+            }
+          />
+          */}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -73,7 +121,94 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    marginBottom: 20,
+  },
+  settingsButton: {
+    padding: 5,
+  },
+  titleText: {
+    fontSize: 36,
+    fontWeight: "bold",
+    color: "#f5f1ed",
+    fontFamily: "Arial",
+  },
+  topContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#333",
+    padding: 20,
+    borderRadius: 10,
+    width: "90%",
+    alignSelf: "center",
+    gap: 20,
+    borderColor: "#AF125A",
+    borderWidth: 2,
+    marginBottom: 20,
+  },
+  topText: {
+    fontSize: 24,
+    color: "#f5f1ed",
+    fontFamily: "Arial",
+  },
+  activitySection: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#333",
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "white",
+    marginLeft: 8,
+    flex: 1,
+  },
+  seeAllText: {
+    color: "#007bff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  activityFeedContainer: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 12,
+    maxHeight: 400,
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  loadingActivityContainer: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 12,
+    padding: 40,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  loadingText: {
+    color: "grey",
+    fontSize: 16,
+  },
+  recapContainer: {
+    width: "100%",
+    alignItems: "center",
+    paddingTop: 20,
+    paddingBottom: 40,
   },
   headerBar: {
     width: "100%",
@@ -85,36 +220,23 @@ const styles = StyleSheet.create({
   headerText: {
     backgroundColor: "white",
   },
-  titleText: {
-    fontSize: 36,
-    fontWeight: "bold",
-    marginVertical: 10,
-    color: "#f5f1ed",
-    fontFamily: "Arial",
-  },
-  topContainer: {
+  friendsButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#333",
-    padding: 20,
-    borderRadius: 10,
-    width: "90%",
-    gap: 20,
-    borderColor: "#AF125A",
-    borderWidth: 2,
-    marginBottom: 10,
+    backgroundColor: "#007bff",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    gap: 8,
   },
-  topText: {
-    fontSize: 24,
-    color: "#f5f1ed",
-    fontFamily: "Arial",
+  friendsButtonDisabled: {
+    backgroundColor: "#666",
   },
-  recapContainer: {
-    width: "100%",
-    alignItems: "center",
-    paddingTop: "10%",
-    borderTopWidth: 1,
-    borderTopColor: "white",
+  friendsButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
+
 export default DashboardScreen;

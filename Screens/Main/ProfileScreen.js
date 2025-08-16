@@ -12,6 +12,7 @@ import ViewAvatar from "../../components/viewAvatar";
 import { supabase } from "../../lib/supabase";
 import SimpleXPBar from "../../components/GameComponents/simpleProgressBar";
 import ActivityFeed from "../../components/socialComponents/activityFeed";
+import { Button } from "react-native";
 
 const ProfileScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
