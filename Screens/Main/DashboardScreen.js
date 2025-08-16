@@ -13,7 +13,9 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import LatestSessionRecap from "../../components/statisticComponents/LatestSessionRecap";
 import { supabase } from "../../lib/supabase";
 import StreakTracker from "../../components/streakComponent";
-import XPLevelDashboard from "../../components/GameComponents/XPDashboard";
+import ActivityFeed from "../../components/socialComponents/activityFeed";
+import { useNavigation } from "@react-navigation/native";
+
 const DashboardScreen = ({ navigation }) => {
   const [heatmapData, setHeatmapData] = useState([]);
   const [userID, setUserID] = useState("");
@@ -30,26 +32,6 @@ const DashboardScreen = ({ navigation }) => {
       setUserID(userData.user.id);
     })();
   }, []);
-
-  // Example: Manual XP award (for testing)
-  async function awardBonusXP() {
-    try {
-      const { error } = await supabase.rpc("award_xp", {
-        p_user_id: userID,
-        p_xp_amount: 100,
-      });
-
-      if (error) throw error;
-
-      setShowXPAnimation(true);
-      setTimeout(() => setShowXPAnimation(false), 2000);
-
-      Alert.alert("Bonus XP!", "You earned 100 bonus XP! 🌟");
-      console.log(userID);
-    } catch (err) {
-      console.error("Error awarding XP:", err);
-    }
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -74,19 +56,14 @@ const DashboardScreen = ({ navigation }) => {
         <MaterialIcons name="home" size={36} color={"white"}></MaterialIcons>
         <Text style={styles.topText}>Weekly Activity</Text>
       </View>
-      <XPLevelDashboard userId={userID} showXPAnimation={showXPAnimation} />
-      <Button
-        title="Award Bonus XP (Test)"
-        onPress={awardBonusXP}
-        color="#28a745"
-      />
       <StreakTracker userId={userID} />
       <View style={styles.recapContainer}>
-        <LatestSessionRecap
+        {/*  <LatestSessionRecap
           onPress={(session) =>
             navigation.navigate("SessionDetail", { sessionId: session.id })
           }
-        />
+        /> */}
+        <ActivityFeed userId={userID} navigation={navigation} />
       </View>
     </SafeAreaView>
   );

@@ -11,6 +11,7 @@ import {
 import ViewAvatar from "../../components/viewAvatar";
 import { supabase } from "../../lib/supabase";
 import SimpleXPBar from "../../components/GameComponents/simpleProgressBar";
+import ActivityFeed from "../../components/socialComponents/activityFeed";
 
 const ProfileScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);

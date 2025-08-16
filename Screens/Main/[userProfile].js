@@ -1,9 +1,10 @@
 import React, { useLayoutEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
 import ViewAvatar from "../../components/viewAvatar";
+import ActivityFeed from "../../components/socialComponents/activityFeed";
 
 const UserProfile = ({ route, navigation }) => {
-  const { username, full_name, goal, avatar_url } = route.params;
+  const { username, full_name, goal, avatar_url, userId } = route.params;
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: username });
@@ -39,6 +40,7 @@ const UserProfile = ({ route, navigation }) => {
             <Text style={styles.liftNumber}>999</Text>
           </View>
         </View>
+        <ActivityFeed userId={userId} navigation={navigation} />
       </ScrollView>
     </View>
   );
