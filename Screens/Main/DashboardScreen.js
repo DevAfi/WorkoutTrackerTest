@@ -12,12 +12,10 @@ import {
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { supabase } from "../../lib/supabase";
 import StreakTracker from "../../components/streakComponent";
-import ActivityFeed from "../../components/socialComponents/activityFeed";
+import EmbeddedActivityFeed from "../embeddedActivity";
 
 const DashboardScreen = ({ navigation }) => {
-  const [heatmapData, setHeatmapData] = useState([]);
   const [userID, setUserID] = useState("");
-  const [showXPAnimation, setShowXPAnimation] = useState(false);
   const [userLoading, setUserLoading] = useState(true);
 
   useEffect(() => {
@@ -90,7 +88,11 @@ const DashboardScreen = ({ navigation }) => {
           {/* Activity Feed Component */}
           {userID && !userLoading ? (
             <View style={styles.activityFeedContainer}>
-              <ActivityFeed userId={userID} navigation={navigation} />
+              <EmbeddedActivityFeed
+                userId={userID}
+                navigation={navigation}
+                maxItems={3}
+              />
             </View>
           ) : (
             <View style={styles.loadingActivityContainer}>
@@ -188,7 +190,7 @@ const styles = StyleSheet.create({
   activityFeedContainer: {
     backgroundColor: "#1a1a1a",
     borderRadius: 12,
-    maxHeight: 400,
+    maxHeight: 400, // Limit height so it doesn't take over the whole screen
     borderWidth: 1,
     borderColor: "#333",
   },
@@ -210,6 +212,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40,
   },
+  // Remove the old styles that are no longer needed
   headerBar: {
     width: "100%",
     height: 50,

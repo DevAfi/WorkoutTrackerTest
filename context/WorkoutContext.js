@@ -99,6 +99,27 @@ export const WorkoutProvider = ({ children }) => {
     setActiveWorkoutId(null);
   };
 
+  const discardWorkout = async () => {
+    if (!activeWorkoutId) {
+      Alert.alert("Error", "No active workout.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("workout_sessions")
+      .delete()
+      .eq("id", activeWorkoutId);
+
+    Alert.alert("Workout Logged!");
+    if (error) {
+      console.error("Error ending workout:", error);
+      Alert.alert("Error", "Could not end workout.");
+      return;
+    }
+
+    setActiveWorkoutId(null);
+  };
+
   return (
     <WorkoutContext.Provider
       value={{
@@ -107,6 +128,7 @@ export const WorkoutProvider = ({ children }) => {
         addExerciseToWorkout,
         addSetToExercise,
         endWorkout,
+        discardWorkout,
       }}
     >
       {children}

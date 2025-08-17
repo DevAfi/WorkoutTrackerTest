@@ -118,11 +118,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     minHeight: 60,
     marginBottom: 8,
-    maxHeight: 280,
+    maxHeight: 200,
   },
   sentimentContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-evenly",
   },
 });
 
