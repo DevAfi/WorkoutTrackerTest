@@ -110,7 +110,7 @@ export const WorkoutProvider = ({ children }) => {
       .delete()
       .eq("id", activeWorkoutId);
 
-    Alert.alert("Workout Logged!");
+    Alert.alert("Workout Discarded");
     if (error) {
       console.error("Error ending workout:", error);
       Alert.alert("Error", "Could not end workout.");

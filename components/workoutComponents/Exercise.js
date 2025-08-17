@@ -14,6 +14,7 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
   const [reps, setReps] = useState("");
   const [weight, setWeight] = useState("");
   const [rpe, setRpe] = useState("");
+  const [note, setNote] = useState("");
 
   const fetchSets = async () => {
     if (!workoutExerciseId) return;
@@ -68,6 +69,13 @@ const Exercise = ({ exercise, workoutExerciseId }) => {
   return (
     <View style={styles.exerciseContainer}>
       <Text style={styles.exerciseName}>{exercise.name}</Text>
+      <TextInput
+        style={styles.notesInput}
+        placeholder="Add notes here..."
+        placeholderTextColor={"rgb(108, 101, 101)"}
+        value={note}
+        onChangeText={setNote}
+      />
 
       {/* List all sets */}
       {sets.map((set, index) => (
@@ -140,6 +148,12 @@ const styles = StyleSheet.create({
     padding: 8,
     marginRight: 5,
     borderRadius: 5,
+  },
+  notesInput: {
+    flex: 1,
+    color: "#fff",
+    paddingLeft: 10,
+    marginBottom: 15,
   },
   addSetButton: {
     backgroundColor: "#AF125A",

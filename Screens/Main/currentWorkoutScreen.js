@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Modal,
   StatusBar,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { useWorkout } from "../../context/WorkoutContext";
 import { supabase } from "../../lib/supabase";
@@ -15,6 +17,8 @@ import Exercise from "../../components/workoutComponents/Exercise";
 import EndWorkoutButton from "../../components/endWorkButton";
 import AddNote from "../../components/workoutComponents/addNote";
 import DiscardWorkoutButton from "../../components/discardWorkoutButton";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+
 const CurrentWorkoutScreen = ({ navigation }) => {
   const { activeWorkoutId } = useWorkout();
   const [exercises, setExercises] = useState([]);
@@ -94,14 +98,14 @@ const CurrentWorkoutScreen = ({ navigation }) => {
             <Text style={styles.backButtonText}>✕</Text>
           </TouchableOpacity>
           <View style={styles.headerCenter}>
-            <Text style={styles.workoutTitle}>Quick Workout</Text>
+            <Text style={styles.workoutTitle}>freestyle workout</Text>
             <Text style={styles.workoutTime}>{elapsedTime}</Text>
           </View>
           <TouchableOpacity
             style={styles.notesButton}
             onPress={() => setModalVisible(true)}
           >
-            <Text style={styles.notesButtonText}>📝</Text>
+            <MaterialIcons name="note-alt" color="#fff" size={24} />
           </TouchableOpacity>
         </View>
         <View style={styles.statsContainer}>
@@ -173,20 +177,22 @@ const CurrentWorkoutScreen = ({ navigation }) => {
           visible={modalVisible}
           onRequestClose={() => setModalVisible(false)}
         >
-          <View style={styles.modalBackground}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Workout Notes</Text>
-                <TouchableOpacity
-                  style={styles.modalCloseButton}
-                  onPress={() => setModalVisible(false)}
-                >
-                  <Text style={styles.modalCloseButtonText}>✕</Text>
-                </TouchableOpacity>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.modalBackground}>
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Workout Notes</Text>
+                  <TouchableOpacity
+                    style={styles.modalCloseButton}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text style={styles.modalCloseButtonText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+                {activeWorkoutId && <AddNote sessionId={activeWorkoutId} />}
               </View>
-              {activeWorkoutId && <AddNote sessionId={activeWorkoutId} />}
             </View>
-          </View>
+          </TouchableWithoutFeedback>
         </Modal>
       </SafeAreaView>
     </>
