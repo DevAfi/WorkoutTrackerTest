@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { useWorkout } from "../../context/WorkoutContext";
 import { supabase } from "../../lib/supabase";
+import { useFocusEffect } from "@react-navigation/native";
 import Exercise from "../../components/workoutComponents/Exercise";
 import EndWorkoutButton from "../../components/endWorkButton";
 import AddNote from "../../components/workoutComponents/addNote";
@@ -30,6 +31,15 @@ const CurrentWorkoutScreen = ({ navigation }) => {
     if (!activeWorkoutId) return;
     fetchWorkoutData();
   }, [activeWorkoutId]);
+
+  // Add this to refresh data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      if (activeWorkoutId) {
+        fetchWorkoutData();
+      }
+    }, [activeWorkoutId])
+  );
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -141,6 +151,7 @@ const CurrentWorkoutScreen = ({ navigation }) => {
                 <Exercise
                   exercise={exercise.exercise}
                   workoutExerciseId={exercise.id}
+                  onDelete={fetchWorkoutData}
                 />
               </View>
             ))

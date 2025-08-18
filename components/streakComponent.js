@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   bubble: {
     width: 20,
     height: 20,
-    borderRadius: 10,
+    borderRadius: 5,
   },
   bubbleActive: {
     backgroundColor: "#4caf50",
