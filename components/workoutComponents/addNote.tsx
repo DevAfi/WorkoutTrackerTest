@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
+  Text,
   TextInput,
   Button,
   StyleSheet,
@@ -95,12 +96,15 @@ const AddNote = ({ sessionId }: { sessionId: string }) => {
         </TouchableOpacity>
       </View>
 
-      <Button
-        title={loading ? "Saving..." : "Save Note"}
-        color={"#f5f1ed"}
+      <TouchableOpacity
         onPress={saveNote}
         disabled={loading}
-      />
+        style={styles.addButton}
+      >
+        <Text style={styles.addButtonText}>
+          {loading ? "Saving..." : "Save Note"}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -109,7 +113,7 @@ const styles = StyleSheet.create({
   container: {
     marginHorizontal: 16,
     marginVertical: 10,
-    width: "100%",
+    width: "95%",
   },
   input: {
     color: "#f5f1ed",
@@ -118,11 +122,26 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     minHeight: 60,
     marginBottom: 8,
-    maxHeight: 200,
+    maxHeight: "60.5%",
   },
   sentimentContainer: {
     flexDirection: "row",
     justifyContent: "space-evenly",
+  },
+  addButton: {
+    marginTop: 20,
+    backgroundColor: "#1a1a1a",
+    padding: 7,
+    borderRadius: 5,
+    alignItems: "center",
+    alignSelf: "center",
+    justifyContent: "center",
+  },
+  addButtonText: {
+    color: "#f5f1ed",
+    fontFamily: "Arial",
+    fontSize: 20,
+    fontWeight: "bold",
   },
 });
 
