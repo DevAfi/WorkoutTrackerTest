@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -15,19 +15,56 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
   const [previousSets, setPreviousSets] = useState([]);
   const [note, setNote] = useState("");
   const [userId, setUserId] = useState(null);
+  const [fullExercise, setFullExercise] = useState(exercise);
+
+  const fetchFullExerciseData = async () => {
+    try {
+      if (workoutExerciseId && (!exercise?.id || !exercise?.category)) {
+        const { data, error } = await supabase
+          .from("workout_exercises")
+          .select(
+            `
+            id,
+            exercise_id,
+            exercises (
+              id,
+              name,
+              category,
+              equipment,
+              instructions
+            )
+          `
+          )
+          .eq("id", workoutExerciseId)
+          .single();
+
+        if (error) {
+          console.error("Error fetching full exercise data:", error);
+          return;
+        }
+
+        if (data && data.exercises) {
+          setFullExercise(data.exercises);
+        }
+      }
+    } catch (error) {
+      console.error("Error in fetchFullExerciseData:", error);
+    }
+  };
 
   useEffect(() => {
     getCurrentUser();
+    fetchFullExerciseData();
   }, []);
 
   useEffect(() => {
     if (workoutExerciseId) {
       fetchSets();
     }
-    if (exercise?.id && userId) {
+    if (fullExercise?.id && userId) {
       fetchPreviousWorkoutData();
     }
-  }, [workoutExerciseId, exercise, userId]);
+  }, [workoutExerciseId, fullExercise, userId]);
 
   const getCurrentUser = async () => {
     const {
@@ -73,7 +110,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
         `
         )
         .eq("user_id", userId)
-        .eq("workout_exercises.exercise_id", exercise.id)
+        .eq("workout_exercises.exercise_id", fullExercise.id)
         .not("ended_at", "is", null)
         .order("ended_at", { ascending: false })
         .limit(1);
@@ -86,26 +123,29 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
       if (data && data.length > 0) {
         const lastWorkout = data[0];
         const exerciseData = lastWorkout.workout_exercises.find(
-          (we) => we.exercise_id === exercise.id
+          (we) => we.exercise_id === fullExercise.id
         );
 
         if (exerciseData && exerciseData.sets) {
           const sortedSets = exerciseData.sets.sort(
             (a, b) => a.set_number - b.set_number
           );
+
           setPreviousSets(sortedSets);
 
-          const initialSets = sortedSets.map((_, index) => ({
-            id: `temp_${index}`,
-            set_number: index + 1,
-            reps: "",
-            weight: "",
-            rpe: "",
-            completed: false,
-            isFromPrevious: false,
-          }));
+          if (sets.length === 0) {
+            const initialSets = sortedSets.map((_, index) => ({
+              id: `temp_${index}`,
+              set_number: index + 1,
+              reps: "",
+              weight: "",
+              rpe: "",
+              completed: false,
+              isFromPrevious: false,
+            }));
 
-          setSets(initialSets);
+            setSets(initialSets);
+          }
         }
       }
     } catch (error) {
@@ -116,7 +156,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
   const handleDeleteExercise = () => {
     Alert.alert(
       "Delete Exercise",
-      `Are you sure you want to delete ${exercise.name} from this workout? This will remove all sets for this exercise.`,
+      `Are you sure you want to delete ${fullExercise.name} from this workout? This will remove all sets for this exercise.`,
       [
         {
           text: "Cancel",
@@ -247,31 +287,57 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
     setSets(updatedSets);
   };
 
-  const getPlaceholder = (setIndex, field) => {
-    if (previousSets && previousSets[setIndex]) {
-      const previousSet = previousSets[setIndex];
+  const getPlaceholder = useCallback(
+    (setIndex, field) => {
+      if (setIndex === 0 && field === "weight") {
+        {
+          /*  console.log("getPlaceholder called:", {
+          setIndex,
+          field,
+          previousSets: previousSets.length,
+          previousSet: previousSets[setIndex],
+        }); */
+        }
+      }
+
+      if (previousSets && previousSets.length > 0 && previousSets[setIndex]) {
+        const previousSet = previousSets[setIndex];
+        if (setIndex === 0 && field === "weight") {
+          {
+            /* console.log("Using previous set data:", previousSet); */
+          }
+        }
+
+        switch (field) {
+          case "weight":
+            return previousSet.weight ? previousSet.weight.toString() : "kg";
+          case "reps":
+            return previousSet.reps ? previousSet.reps.toString() : "reps";
+          case "rpe":
+            return previousSet.rpe ? previousSet.rpe.toString() : "RPE";
+          default:
+            return field;
+        }
+      }
+
+      if (setIndex === 0 && field === "weight") {
+        {
+          /* console.log("No previous data, using default placeholder for:", field); */
+        }
+      }
       switch (field) {
         case "weight":
-          return previousSet.weight ? `${previousSet.weight}kg` : "kg";
+          return "kg";
         case "reps":
-          return previousSet.reps ? `${previousSet.reps}` : "reps";
+          return "reps";
         case "rpe":
-          return previousSet.rpe ? `${previousSet.rpe}` : "RPE";
+          return "RPE";
         default:
           return field;
       }
-    }
-    switch (field) {
-      case "weight":
-        return "kg";
-      case "reps":
-        return "reps";
-      case "rpe":
-        return "RPE";
-      default:
-        return field;
-    }
-  };
+    },
+    [previousSets]
+  );
 
   const renderSetRow = (set, index) => {
     const isCompleted = set.completed;
@@ -346,7 +412,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
     <View style={styles.exerciseContainer}>
       <View style={styles.exerciseHeader}>
         <View style={styles.exerciseHeaderLeft}>
-          <Text style={styles.exerciseName}>{exercise.name}</Text>
+          <Text style={styles.exerciseName}>{fullExercise.name}</Text>
           {previousSets.length > 0 && (
             <Text style={styles.previousWorkoutText}>
               Last: {previousSets.length} sets
