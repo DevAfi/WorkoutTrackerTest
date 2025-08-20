@@ -32,7 +32,7 @@ const CurrentWorkoutScreen = ({ navigation }) => {
     fetchWorkoutData();
   }, [activeWorkoutId]);
 
-  // Add this to refresh data when screen comes into focus
+  // refreshes data
   useFocusEffect(
     React.useCallback(() => {
       if (activeWorkoutId) {
@@ -77,6 +77,11 @@ const CurrentWorkoutScreen = ({ navigation }) => {
     if (!error && data) {
       setExercises(data.workout_exercises || []);
     }
+  };
+
+  // literally just fetches data when smt is changed in the set
+  const handleSetChange = () => {
+    fetchWorkoutData();
   };
 
   const getTotalVolume = () => {
@@ -152,6 +157,7 @@ const CurrentWorkoutScreen = ({ navigation }) => {
                   exercise={exercise.exercise}
                   workoutExerciseId={exercise.id}
                   onDelete={fetchWorkoutData}
+                  onSetChange={handleSetChange}
                 />
               </View>
             ))

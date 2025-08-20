@@ -10,7 +10,7 @@ import {
 import { supabase } from "../../lib/supabase";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
-const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
+const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
   const [sets, setSets] = useState([]);
   const [previousSets, setPreviousSets] = useState([]);
   const [note, setNote] = useState("");
@@ -209,7 +209,60 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
     const currentSet = sets[setIndex];
 
     if (currentSet.completed) {
+      // If set is already completed, unconfirm it
+      await handleSetUnconfirm(setIndex);
       return;
+    }
+
+    const hasPreviousData =
+      previousSets && previousSets.length > 0 && previousSets[setIndex];
+
+    let weight = currentSet.weight;
+    let reps = currentSet.reps;
+    let rpe = currentSet.rpe;
+
+    if (hasPreviousData) {
+      const previousSet = previousSets[setIndex];
+
+      if (!weight || weight === "") {
+        weight = previousSet.weight ? previousSet.weight.toString() : "";
+      }
+      if (!reps || reps === "") {
+        reps = previousSet.reps ? previousSet.reps.toString() : "";
+      }
+      if (!rpe || rpe === "") {
+        rpe = previousSet.rpe ? previousSet.rpe.toString() : "";
+      }
+    }
+
+    if (
+      !weight ||
+      !reps ||
+      !rpe ||
+      weight === "" ||
+      reps === "" ||
+      rpe === ""
+    ) {
+      Alert.alert(
+        "Missing Data",
+        "Please fill in all fields (Weight, Reps, and RPE) before logging the set."
+      );
+      return;
+    }
+
+    if (
+      weight !== currentSet.weight ||
+      reps !== currentSet.reps ||
+      rpe !== currentSet.rpe
+    ) {
+      const updatedSets = [...sets];
+      updatedSets[setIndex] = {
+        ...updatedSets[setIndex],
+        weight: weight,
+        reps: reps,
+        rpe: rpe,
+      };
+      setSets(updatedSets);
     }
 
     try {
@@ -219,9 +272,9 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
           {
             workout_exercise_id: workoutExerciseId,
             set_number: setIndex + 1,
-            reps: parseInt(currentSet.reps),
-            weight: parseFloat(currentSet.weight),
-            rpe: parseFloat(currentSet.rpe),
+            reps: parseInt(reps),
+            weight: parseFloat(weight),
+            rpe: parseFloat(rpe),
           },
         ])
         .select()
@@ -240,9 +293,53 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
         isFromPrevious: false,
       };
       setSets(updatedSets);
+
+      if (onSetChange) {
+        onSetChange();
+      }
     } catch (error) {
       console.error("Error in handleSetCompletion:", error);
       Alert.alert("Error", "Failed to save set");
+    }
+  };
+
+  const handleSetUnconfirm = async (setIndex) => {
+    const currentSet = sets[setIndex];
+
+    if (!currentSet.completed || currentSet.id.toString().startsWith("temp_")) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("sets")
+        .delete()
+        .eq("id", currentSet.id);
+
+      if (error) {
+        console.error("Error deleting set:", error);
+        Alert.alert("Error", "Failed to unconfirm set");
+        return;
+      }
+
+      const updatedSets = [...sets];
+      updatedSets[setIndex] = {
+        id: `temp_${Date.now()}`,
+        set_number: setIndex + 1,
+        reps: currentSet.reps.toString(),
+        weight: currentSet.weight.toString(),
+        rpe: currentSet.rpe.toString(),
+        completed: false,
+        isFromPrevious: false,
+      };
+      setSets(updatedSets);
+
+      if (onSetChange) {
+        onSetChange();
+      }
+    } catch (error) {
+      console.error("Error in handleSetUnconfirm:", error);
+      Alert.alert("Error", "Failed to unconfirm set");
     }
   };
 
@@ -279,7 +376,10 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
       setToRemove.completed &&
       !setToRemove.id.toString().startsWith("temp_")
     ) {
-      Alert.alert("Cannot delete completed sets");
+      Alert.alert(
+        "Cannot delete completed sets",
+        "Unconfirm the set first to delete it."
+      );
       return;
     }
 
@@ -387,7 +487,6 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete }) => {
             isCompleted && styles.checkButtonCompleted,
           ]}
           onPress={() => handleSetCompletion(index)}
-          disabled={isCompleted}
         >
           <MaterialIcons
             name={isCompleted ? "check-circle" : "radio-button-unchecked"}
