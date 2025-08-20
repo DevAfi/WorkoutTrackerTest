@@ -13,6 +13,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { supabase } from "../../lib/supabase";
 import StreakTracker from "../../components/streakComponent";
 import EmbeddedActivityFeed from "../embeddedActivity";
+import LatestSessionRecap from "../../components/statisticComponents/LatestSessionRecap";
 
 const DashboardScreen = ({ navigation }) => {
   const [userID, setUserID] = useState("");
@@ -72,47 +73,14 @@ const DashboardScreen = ({ navigation }) => {
         {/* Streak Tracker */}
         {userID && <StreakTracker userId={userID} />}
 
-        {/* Friend Activity Section */}
-        <View style={styles.activitySection}>
-          <View style={styles.sectionHeader}>
-            <MaterialIcons name="people" size={24} color="#007bff" />
-            <Text style={styles.sectionTitle}>Friend Activity</Text>
-            <TouchableOpacity
-              onPress={handleFriendsActivityPress}
-              disabled={userLoading || !userID}
-            >
-              <Text style={styles.seeAllText}>See All</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Activity Feed Component */}
-          {userID && !userLoading ? (
-            <View style={styles.activityFeedContainer}>
-              <EmbeddedActivityFeed
-                userId={userID}
-                navigation={navigation}
-                maxItems={3}
-              />
-            </View>
-          ) : (
-            <View style={styles.loadingActivityContainer}>
-              <Text style={styles.loadingText}>
-                {userLoading ? "Loading activities..." : "No user data"}
-              </Text>
-            </View>
-          )}
-        </View>
-
-        {/* Other sections can go here */}
         <View style={styles.recapContainer}>
           {/* Uncomment when ready to use LatestSessionRecap */}
-          {/*
+
           <LatestSessionRecap
             onPress={(session) =>
               navigation.navigate("SessionDetail", { sessionId: session.id })
             }
           />
-          */}
         </View>
       </ScrollView>
     </SafeAreaView>

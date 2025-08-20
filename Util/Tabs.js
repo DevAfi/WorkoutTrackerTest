@@ -35,7 +35,7 @@ const MainTabs = () => {
         //headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "#252323",
+          backgroundColor: "black",
           borderColor: "#252323",
         },
         headerTitle: "",

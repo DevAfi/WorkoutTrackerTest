@@ -11,8 +11,7 @@ import {
 import ViewAvatar from "../../components/viewAvatar";
 import { supabase } from "../../lib/supabase";
 import SimpleXPBar from "../../components/GameComponents/simpleProgressBar";
-import ActivityFeed from "../../components/socialComponents/activityFeed";
-import { Button } from "react-native";
+import UserActivityFeed from "../../components/socialComponents/userActivityFeed";
 
 const ProfileScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
@@ -54,6 +53,7 @@ const ProfileScreen = ({ route, navigation }) => {
       setFullName(data.full_name || "loading name...");
       setAvatarUrl(data.avatar_url || "loading pfp...");
     }
+
     setUserID(user.id);
     console.log("UID: ", userID);
 
@@ -67,7 +67,7 @@ const ProfileScreen = ({ route, navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={{ width: "100%", height: "100%" }}>
-        <View style={{ gap: "2.5%" }}>
+        <View style={{ gap: 10 }}>
           <View style={styles.topSectionContainer}>
             <View style={styles.pfp}>
               <ViewAvatar url={avatarUrl} />
@@ -114,6 +114,16 @@ const ProfileScreen = ({ route, navigation }) => {
             <Text style={styles.topButtonText}>Progress</Text>
           </TouchableOpacity>
         </View>
+
+        {seeFeed == true ? (
+          <View style={styles.feedContainer}>
+            <UserActivityFeed userId={userID} />
+          </View>
+        ) : (
+          <View>
+            <Text>2</Text>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -194,8 +204,9 @@ const styles = StyleSheet.create({
   },
   topButton: {
     backgroundColor: "#333",
-    height: "65%",
-    width: "45%",
+    height: 70,
+    width: 185,
+
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 15,
@@ -206,5 +217,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#AF125A",
   },
+
+  // Feed //
+
+  feedContainer: {},
 });
 export default ProfileScreen;
