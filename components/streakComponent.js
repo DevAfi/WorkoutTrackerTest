@@ -1,60 +1,134 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import { supabase } from "../lib/supabase";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 export default function StreakTracker({ userId }) {
   const [streak, setStreak] = useState(0);
+  const [workoutDates, setWorkoutDates] = useState(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (userId) {
-      fetchWorkoutHistory();
+      fetchStreak();
     }
   }, [userId]);
 
-  async function fetchWorkoutHistory() {
+  async function fetchStreak() {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("workout_sessions")
-        .select("started_at")
-        .eq("user_id", userId)
-        .order("started_at", { ascending: false });
+      const { data, error } = await supabase.rpc(
+        "calculate_user_current_streak",
+        {
+          p_user_id: userId,
+        }
+      );
 
       if (error) throw error;
-      console.log(data);
 
-      const uniqueDates = [
-        ...new Set(data.map((w) => w.started_at.split("T")[0])),
-      ];
-      const streakCount = calculateStreak(uniqueDates);
-      setStreak(streakCount);
+      setStreak(data || 0);
+      await fetchWorkoutDates();
     } catch (err) {
-      console.error("Error fetching workout history:", err);
+      console.error("Error fetching streak:", err);
+      await fetchWorkoutHistoryFallback();
     } finally {
       setLoading(false);
     }
   }
 
-  function calculateStreak(dates) {
+  async function fetchWorkoutDates() {
+    try {
+      const { data, error } = await supabase
+        .from("workout_sessions")
+        .select("ended_at")
+        .eq("user_id", userId)
+        .not("ended_at", "is", null)
+        .gte(
+          "ended_at",
+          new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
+        ) // Last 14 days
+        .order("ended_at", { ascending: false });
+
+      if (error) throw error;
+      const dates = new Set(data.map((w) => w.ended_at.split("T")[0]));
+      setWorkoutDates(dates);
+    } catch (err) {
+      console.error("Error fetching workout dates:", err);
+    }
+  }
+
+  async function fetchWorkoutHistoryFallback() {
+    try {
+      const { data, error } = await supabase
+        .from("workout_sessions")
+        .select("ended_at")
+        .eq("user_id", userId)
+        .not("ended_at", "is", null) // Only completed workouts
+        .order("ended_at", { ascending: false });
+
+      if (error) throw error;
+
+      const uniqueDates = [
+        ...new Set(data.map((w) => w.ended_at.split("T")[0])),
+      ];
+      const streakCount = calculateStreakWithRestDays(uniqueDates);
+      setStreak(streakCount);
+
+      const recentDates = new Set(
+        uniqueDates.filter((date) => {
+          const workoutDate = new Date(date);
+          const fourteenDaysAgo = new Date(
+            Date.now() - 14 * 24 * 60 * 60 * 1000
+          );
+          return workoutDate >= fourteenDaysAgo;
+        })
+      );
+      setWorkoutDates(recentDates);
+    } catch (err) {
+      console.error("Error in fallback streak calculation:", err);
+    }
+  }
+
+  function calculateStreakWithRestDays(dates) {
+    if (dates.length === 0) return 0;
+
     let count = 0;
-    let dayCursor = new Date();
+    let currentDate = new Date();
 
-    for (let i = 0; i < dates.length; i++) {
-      const itemDate = new Date(dates[i]);
-      const expectedDate = new Date(dayCursor);
+    const lastWorkoutDate = new Date(dates[0]);
+    const daysSinceLastWorkout = Math.floor(
+      (currentDate - lastWorkoutDate) / (1000 * 60 * 60 * 24)
+    );
 
-      if (
-        itemDate.toISOString().split("T")[0] ===
-        expectedDate.toISOString().split("T")[0]
-      ) {
+    if (daysSinceLastWorkout > 2) {
+      return 0; // Streak is broken
+    }
+
+    let checkDate = new Date(dates[0]);
+    count = 1;
+
+    for (let i = 1; i < dates.length; i++) {
+      const workoutDate = new Date(dates[i]);
+      const daysBetween = Math.floor(
+        (checkDate - workoutDate) / (1000 * 60 * 60 * 24)
+      );
+
+      if (daysBetween <= 3) {
         count++;
-        dayCursor.setDate(dayCursor.getDate() - 1);
-      } else if (itemDate < expectedDate) {
-        break; // streak ends
+        checkDate = workoutDate;
+      } else {
+        break; // if the break between workout is too big you lose the streak
       }
     }
+
     return count;
+  }
+
+  function hasWorkoutOnDate(daysAgo) {
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() - daysAgo);
+    const dateString = targetDate.toISOString().split("T")[0];
+    return workoutDates.has(dateString);
   }
 
   if (loading) {
@@ -63,7 +137,10 @@ export default function StreakTracker({ userId }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.streakText}>🔥 {streak}-Day Streak</Text>
+      <View style={styles.streakContainer}>
+        <MaterialIcons name="local-fire-department" color="#fff" size={24} />
+        <Text style={styles.streakText}> {streak}-Day Streak</Text>
+      </View>
 
       <View style={styles.bubblesContainer}>
         <View style={styles.bubbleRow}>
@@ -74,7 +151,7 @@ export default function StreakTracker({ userId }) {
                 key={`top-${i}`}
                 style={[
                   styles.bubble,
-                  streak >= daysAgo
+                  hasWorkoutOnDate(daysAgo - 1)
                     ? styles.bubbleActive
                     : styles.bubbleInactive,
                 ]}
@@ -91,7 +168,7 @@ export default function StreakTracker({ userId }) {
                 key={`bottom-${i}`}
                 style={[
                   styles.bubble,
-                  streak >= daysAgo
+                  hasWorkoutOnDate(daysAgo - 1)
                     ? styles.bubbleActive
                     : styles.bubbleInactive,
                 ]}
@@ -109,10 +186,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginVertical: 10,
   },
+  streakContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
   streakText: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 8,
     color: "white",
     fontFamily: "Arial",
   },
