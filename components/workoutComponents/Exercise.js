@@ -13,6 +13,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
   const [sets, setSets] = useState([]);
   const [previousSets, setPreviousSets] = useState([]);
+  const [previousNote, setPreviousNote] = useState("");
   const [note, setNote] = useState("");
   const [userId, setUserId] = useState(null);
   const [fullExercise, setFullExercise] = useState(exercise);
@@ -59,12 +60,23 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
 
   useEffect(() => {
     if (workoutExerciseId) {
+      // console.log('workoutExerciseId available:', workoutExerciseId);
       fetchSets();
+      fetchExerciseNote();
     }
     if (fullExercise?.id && userId) {
       fetchPreviousWorkoutData();
     }
   }, [workoutExerciseId, fullExercise, userId]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (handleNoteChange.saveTimeout) {
+        clearTimeout(handleNoteChange.saveTimeout);
+      }
+    };
+  }, []);
 
   const getCurrentUser = async () => {
     const {
@@ -89,6 +101,50 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
     }
   };
 
+  const fetchExerciseNote = async () => {
+    try {
+      // console.log('Fetching note for workout_exercise_id:', workoutExerciseId);
+      const { data, error } = await supabase
+        .from("workout_exercises")
+        .select("notes")
+        .eq("id", workoutExerciseId)
+        .single();
+
+      if (error) {
+        // console.error("Error fetching exercise note:", error);
+        return;
+      }
+
+      if (data) {
+        // console.log('Fetched note data:', data);
+        setNote(data.notes || "");
+      }
+    } catch (error) {
+      // console.error("Error in fetchExerciseNote:", error);
+    }
+  };
+
+  const saveExerciseNote = async (noteText) => {
+    try {
+      // console.log('Saving note:', noteText, 'for workout_exercise_id:', workoutExerciseId);
+      const { error } = await supabase
+        .from("workout_exercises")
+        .update({ notes: noteText })
+        .eq("id", workoutExerciseId);
+
+      if (error) {
+        // console.error("Error saving exercise note:", error);
+        Alert.alert("Error", "Failed to save note");
+        return;
+      }
+
+      // console.log('Note saved successfully');
+    } catch (error) {
+      // console.error("Error in saveExerciseNote:", error);
+      Alert.alert("Error", "Failed to save note");
+    }
+  };
+
   const fetchPreviousWorkoutData = async () => {
     try {
       const { data, error } = await supabase
@@ -100,6 +156,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
           workout_exercises!inner (
             id,
             exercise_id,
+            notes,
             sets (
               set_number,
               reps,
@@ -116,7 +173,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
         .limit(1);
 
       if (error) {
-        console.error("Error fetching previous workout data:", error);
+        // console.error("Error fetching previous workout data:", error);
         return;
       }
 
@@ -126,30 +183,42 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
           (we) => we.exercise_id === fullExercise.id
         );
 
-        if (exerciseData && exerciseData.sets) {
-          const sortedSets = exerciseData.sets.sort(
-            (a, b) => a.set_number - b.set_number
-          );
+        if (exerciseData) {
+          // Set previous note
+          if (exerciseData.notes) {
+            setPreviousNote(exerciseData.notes);
+            // If current note is empty, prefill with previous note
+            if (!note || note === "") {
+              setNote(exerciseData.notes);
+            }
+          }
 
-          setPreviousSets(sortedSets);
+          // Set previous sets
+          if (exerciseData.sets) {
+            const sortedSets = exerciseData.sets.sort(
+              (a, b) => a.set_number - b.set_number
+            );
 
-          if (sets.length === 0) {
-            const initialSets = sortedSets.map((_, index) => ({
-              id: `temp_${index}`,
-              set_number: index + 1,
-              reps: "",
-              weight: "",
-              rpe: "",
-              completed: false,
-              isFromPrevious: false,
-            }));
+            setPreviousSets(sortedSets);
 
-            setSets(initialSets);
+            if (sets.length === 0) {
+              const initialSets = sortedSets.map((_, index) => ({
+                id: `temp_${index}`,
+                set_number: index + 1,
+                reps: "",
+                weight: "",
+                rpe: "",
+                completed: false,
+                isFromPrevious: false,
+              }));
+
+              setSets(initialSets);
+            }
           }
         }
       }
     } catch (error) {
-      console.error("Error in fetchPreviousWorkoutData:", error);
+      // console.error("Error in fetchPreviousWorkoutData:", error);
     }
   };
 
@@ -214,6 +283,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
       return;
     }
 
+    // Check if we have previous data for this set index
     const hasPreviousData =
       previousSets && previousSets.length > 0 && previousSets[setIndex];
 
@@ -221,6 +291,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
     let reps = currentSet.reps;
     let rpe = currentSet.rpe;
 
+    // Auto-fill empty fields with previous data if available
     if (hasPreviousData) {
       const previousSet = previousSets[setIndex];
 
@@ -235,6 +306,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
       }
     }
 
+    // Check if any required fields are still empty
     if (
       !weight ||
       !reps ||
@@ -250,6 +322,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
       return;
     }
 
+    // Update the set with auto-filled values if they were changed
     if (
       weight !== currentSet.weight ||
       reps !== currentSet.reps ||
@@ -294,6 +367,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
       };
       setSets(updatedSets);
 
+      // Notify parent component that a set was added
       if (onSetChange) {
         onSetChange();
       }
@@ -306,6 +380,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
   const handleSetUnconfirm = async (setIndex) => {
     const currentSet = sets[setIndex];
 
+    // Can only unconfirm sets that are completed and have a real database ID
     if (!currentSet.completed || currentSet.id.toString().startsWith("temp_")) {
       return;
     }
@@ -322,6 +397,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
         return;
       }
 
+      // Update the local state to show the set as unconfirmed
       const updatedSets = [...sets];
       updatedSets[setIndex] = {
         id: `temp_${Date.now()}`,
@@ -334,12 +410,29 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
       };
       setSets(updatedSets);
 
+      // Notify parent component that a set was removed
       if (onSetChange) {
         onSetChange();
       }
     } catch (error) {
       console.error("Error in handleSetUnconfirm:", error);
       Alert.alert("Error", "Failed to unconfirm set");
+    }
+  };
+
+  const handleNoteChange = (text) => {
+    setNote(text);
+
+    // Clear existing timeout if user is still typing
+    if (handleNoteChange.saveTimeout) {
+      clearTimeout(handleNoteChange.saveTimeout);
+    }
+
+    // Only save if there's a workoutExerciseId and text has actually changed
+    if (workoutExerciseId) {
+      handleNoteChange.saveTimeout = setTimeout(() => {
+        saveExerciseNote(text);
+      }, 1500); // Increased to 1.5 seconds for better UX
     }
   };
 
@@ -528,10 +621,12 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
 
       <TextInput
         style={styles.notesInput}
-        placeholder="Add notes here..."
+        placeholder={
+          previousNote ? `Last time: "${previousNote}"` : "Add notes here..."
+        }
         placeholderTextColor="rgb(108, 101, 101)"
         value={note}
-        onChangeText={setNote}
+        onChangeText={handleNoteChange}
         multiline
       />
 
