@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     borderTopColor: "#1a1a1a",
   },
   addExerciseButton: {
-    backgroundColor: "#2563eb",
+    backgroundColor: "#af125f",
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",

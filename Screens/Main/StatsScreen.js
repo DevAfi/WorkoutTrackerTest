@@ -1,3 +1,7 @@
+{
+  /* Fix sizing of boxes */
+}
+
 import * as React from "react";
 
 import {

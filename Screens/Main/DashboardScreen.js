@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-
 import {
   StyleSheet,
   Text,
@@ -8,16 +7,24 @@ import {
   SafeAreaView,
   Alert,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { supabase } from "../../lib/supabase";
-import StreakTracker from "../../components/streakComponent";
-import EmbeddedActivityFeed from "../embeddedActivity";
-import LatestSessionRecap from "../../components/statisticComponents/LatestSessionRecap";
+import ActivityFeed from "../../components/socialComponents/activityFeed";
 
 const DashboardScreen = ({ navigation }) => {
   const [userID, setUserID] = useState("");
   const [userLoading, setUserLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [notifications, setNotifications] = useState(2);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1500);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -27,7 +34,6 @@ const DashboardScreen = ({ navigation }) => {
           console.error("No user data found");
           return;
         }
-        console.log("User ID:", userData.user.id);
         setUserID(userData.user.id);
       } catch (error) {
         console.error("Error getting user:", error);
@@ -37,50 +43,97 @@ const DashboardScreen = ({ navigation }) => {
     })();
   }, []);
 
-  const handleFriendsActivityPress = () => {
-    if (!userID) {
-      Alert.alert("Error", "User not loaded yet. Please try again.");
-      return;
-    }
-
-    console.log("Navigating with userID:", userID);
-    navigation.navigate("friendActivity", { userId: userID });
-  };
+  if (userLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#AF125A"
+            colors={["#AF125A"]}
+            title="Refreshing feed..."
+            titleColor="#888888"
+          />
+        }
       >
         {/* Header */}
         <View style={styles.headerContainer}>
-          <Text style={styles.titleText}>Welcome back</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.titleText}>Community</Text>
+            <Text style={styles.subtitleText}>
+              See what your friends are up to
+            </Text>
+          </View>
+          <View style={styles.headerRight}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Notifications")}
+              style={styles.iconButton}
+            >
+              <MaterialIcons name="notifications" size={26} color="#f5f1ed" />
+              {notifications > 0 && (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.badgeText}>{notifications}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Search")}
+              style={styles.iconButton}
+            >
+              <MaterialIcons name="search" size={26} color="#f5f1ed" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Settings")}
+              style={styles.iconButton}
+            >
+              <MaterialIcons name="settings" size={26} color="#f5f1ed" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Quick Social Actions */}
+        <View style={styles.socialActionsContainer}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("Settings")}
-            style={styles.settingsButton}
+            style={styles.socialAction}
+            onPress={() => navigation.navigate("FriendsList")}
           >
-            <MaterialIcons name="settings" size={30} color="#f5f1ed" />
+            <MaterialIcons name="person-add" size={20} color="#AF125A" />
+            <Text style={styles.socialActionText}>Find Friends</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.socialAction}
+            onPress={() => navigation.navigate("CreateChallenge")}
+          >
+            <MaterialIcons name="emoji-events" size={20} color="#AF125A" />
+            <Text style={styles.socialActionText}>Create Challenge</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.socialAction}
+            onPress={() => navigation.navigate("Leaderboard")}
+          >
+            <MaterialIcons name="leaderboard" size={20} color="#AF125A" />
+            <Text style={styles.socialActionText}>Leaderboard</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Weekly Activity Section */}
-        <View style={styles.topContainer}>
-          <MaterialIcons name="home" size={36} color={"white"}></MaterialIcons>
-          <Text style={styles.topText}>Weekly Activity</Text>
-        </View>
-
-        {/* Streak Tracker */}
-        {userID && <StreakTracker userId={userID} />}
-
-        <View style={styles.recapContainer}>
-          {/* Uncomment when ready to use LatestSessionRecap */}
-
-          <LatestSessionRecap
-            onPress={(session) =>
-              navigation.navigate("SessionDetail", { sessionId: session.id })
-            }
-          />
+        {/* Activity Feed Container */}
+        <View style={styles.feedContainer}>
+          {userID && <ActivityFeed navigation={navigation} userId={userID} />}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -90,123 +143,101 @@ const DashboardScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: "#000000",
   },
   scrollView: {
     flex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    color: "#f5f1ed",
+    fontSize: 16,
+  },
+
+  // Header
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     paddingHorizontal: 20,
-    paddingTop: 10,
-    marginBottom: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
   },
-  settingsButton: {
-    padding: 5,
-  },
-  titleText: {
-    fontSize: 36,
-    fontWeight: "bold",
-    color: "#f5f1ed",
-    fontFamily: "Arial",
-  },
-  topContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#333",
-    padding: 20,
-    borderRadius: 10,
-    width: "90%",
-    alignSelf: "center",
-    gap: 20,
-    borderColor: "#AF125A",
-    borderWidth: 2,
-    marginBottom: 20,
-  },
-  topText: {
-    fontSize: 24,
-    color: "#f5f1ed",
-    fontFamily: "Arial",
-  },
-  activitySection: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#333",
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-    marginLeft: 8,
+  headerLeft: {
     flex: 1,
   },
-  seeAllText: {
-    color: "#007bff",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  activityFeedContainer: {
-    backgroundColor: "#1a1a1a",
-    borderRadius: 12,
-    maxHeight: 400, // Limit height so it doesn't take over the whole screen
-    borderWidth: 1,
-    borderColor: "#333",
-  },
-  loadingActivityContainer: {
-    backgroundColor: "#1a1a1a",
-    borderRadius: 12,
-    padding: 40,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#333",
-  },
-  loadingText: {
-    color: "grey",
-    fontSize: 16,
-  },
-  recapContainer: {
-    width: "100%",
-    alignItems: "center",
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
-  // Remove the old styles that are no longer needed
-  headerBar: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "white",
-    position: "absolute",
-    top: 10,
-  },
-  headerText: {
-    backgroundColor: "white",
-  },
-  friendsButton: {
+  headerRight: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#007bff",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
     gap: 8,
   },
-  friendsButtonDisabled: {
-    backgroundColor: "#666",
+  titleText: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#f5f1ed",
+    fontFamily: "Arial",
+    marginBottom: 4,
   },
-  friendsButtonText: {
-    color: "white",
-    fontSize: 16,
+  subtitleText: {
+    fontSize: 14,
+    color: "#888888",
+    fontFamily: "Arial",
+  },
+  iconButton: {
+    position: "relative",
+    padding: 6,
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: 2,
+    right: 2,
+    backgroundColor: "#AF125A",
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  badgeText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+
+  // Social Actions
+  socialActionsContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    marginBottom: 24,
+    gap: 12,
+  },
+  socialAction: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#1a1a1a",
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#333",
+    gap: 6,
+  },
+  socialActionText: {
+    color: "#AF125A",
+    fontSize: 12,
     fontWeight: "600",
+  },
+
+  // Feed Container
+  feedContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    marginBottom: 40,
   },
 });
 

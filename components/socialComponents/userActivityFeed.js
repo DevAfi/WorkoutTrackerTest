@@ -19,16 +19,16 @@ const UserActivityFeed = ({ navigation, userId }) => {
 
   useEffect(() => {
     if (userId) {
-      loadActivityFeed();
+      loadUserActivityFeed();
     }
   }, [userId]);
 
-  const loadActivityFeed = async (isRefresh = false) => {
+  const loadUserActivityFeed = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
     try {
-      const { data, error } = await supabase.rpc("get_activity_feed", {
+      const { data, error } = await supabase.rpc("get_user_activity_feed", {
         p_user_id: userId,
         p_limit: 50,
       });
@@ -36,7 +36,7 @@ const UserActivityFeed = ({ navigation, userId }) => {
       if (error) throw error;
       setActivities(data || []);
     } catch (error) {
-      console.error("Error loading activity feed:", error);
+      console.error("Error loading user activity feed:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -77,7 +77,8 @@ const UserActivityFeed = ({ navigation, userId }) => {
         return (
           <View>
             <Text style={styles.activityTitle}>
-              completed a {activity_data.workout_duration || "?"} minute workout
+              You completed a {activity_data.workout_duration || "?"} minute
+              workout
             </Text>
             {activity_data.exercise_title && (
               <Text style={styles.activitySubtitle}>
@@ -94,7 +95,7 @@ const UserActivityFeed = ({ navigation, userId }) => {
         return (
           <View>
             <Text style={styles.activityTitle}>
-              reached a {activity_data.streak_days} day streak! 🔥
+              You reached a {activity_data.streak_days} day streak! 🔥
             </Text>
             <Text style={styles.xpText}>
               +{activity_data.xp_earned || 0} XP bonus
@@ -106,7 +107,7 @@ const UserActivityFeed = ({ navigation, userId }) => {
         return (
           <View>
             <Text style={styles.activityTitle}>
-              leveled up to Level {activity_data.new_level}! 🎉
+              You leveled up to Level {activity_data.new_level}! 🎉
             </Text>
             <Text style={styles.activitySubtitle}>
               Total XP: {activity_data.total_xp || 0}
@@ -118,7 +119,7 @@ const UserActivityFeed = ({ navigation, userId }) => {
         return (
           <View>
             <Text style={styles.activityTitle}>
-              earned the "{activity_data.badge_name}" badge! ⭐
+              You earned the "{activity_data.badge_name}" badge! ⭐
             </Text>
             <Text style={styles.activitySubtitle}>
               {activity_data.badge_description}
@@ -127,7 +128,7 @@ const UserActivityFeed = ({ navigation, userId }) => {
         );
 
       default:
-        return <Text style={styles.activityTitle}>had some activity</Text>;
+        return <Text style={styles.activityTitle}>You had some activity</Text>;
     }
   };
 
@@ -135,18 +136,7 @@ const UserActivityFeed = ({ navigation, userId }) => {
     const icon = getActivityIcon(activity.activity_type);
 
     return (
-      <TouchableOpacity
-        key={activity.activity_id}
-        style={styles.activityItem}
-        onPress={() => {
-          if (navigation) {
-            navigation.navigate("viewProfile", {
-              userId: activity.user_id,
-              username: activity.username,
-            });
-          }
-        }}
-      >
+      <View key={activity.activity_id} style={styles.activityItem}>
         <View style={styles.activityHeader}>
           <View style={styles.userInfo}>
             <View style={styles.avatarContainer}>
@@ -172,7 +162,7 @@ const UserActivityFeed = ({ navigation, userId }) => {
         <View style={styles.activityContent}>
           {renderActivityContent(activity)}
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -180,7 +170,7 @@ const UserActivityFeed = ({ navigation, userId }) => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#007bff" />
-        <Text style={styles.loadingText}>Loading activity feed...</Text>
+        <Text style={styles.loadingText}>Loading your activity...</Text>
       </View>
     );
   }
@@ -191,22 +181,22 @@ const UserActivityFeed = ({ navigation, userId }) => {
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
-          onRefresh={() => loadActivityFeed(true)}
+          onRefresh={() => loadUserActivityFeed(true)}
           tintColor="#007bff"
         />
       }
     >
       <View style={styles.header}>
-        <MaterialIcons name="dynamic-feed" size={24} color="#007bff" />
-        <Text style={styles.headerTitle}>Activity</Text>
+        <MaterialIcons name="timeline" size={24} color="#007bff" />
+        <Text style={styles.headerTitle}>Your Activity</Text>
       </View>
 
       {activities.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <MaterialIcons name="people-outline" size={48} color="grey" />
+          <MaterialIcons name="fitness-center" size={48} color="grey" />
           <Text style={styles.emptyTitle}>No activity yet</Text>
           <Text style={styles.emptySubtitle}>
-            Follow some friends to see their workout activities here!
+            Complete your first workout to see your activity history here!
           </Text>
         </View>
       ) : (
