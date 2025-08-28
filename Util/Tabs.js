@@ -24,6 +24,8 @@ import SessionDetailScreen from "../Screens/StatsScreens/SessionDetailScreen";
 import workoutHub from "../Screens/workoutScreens/workoutsHubScreen";
 import FriendsActivityScreen from "../Screens/friendFeedScreen";
 
+import StreakLeaderboard from "../Screens/StatsScreens/leaderboardScreen";
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -254,6 +256,14 @@ const Tabs = () => {
       <Stack.Screen
         name="friendActivity"
         component={FriendsActivityScreen}
+        options={{
+          title: "All Workouts",
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Leaderboard"
+        component={StreakLeaderboard}
         options={{
           title: "All Workouts",
           headerShown: false,

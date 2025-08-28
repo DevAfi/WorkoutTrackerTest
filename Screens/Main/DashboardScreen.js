@@ -17,7 +17,7 @@ const DashboardScreen = ({ navigation }) => {
   const [userID, setUserID] = useState("");
   const [userLoading, setUserLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [notifications, setNotifications] = useState(2);
+  const [notifications, setNotifications] = useState(0);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);

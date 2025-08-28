@@ -23,7 +23,6 @@ const WorkoutScreen = ({ navigation }) => {
   const [userID, setUserID] = useState("");
   const [userLoading, setUserLoading] = useState(true);
 
-  // Get current date info
   const getCurrentDate = () => {
     const now = new Date();
     const options = {
