@@ -18,6 +18,7 @@ import Exercise from "../../components/workoutComponents/Exercise";
 import EndWorkoutButton from "../../components/endWorkButton";
 import AddNote from "../../components/workoutComponents/addNote";
 import DiscardWorkoutButton from "../../components/discardWorkoutButton";
+import WorkoutRecapModal from "../../components/workoutComponents/RecapModal";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const CurrentWorkoutScreen = ({ navigation }) => {
@@ -26,6 +27,9 @@ const CurrentWorkoutScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [workoutStartTime] = useState(new Date());
   const [elapsedTime, setElapsedTime] = useState("00:00:00");
+  const [showRecapModal, setShowRecapModal] = useState(false);
+  const [workoutDuration, setWorkoutDuration] = useState(0);
+  const [completedWorkoutId, setCompletedWorkoutId] = useState(null);
 
   useEffect(() => {
     if (!activeWorkoutId) return;
@@ -99,6 +103,17 @@ const CurrentWorkoutScreen = ({ navigation }) => {
       if (!ex.sets || !Array.isArray(ex.sets)) return sum;
       return sum + ex.sets.length;
     }, 0);
+  };
+
+  const handleShowRecap = (workoutId, duration) => {
+    setCompletedWorkoutId(workoutId);
+    setWorkoutDuration(duration);
+    setShowRecapModal(true);
+  };
+
+  const handleCloseRecap = () => {
+    setShowRecapModal(false);
+    navigation.navigate("MainTabs");
   };
 
   return (
@@ -180,7 +195,8 @@ const CurrentWorkoutScreen = ({ navigation }) => {
             {activeWorkoutId && (
               <View style={styles.finishButtonWrapper}>
                 <EndWorkoutButton
-                  onEnded={() => navigation.navigate("MainTabs")}
+                  onShowRecap={handleShowRecap}
+                  workoutStartTime={workoutStartTime}
                   style={styles.finishButton}
                 />
               </View>
@@ -188,6 +204,7 @@ const CurrentWorkoutScreen = ({ navigation }) => {
           </View>
         </View>
 
+        {/* Notes Modal */}
         <Modal
           animationType="slide"
           transparent={true}
@@ -211,6 +228,17 @@ const CurrentWorkoutScreen = ({ navigation }) => {
             </View>
           </TouchableWithoutFeedback>
         </Modal>
+
+        {/* Workout Recap Modal */}
+        <WorkoutRecapModal
+          visible={showRecapModal}
+          onClose={handleCloseRecap}
+          workoutId={completedWorkoutId}
+          workoutDuration={workoutDuration}
+          onWorkoutNameChanged={(newName) => {
+            console.log("Workout renamed to:", newName);
+          }}
+        />
       </SafeAreaView>
     </>
   );
