@@ -22,6 +22,7 @@ const WorkoutScreen = ({ navigation }) => {
   const [sessionId, setSessionId] = useState("");
   const [userID, setUserID] = useState("");
   const [userLoading, setUserLoading] = useState(true);
+  const [goalNumber, setGoalNumber] = useState("0");
 
   const getCurrentDate = () => {
     const now = new Date();
@@ -109,7 +110,7 @@ const WorkoutScreen = ({ navigation }) => {
             onPress={() => navigation.navigate("ProgressScreen")}
           >
             <Text style={styles.statTitle}>Weekly Goal</Text>
-            <Text style={styles.statValue}>4/5</Text>
+            <Text style={styles.statValue}>4/{goalNumber}</Text>
             <Text style={styles.statSubtitle}>workouts</Text>
           </TouchableOpacity>
         </View>

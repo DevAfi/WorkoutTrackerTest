@@ -19,7 +19,7 @@ const ProfileScreen = ({ route, navigation }) => {
   const [goal, setGoal] = useState("");
   const [fullName, setFullName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState(""); // optional
-  const [seeFeed, setSeeFeed] = useState(false);
+  const [seeFeed, setSeeFeed] = useState(true);
   const [userID, setUserID] = useState("");
 
   useEffect(() => {

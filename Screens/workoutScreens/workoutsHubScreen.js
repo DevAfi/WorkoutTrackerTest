@@ -1,34 +1,118 @@
-import React, { useLayoutEffect, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  Image,
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
+import { supabase } from "../../lib/supabase";
+import { useWorkout } from "../../context/WorkoutContext";
 
 const workoutHub = ({ navigation }) => {
-  const [workoutView, setWorkoutView] = useState("Custom");
+  const [workoutView, setWorkoutView] = useState("custom");
+  const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const { setActiveWorkoutId } = useWorkout();
+
+  useEffect(() => {
+    loadTemplates();
+  }, []);
+
+  const loadTemplates = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("workout_templates")
+      .select("*")
+      .eq("is_public", workoutView === "premade")
+      .order("created_at", { ascending: false });
+
+    if (!error) {
+      setTemplates(data || []);
+    }
+    setLoading(false);
+  };
+
+  // When view changes, reload templates
+  useEffect(() => {
+    loadTemplates();
+  }, [workoutView]);
+
+  const viewTemplate = (template) => {
+    navigation.navigate("WorkoutTemplateDetail", { templateId: template.id });
+  };
+
+  const SimpleTemplateCard = ({ template }) => (
+    <TouchableOpacity
+      style={styles.templateCard}
+      onPress={() => viewTemplate(template)}
+    >
+      <Text style={styles.templateTitle}>{template.name}</Text>
+      <Text style={styles.templateDescription}>{template.description}</Text>
+      <Text style={styles.templateCategory}>{template.category}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topButtonsContainer}>
         <TouchableOpacity
-          style={styles.topButton}
+          style={[
+            styles.topButton,
+            workoutView === "premade" && styles.activeTopButton,
+          ]}
           onPress={() => setWorkoutView("premade")}
         >
-          <Text style={styles.topButtonText}>Legacy Workouts</Text>
+          <Text
+            style={[
+              styles.topButtonText,
+              workoutView === "premade" && styles.activeTopButtonText,
+            ]}
+          >
+            Legacy Workouts
+          </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
-          style={styles.topButton}
+          style={[
+            styles.topButton,
+            workoutView === "custom" && styles.activeTopButton,
+          ]}
           onPress={() => setWorkoutView("custom")}
         >
-          <Text style={styles.topButtonText}>Custom Workouts</Text>
+          <Text
+            style={[
+              styles.topButtonText,
+              workoutView === "custom" && styles.activeTopButtonText,
+            ]}
+          >
+            Custom Workouts
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {workoutView == "premade" ? <Text>1</Text> : <Text>2</Text>}
+      <ScrollView style={styles.scrollContainer}>
+        <Text style={styles.sectionTitle}>
+          {workoutView === "premade" ? "Pre-Made Templates" : "Your Templates"}
+        </Text>
+
+        {loading ? (
+          <Text style={styles.loadingText}>Loading...</Text>
+        ) : templates.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>
+              {workoutView === "premade"
+                ? "No pre-made templates available"
+                : "No custom templates yet"}
+            </Text>
+          </View>
+        ) : (
+          templates.map((template) => (
+            <SimpleTemplateCard key={template.id} template={template} />
+          ))
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -37,21 +121,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",
-    alignItems: "center",
-    justifyContent: "flex-start",
-  },
-  titleText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 10,
-    color: "#f5f1ed",
-    fontFamily: "Arial",
   },
   topButtonsContainer: {
-    //backgroundColor: "red",
     flexDirection: "row",
     justifyContent: "space-evenly",
     gap: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
   },
   topButton: {
     backgroundColor: "#252323",
@@ -61,29 +137,63 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 15,
   },
+  activeTopButton: {
+    backgroundColor: "#AF125A",
+  },
   topButtonText: {
     fontFamily: "Arial",
     fontWeight: "600",
-    fontSize: 20,
+    fontSize: 18,
     color: "#AF125A",
   },
-  nonAbsoluteContainer: {
-    flexDirection: "collumn",
-    justifyContent: "space-evenly",
-    gap: "25%",
+  activeTopButtonText: {
+    color: "white",
   },
-  dateContainer: {
-    backgroundColor: "red",
+  scrollContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
   },
-  streakContainer: {
-    backgroundColor: "red",
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#f5f1ed",
+    marginBottom: 20,
   },
-  activityContainer: {
-    backgroundColor: "red",
+  templateCard: {
+    backgroundColor: "#252323",
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 15,
   },
-  startButton: {
-    position: "absolute",
-    bottom: 90,
+  templateTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#f5f1ed",
+    marginBottom: 5,
+  },
+  templateDescription: {
+    fontSize: 16,
+    color: "#ccc",
+    marginBottom: 10,
+  },
+  templateCategory: {
+    fontSize: 12,
+    color: "#AF125A",
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+  loadingText: {
+    color: "#ccc",
+    textAlign: "center",
+    marginTop: 50,
+  },
+  emptyState: {
+    alignItems: "center",
+    marginTop: 50,
+  },
+  emptyText: {
+    color: "#ccc",
+    fontSize: 16,
   },
 });
 

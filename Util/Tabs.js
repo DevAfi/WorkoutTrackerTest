@@ -23,6 +23,7 @@ import ExerciseSelectScreen from "../components/workoutComponents/exerciseSelect
 import SessionDetailScreen from "../Screens/StatsScreens/SessionDetailScreen";
 import workoutHub from "../Screens/workoutScreens/workoutsHubScreen";
 import FriendsActivityScreen from "../Screens/friendFeedScreen";
+import WorkoutTemplateDetail from "../components/workoutComponents/workoutTemplateDetail";
 
 import StreakLeaderboard from "../Screens/StatsScreens/leaderboardScreen";
 
@@ -268,6 +269,11 @@ const Tabs = () => {
           title: "All Workouts",
           headerShown: false,
         }}
+      />
+      <Stack.Screen
+        name="WorkoutTemplateDetail"
+        component={WorkoutTemplateDetail}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
