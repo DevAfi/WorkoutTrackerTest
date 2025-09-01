@@ -23,6 +23,7 @@ import ProfileSettings from "../SettingsScreens/ProfileSettings";
 import TncScreen from "../SettingsScreens/TnCScreen";
 import UnitSettings from "../SettingsScreens/UnitsSettings";
 
+import OnboardingSettings from "../SettingsScreens/OnboardingSettings";
 const SettingsScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
@@ -41,7 +42,10 @@ const SettingsScreen = ({ navigation }) => {
               <MaterialIcons name="person" color={"#f5f1ed"} size={35} />
               <Text style={styles.settingsText}>Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.settingsButton}>
+            <TouchableOpacity
+              style={styles.settingsButton}
+              onPress={() => navigation.navigate("OnboardingSettingsScreen")}
+            >
               <MaterialIcons name="share" color={"#f5f1ed"} size={35} />
               <Text style={styles.settingsText}>Account</Text>
             </TouchableOpacity>
@@ -98,8 +102,10 @@ const SettingsScreen = ({ navigation }) => {
           >
             <Text style={styles.signOutText}>Sign out</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("Account")}>
-            <Text>Debug</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("OnboardingScreen")}
+          >
+            <Text style={{ color: "white" }}>Debug</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

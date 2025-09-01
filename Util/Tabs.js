@@ -27,6 +27,8 @@ import WorkoutTemplateDetail from "../components/workoutComponents/workoutTempla
 
 import StreakLeaderboard from "../Screens/StatsScreens/leaderboardScreen";
 
+import OnboardingSettings from "../Screens/SettingsScreens/OnboardingSettings";
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -166,6 +168,17 @@ const Tabs = () => {
       <Tab.Screen
         name="ProfileSettings"
         component={ProfileSettings}
+        options={{
+          title: "Profile Settings",
+          headerStyle: {
+            backgroundColor: "#252323",
+          },
+          headerShown: false,
+        }}
+      />
+      <Tab.Screen
+        name="OnboardingSettingsScreen"
+        component={OnboardingSettings}
         options={{
           title: "Profile Settings",
           headerStyle: {

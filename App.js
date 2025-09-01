@@ -7,6 +7,7 @@ import { WorkoutProvider } from "./context/WorkoutContext";
 import Auth from "./components/Auth";
 import Account from "./components/Account";
 import Tabs from "./Util/Tabs";
+import Onboarding from "./components/Onboarding";
 
 const Stack = createNativeStackNavigator();
 
@@ -48,6 +49,7 @@ export default function App() {
             <Stack.Screen name="Auth" component={Auth} />
           )}
           <Stack.Screen name="Account2" component={Account} />
+          <Stack.Screen name="OnboardingScreen" component={Onboarding} />
         </Stack.Navigator>
       </NavigationContainer>
     </WorkoutProvider>

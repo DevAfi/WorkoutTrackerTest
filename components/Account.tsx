@@ -100,7 +100,7 @@ export default function Account({ session }: { session: Session }) {
       }
     } finally {
       setLoading(false);
-      navigation.navigate("Tabs");
+      navigation.navigate("OnboardingScreen");
     }
   }
 
