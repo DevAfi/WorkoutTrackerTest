@@ -14,17 +14,34 @@ import { Session } from "@supabase/supabase-js";
 import { useNavigation } from "@react-navigation/native";
 import ViewAvatar from "./viewAvatar";
 
-export default function Onboarding({ session }: { session: Session }) {
+export default function Onboarding() {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [weeklyGoal, setWeeklyGoal] = useState(3);
   const [monthlyGoal, setMonthlyGoal] = useState(12);
   const [name, setName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [initialLoad, setInitialLoad] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [sessionReady, setSessionReady] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    if (session) getProfile();
+    const getSession = async () => {
+      const {
+        data: { session: currentSession },
+      } = await supabase.auth.getSession();
+      setSession(currentSession);
+    };
+
+    getSession();
+  }, []);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      getProfile();
+    } else if (session === null) {
+      Alert.alert("Session Error", "Please log in again");
+    }
   }, [session]);
 
   useEffect(() => {
@@ -34,12 +51,19 @@ export default function Onboarding({ session }: { session: Session }) {
   async function getProfile() {
     try {
       setInitialLoad(true);
-      if (!session?.user) throw new Error("No user on the session!");
+
+      if (!session?.user?.id) {
+        console.log("No session or user ID available");
+        setInitialLoad(false);
+        return;
+      }
+
+      console.log("Getting profile for user:", session.user.id);
 
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select(`avatar_url, full_name`)
-        .eq("id", session?.user.id)
+        .eq("id", session.user.id)
         .single();
 
       if (profileError && profileError.code !== "PGRST116") {
@@ -49,7 +73,10 @@ export default function Onboarding({ session }: { session: Session }) {
       if (profileData) {
         setAvatarUrl(profileData.avatar_url || "");
         setName(profileData.full_name || "");
+        console.log("Profile loaded:", profileData.full_name);
       }
+
+      setSessionReady(true);
     } catch (error) {
       console.log("Error getting profile:", error);
     } finally {
@@ -60,10 +87,18 @@ export default function Onboarding({ session }: { session: Session }) {
   async function setupGoals() {
     try {
       setLoading(true);
-      if (!session?.user) {
-        Alert.alert("Error", "No user session found");
+
+      console.log("Session check:", session?.user?.id);
+
+      if (!session?.user?.id) {
+        Alert.alert(
+          "Error",
+          "No user session found. Please try logging in again."
+        );
         return;
       }
+
+      console.log("Setting up goals for user:", session.user.id);
 
       const updates = {
         user_id: session.user.id,
@@ -72,20 +107,25 @@ export default function Onboarding({ session }: { session: Session }) {
         updated_at: new Date(),
       };
 
+      console.log("Updating with:", updates);
+
       const { error } = await supabase.from("user_misc_data").upsert(updates, {
         onConflict: "user_id",
       });
 
       if (error) {
+        console.error("Database error:", error);
         throw error;
       }
+
+      console.log("Goals saved successfully!");
 
       setTimeout(() => {
         navigation.navigate("Tabs");
       }, 500);
     } catch (error) {
       console.error("Error setting up goals:", error);
-      Alert.alert("Error", "Failed to save your goals. Please try again.");
+      Alert.alert("Error", `Failed to save your goals: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -95,7 +135,20 @@ export default function Onboarding({ session }: { session: Session }) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Setting things up...</Text>
+          <Text style={styles.loadingText}>Loading your profile...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!sessionReady || !session?.user?.id) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Session not ready...</Text>
+          <Text style={styles.subText}>
+            Please wait or try logging in again
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -157,21 +210,21 @@ export default function Onboarding({ session }: { session: Session }) {
 
             <View style={styles.motivationCard}>
               <Text style={styles.motivationText}>
-                {weeklyGoal <= 2 && "Starting strong! Every workout counts."}
+                {weeklyGoal <= 2 && "🌱 Starting strong! Every workout counts."}
                 {weeklyGoal >= 3 &&
                   weeklyGoal <= 4 &&
-                  "Great balance! You've got this."}
+                  "💪 Great balance! You've got this."}
                 {weeklyGoal >= 5 &&
                   weeklyGoal <= 6 &&
-                  "Ambitious goals! You're dedicated."}
-                {weeklyGoal === 7 && "Daily grind mode! Absolute beast."}
+                  "🔥 Ambitious goals! You're dedicated."}
+                {weeklyGoal === 7 && "⚡ Daily grind mode! Absolute beast."}
               </Text>
             </View>
           </View>
 
           <View style={styles.buttonContainer}>
             <Button
-              title={loading ? "Saving..." : "Let's Go!"}
+              title={loading ? "Saving..." : "Let's Go! 🚀"}
               onPress={setupGoals}
               disabled={loading}
               buttonStyle={[styles.button, loading && styles.buttonDisabled]}
@@ -197,6 +250,13 @@ const styles = StyleSheet.create({
   loadingText: {
     color: "#f5f1ed",
     fontSize: 18,
+  },
+  subText: {
+    color: "#f5f1ed",
+    fontSize: 14,
+    opacity: 0.7,
+    marginTop: 10,
+    textAlign: "center",
   },
   scrollContent: {
     flexGrow: 1,
