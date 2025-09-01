@@ -32,7 +32,9 @@ export default function App() {
   return (
     <WorkoutProvider>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator
+          screenOptions={{ headerShown: false, gestureEnabled: false }}
+        >
           {session && session.user ? (
             <>
               {/* Optional screen after login */}

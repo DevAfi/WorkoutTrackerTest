@@ -10,9 +10,12 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Dimensions,
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { supabase } from "../../lib/supabase";
+
+const { height: screenHeight } = Dimensions.get("window");
 
 const WorkoutRecapModal = ({
   visible,
@@ -29,6 +32,7 @@ const WorkoutRecapModal = ({
 
   useEffect(() => {
     if (visible && workoutId) {
+      console.log("Fetching workout recap for ID:", workoutId);
       fetchWorkoutRecap();
     }
   }, [visible, workoutId]);
@@ -36,6 +40,7 @@ const WorkoutRecapModal = ({
   const fetchWorkoutRecap = async () => {
     setLoading(true);
     try {
+      console.log("Fetching workout data for ID:", workoutId);
       const { data, error } = await supabase
         .from("workout_sessions")
         .select(
@@ -61,8 +66,12 @@ const WorkoutRecapModal = ({
         .eq("id", workoutId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
 
+      console.log("Fetched workout data:", data);
       setWorkoutData(data);
       setWorkoutName(data.exercise_title || "Freestyle Workout");
       setTempName(data.exercise_title || "Freestyle Workout");
@@ -197,145 +206,154 @@ const WorkoutRecapModal = ({
 
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <KeyboardAvoidingView
-        style={styles.modalBackground}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <View style={styles.modalContainer}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerContent}>
-              <MaterialIcons name="fitness-center" size={24} color="#10b981" />
-              <Text style={styles.headerTitle}>Workout Complete!</Text>
+      <View style={styles.modalBackground}>
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoidingView}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.modalContainer}>
+            {/* Header */}
+            <View style={styles.header}>
+              <View style={styles.headerContent}>
+                <MaterialIcons
+                  name="fitness-center"
+                  size={24}
+                  color="#10b981"
+                />
+                <Text style={styles.headerTitle}>Workout Complete!</Text>
+              </View>
+              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                <MaterialIcons name="close" size={24} color="#888" />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <MaterialIcons name="close" size={24} color="#888" />
-            </TouchableOpacity>
-          </View>
 
-          <ScrollView
-            style={styles.content}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Workout Name */}
-            <View style={styles.nameSection}>
-              {isEditingName ? (
-                <View style={styles.nameEditContainer}>
-                  <TextInput
-                    style={styles.nameInput}
-                    value={tempName}
-                    onChangeText={setTempName}
-                    placeholder="Enter workout name"
-                    placeholderTextColor="#666"
-                    maxLength={50}
-                    autoFocus
-                  />
-                  <View style={styles.nameEditButtons}>
-                    <TouchableOpacity
-                      style={styles.cancelButton}
-                      onPress={cancelNameEdit}
-                    >
-                      <Text style={styles.cancelButtonText}>Cancel</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.saveButton}
-                      onPress={handleSaveWorkoutName}
-                    >
-                      <Text style={styles.saveButtonText}>Save</Text>
-                    </TouchableOpacity>
+            <ScrollView
+              style={styles.content}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+            >
+              {/* Workout Name */}
+              <View style={styles.nameSection}>
+                {isEditingName ? (
+                  <View style={styles.nameEditContainer}>
+                    <TextInput
+                      style={styles.nameInput}
+                      value={tempName}
+                      onChangeText={setTempName}
+                      placeholder="Enter workout name"
+                      placeholderTextColor="#666"
+                      maxLength={50}
+                      autoFocus
+                    />
+                    <View style={styles.nameEditButtons}>
+                      <TouchableOpacity
+                        style={styles.cancelButton}
+                        onPress={cancelNameEdit}
+                      >
+                        <Text style={styles.cancelButtonText}>Cancel</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.saveButton}
+                        onPress={handleSaveWorkoutName}
+                      >
+                        <Text style={styles.saveButtonText}>Save</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.nameContainer}
+                    onPress={() => setIsEditingName(true)}
+                  >
+                    <Text style={styles.workoutName}>{workoutName}</Text>
+                    <MaterialIcons name="edit" size={20} color="#666" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Main Stats */}
+              <View style={styles.mainStatsContainer}>
+                <View style={styles.mainStat}>
+                  <Text style={styles.mainStatValue}>
+                    {formatDuration(workoutDuration)}
+                  </Text>
+                  <Text style={styles.mainStatLabel}>Duration</Text>
                 </View>
-              ) : (
-                <TouchableOpacity
-                  style={styles.nameContainer}
-                  onPress={() => setIsEditingName(true)}
-                >
-                  <Text style={styles.workoutName}>{workoutName}</Text>
-                  <MaterialIcons name="edit" size={20} color="#666" />
-                </TouchableOpacity>
+                <View style={styles.mainStat}>
+                  <Text style={styles.mainStatValue}>
+                    {stats.totalVolume.toFixed(0)}
+                  </Text>
+                  <Text style={styles.mainStatLabel}>Volume (kg)</Text>
+                </View>
+                <View style={styles.mainStat}>
+                  <Text style={styles.mainStatValue}>{stats.totalSets}</Text>
+                  <Text style={styles.mainStatLabel}>Sets</Text>
+                </View>
+              </View>
+
+              {/* Secondary Stats */}
+              <View style={styles.secondaryStats}>
+                <View style={styles.statRow}>
+                  <Text style={styles.statLabel}>Exercises</Text>
+                  <Text style={styles.statValue}>{stats.totalExercises}</Text>
+                </View>
+                <View style={styles.statRow}>
+                  <Text style={styles.statLabel}>Total Reps</Text>
+                  <Text style={styles.statValue}>{stats.totalReps}</Text>
+                </View>
+                <View style={styles.statRow}>
+                  <Text style={styles.statLabel}>Heaviest Set</Text>
+                  <Text style={styles.statValue}>{stats.heaviestSet}kg</Text>
+                </View>
+              </View>
+
+              {/* Exercise Breakdown */}
+              {stats.exerciseBreakdown.length > 0 && (
+                <View style={styles.exerciseBreakdown}>
+                  <Text style={styles.sectionTitle}>Exercise Breakdown</Text>
+                  {stats.exerciseBreakdown.map((exercise, index) => (
+                    <View key={index} style={styles.exerciseItem}>
+                      <View style={styles.exerciseHeader}>
+                        <Text style={styles.exerciseName}>{exercise.name}</Text>
+                        <Text style={styles.exerciseCategory}>
+                          {exercise.category}
+                        </Text>
+                      </View>
+                      <View style={styles.exerciseStats}>
+                        <Text style={styles.exerciseStatText}>
+                          {exercise.sets} sets • {exercise.totalReps} reps •{" "}
+                          {exercise.volume.toFixed(0)}kg volume
+                        </Text>
+                        {exercise.topSet.weight > 0 && (
+                          <Text style={styles.topSetText}>
+                            Top set: {exercise.topSet.weight}kg ×{" "}
+                            {exercise.topSet.reps}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  ))}
+                </View>
               )}
-            </View>
 
-            {/* Main Stats */}
-            <View style={styles.mainStatsContainer}>
-              <View style={styles.mainStat}>
-                <Text style={styles.mainStatValue}>
-                  {formatDuration(workoutDuration)}
-                </Text>
-                <Text style={styles.mainStatLabel}>Duration</Text>
-              </View>
-              <View style={styles.mainStat}>
-                <Text style={styles.mainStatValue}>
-                  {stats.totalVolume.toFixed(0)}
-                </Text>
-                <Text style={styles.mainStatLabel}>Volume (kg)</Text>
-              </View>
-              <View style={styles.mainStat}>
-                <Text style={styles.mainStatValue}>{stats.totalSets}</Text>
-                <Text style={styles.mainStatLabel}>Sets</Text>
-              </View>
-            </View>
-
-            {/* Secondary Stats */}
-            <View style={styles.secondaryStats}>
-              <View style={styles.statRow}>
-                <Text style={styles.statLabel}>Exercises</Text>
-                <Text style={styles.statValue}>{stats.totalExercises}</Text>
-              </View>
-              <View style={styles.statRow}>
-                <Text style={styles.statLabel}>Total Reps</Text>
-                <Text style={styles.statValue}>{stats.totalReps}</Text>
-              </View>
-              <View style={styles.statRow}>
-                <Text style={styles.statLabel}>Heaviest Set</Text>
-                <Text style={styles.statValue}>{stats.heaviestSet}kg</Text>
-              </View>
-            </View>
-
-            {/* Exercise Breakdown */}
-            <View style={styles.exerciseBreakdown}>
-              <Text style={styles.sectionTitle}>Exercise Breakdown</Text>
-              {stats.exerciseBreakdown.map((exercise, index) => (
-                <View key={index} style={styles.exerciseItem}>
-                  <View style={styles.exerciseHeader}>
-                    <Text style={styles.exerciseName}>{exercise.name}</Text>
-                    <Text style={styles.exerciseCategory}>
-                      {exercise.category}
-                    </Text>
-                  </View>
-                  <View style={styles.exerciseStats}>
-                    <Text style={styles.exerciseStatText}>
-                      {exercise.sets} sets • {exercise.totalReps} reps •{" "}
-                      {exercise.volume.toFixed(0)}kg volume
-                    </Text>
-                    {exercise.topSet.weight > 0 && (
-                      <Text style={styles.topSetText}>
-                        Top set: {exercise.topSet.weight}kg ×{" "}
-                        {exercise.topSet.reps}
-                      </Text>
-                    )}
-                  </View>
+              {/* Notes if any */}
+              {workoutData?.notes && (
+                <View style={styles.notesSection}>
+                  <Text style={styles.sectionTitle}>Notes</Text>
+                  <Text style={styles.notesText}>{workoutData.notes}</Text>
                 </View>
-              ))}
+              )}
+            </ScrollView>
+
+            {/* Footer */}
+            <View style={styles.footer}>
+              <TouchableOpacity style={styles.doneButton} onPress={onClose}>
+                <Text style={styles.doneButtonText}>Done</Text>
+              </TouchableOpacity>
             </View>
-
-            {/* Notes if any */}
-            {workoutData?.notes && (
-              <View style={styles.notesSection}>
-                <Text style={styles.sectionTitle}>Notes</Text>
-                <Text style={styles.notesText}>{workoutData.notes}</Text>
-              </View>
-            )}
-          </ScrollView>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.doneButton} onPress={onClose}>
-              <Text style={styles.doneButtonText}>Done</Text>
-            </TouchableOpacity>
           </View>
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 };
@@ -347,16 +365,26 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  keyboardAvoidingView: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   modalContainer: {
-    width: "90%",
-    maxHeight: "80%",
+    width: "95%",
+    maxWidth: 400,
+    height: screenHeight * 0.85,
     backgroundColor: "#111111",
     borderRadius: 16,
     overflow: "hidden",
+    maxHeight: 700,
   },
   loadingContainer: {
-    padding: 40,
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
+    padding: 40,
   },
   loadingText: {
     color: "#888",
@@ -385,6 +413,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20, // Add padding at bottom for better scrolling
   },
   nameSection: {
     padding: 20,
