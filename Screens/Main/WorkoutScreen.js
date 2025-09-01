@@ -25,8 +25,8 @@ const WorkoutScreen = ({ navigation }) => {
   const [userID, setUserID] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [userLoading, setUserLoading] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [goalNumber, setGoalNumber] = useState("5");
+  const [goalNumber, setGoalNumber] = useState(6);
+  const [currentWeeklyProgress, setCurrentWeeklyProgress] = useState(0);
 
   const getCurrentDate = () => {
     const now = new Date();
@@ -39,6 +39,72 @@ const WorkoutScreen = ({ navigation }) => {
     return now.toLocaleDateString("en-US", options);
   };
 
+  const getCurrentWeekWorkouts = async (userId) => {
+    try {
+      const startOfWeek = new Date();
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      const { data, error } = await supabase
+        .from("workout_sessions")
+        .select("id")
+        .eq("user_id", userId)
+        .gte("started_at", startOfWeek.toISOString())
+        .not("ended_at", "is", null);
+
+      if (error) {
+        console.error("Error fetching weekly workouts:", error);
+        return 0;
+      }
+
+      return data?.length || 0;
+    } catch (error) {
+      console.error("Error in getCurrentWeekWorkouts:", error);
+      return 0;
+    }
+  };
+
+  const fetchUserGoal = async (userId) => {
+    try {
+      console.log("Loading data now");
+      const { data, error } = await supabase
+        .from("user_misc_data")
+        .select("weekly_workout_goal")
+        .eq("user_id", userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user goal:", error);
+        if (error.code === "PGRST116") {
+          console.log("No user_misc_data found, creating default record");
+          const { data: newData, error: insertError } = await supabase
+            .from("user_misc_data")
+            .insert([
+              {
+                user_id: userId,
+                weekly_workout_goal: 6,
+              },
+            ])
+            .select("weekly_workout_goal")
+            .single();
+
+          if (insertError) {
+            console.error("Error creating user_misc_data:", insertError);
+            return 6;
+          }
+          return newData?.weekly_workout_goal || 6;
+        }
+        return 6;
+      }
+
+      console.log("User goal data:", data);
+      return data?.weekly_workout_goal || 6;
+    } catch (error) {
+      console.error("Error in fetchUserGoal:", error);
+      return 6;
+    }
+  };
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good Morning";
@@ -47,29 +113,10 @@ const WorkoutScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const { data: userData } = await supabase.auth.getUser();
-        if (!userData?.user) {
-          console.error("No user data found");
-          return;
-        }
-        console.log("User ID:", userData.user.id);
-        setUserID(userData.user.id);
-      } catch (error) {
-        console.error("Error getting user:", error);
-      } finally {
-        setUserLoading(false);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
     fetchProfile();
   }, []);
 
   async function fetchProfile() {
-    setLoading(true);
     const {
       data: { user },
       error: userError,
@@ -77,7 +124,6 @@ const WorkoutScreen = ({ navigation }) => {
 
     if (userError || !user) {
       Alert.alert("Error", "Could not get user.");
-      setLoading(false);
       return;
     }
 
@@ -90,11 +136,39 @@ const WorkoutScreen = ({ navigation }) => {
     if (error) {
       Alert.alert("Error loading profile", error.message);
     } else if (data) {
-      setAvatarUrl(data.avatar_url || "");
+      setAvatarUrl(data.avatar_url || "loading pfp...");
     }
 
-    setLoading(false);
+    setUserID(user.id);
+    console.log("UID: ", userID);
   }
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData?.user) {
+          console.error("No user data found");
+          return;
+        }
+
+        console.log("User ID:", userData.user.id);
+        setUserID(userData.user.id);
+
+        const [weeklyGoal, currentProgress] = await Promise.all([
+          fetchUserGoal(userData.user.id),
+          getCurrentWeekWorkouts(userData.user.id),
+        ]);
+
+        setGoalNumber(weeklyGoal);
+        setCurrentWeeklyProgress(currentProgress);
+      } catch (error) {
+        console.error("Error getting user:", error);
+      } finally {
+        setUserLoading(false);
+      }
+    })();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -108,7 +182,6 @@ const WorkoutScreen = ({ navigation }) => {
             <Text style={styles.greetingText}>{getGreeting()}!</Text>
             <Text style={styles.dateText}>{getCurrentDate()}</Text>
           </View>
-
           <TouchableOpacity
             style={styles.profileButton}
             onPress={() => console.log("Profile Clicked")}
@@ -131,7 +204,7 @@ const WorkoutScreen = ({ navigation }) => {
               <Text style={styles.statTitle}>Weekly Goal</Text>
             </View>
             <View style={styles.progressContent}>
-              <Text style={styles.statValue}>4</Text>
+              <Text style={styles.statValue}>{currentWeeklyProgress}</Text>
               <Text style={styles.statDivider}>/</Text>
               <Text style={styles.statGoal}>{goalNumber}</Text>
             </View>
@@ -141,7 +214,12 @@ const WorkoutScreen = ({ navigation }) => {
               <View
                 style={[
                   styles.progressBar,
-                  { width: `${(4 / goalNumber) * 100}%` },
+                  {
+                    width: `${Math.min(
+                      (currentWeeklyProgress / goalNumber) * 100,
+                      100
+                    )}%`,
+                  },
                 ]}
               />
             </View>
@@ -260,6 +338,7 @@ const WorkoutScreen = ({ navigation }) => {
         </View>
       </ScrollView>
 
+      {/* Fixed Action Button */}
       <View style={styles.actionButtonContainer}>
         {!sessionId ? (
           <View style={styles.startWorkoutContainer}>
@@ -424,7 +503,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 24,
     borderWidth: 1,
-    justifyContent: "space-between",
   },
   primaryNavButton: {
     backgroundColor: "#AF125A",
@@ -436,6 +514,7 @@ const styles = StyleSheet.create({
     borderColor: "#2A2A2A",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingVertical: 20,
   },
   navIconContainer: {
