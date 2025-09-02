@@ -172,30 +172,32 @@ const ActivityFeed = ({ navigation, userId }) => {
         key={activity.activity_id}
         style={styles.activityItem}
         onPress={async () => {
-          console.log(
-            "Full activity object:",
-            JSON.stringify(activity, null, 2)
-          );
-
           if (navigation) {
-            let sessionId =
-              activity.session_id || activity.activity_data?.session_id;
-
-            if (!sessionId && activity.activity_type === "workout_completed") {
-              console.log("Searching for session by activity data...");
-              sessionId = await findSessionByActivity(activity);
-            }
+            const sessionId = activity.session_id;
 
             if (sessionId) {
+              console.log("Navigating to session:", sessionId);
               navigation.navigate("SessionDetail", {
                 sessionId: sessionId,
               });
             } else {
-              console.log("No session ID found for this activity");
+              console.log("No session_id found, trying fallback method...");
+
+              if (activity.activity_type === "workout_completed") {
+                const foundSessionId = await findSessionByActivity(activity);
+                if (foundSessionId) {
+                  navigation.navigate("SessionDetail", {
+                    sessionId: foundSessionId,
+                  });
+                } else {
+                  console.log("Could not find session for this activity");
+                }
+              }
             }
           }
         }}
       >
+        {/* Rest of your existing JSX remains the same */}
         <View style={styles.activityHeader}>
           <View style={styles.userInfo}>
             <View style={styles.avatarContainer}>

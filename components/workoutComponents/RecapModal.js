@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { supabase } from "../../lib/supabase";
+import { createWorkoutActivity } from "../../Util/ActivityUtil";
 
 const { height: screenHeight } = Dimensions.get("window");
 
@@ -120,17 +121,41 @@ const WorkoutRecapModal = ({
     }
 
     try {
-      const { error } = await supabase
+      const { error: scoreError } = await supabase
         .from("workout_sessions")
         .update({ score: sentiment })
         .eq("id", workoutId);
 
-      if (error) throw error;
+      if (scoreError) throw scoreError;
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const activitySuccess = await createWorkoutActivity(
+          workoutId,
+          user.id,
+          {
+            xpEarned: 50,
+            exerciseTitle: workoutName,
+            workoutDuration: workoutDuration,
+          }
+        );
+
+        if (!activitySuccess) {
+          console.warn(
+            "Failed to create workout activity, but workout was saved"
+          );
+        }
+      } else {
+        console.warn("No user found when trying to create activity");
+      }
 
       onClose();
     } catch (error) {
-      console.error("Error updating score:", error);
-      Alert.alert("Error", "Failed to save workout rating");
+      console.error("Error completing workout:", error);
+      Alert.alert("Error", "Failed to save workout data");
     }
   };
 
