@@ -28,6 +28,7 @@ const WorkoutRecapModal = ({
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState("");
   const [workoutData, setWorkoutData] = useState(null);
+  const [sentiment, setSentiment] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,6 +51,7 @@ const WorkoutRecapModal = ({
           started_at,
           ended_at,
           notes,
+          score,
           workout_exercises (
             id,
             exercise:exercise_id ( name, category ),
@@ -75,6 +77,7 @@ const WorkoutRecapModal = ({
       setWorkoutData(data);
       setWorkoutName(data.exercise_title || "Freestyle Workout");
       setTempName(data.exercise_title || "Freestyle Workout");
+      setSentiment(data.score); // Load existing sentiment if any
     } catch (error) {
       console.error("Error fetching workout recap:", error);
       Alert.alert("Error", "Failed to load workout data");
@@ -106,9 +109,68 @@ const WorkoutRecapModal = ({
     }
   };
 
+  const handleDone = async () => {
+    // Check if sentiment is selected
+    if (sentiment === null) {
+      Alert.alert(
+        "Rate Your Workout",
+        "Please rate how your workout felt before finishing."
+      );
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("workout_sessions")
+        .update({ score: sentiment })
+        .eq("id", workoutId);
+
+      if (error) throw error;
+
+      onClose();
+    } catch (error) {
+      console.error("Error updating score:", error);
+      Alert.alert("Error", "Failed to save workout rating");
+    }
+  };
+
   const cancelNameEdit = () => {
     setTempName(workoutName);
     setIsEditingName(false);
+  };
+
+  const getSentimentIcon = (value) => {
+    switch (value) {
+      case 0:
+        return "sentiment-very-dissatisfied";
+      case 3.5:
+        return "sentiment-dissatisfied";
+      case 5:
+        return "sentiment-neutral";
+      case 7.5:
+        return "sentiment-satisfied";
+      case 10:
+        return "sentiment-satisfied-alt";
+      default:
+        return "sentiment-neutral";
+    }
+  };
+
+  const getSentimentLabel = (value) => {
+    switch (value) {
+      case 0:
+        return "Terrible";
+      case 3.5:
+        return "Poor";
+      case 5:
+        return "Okay";
+      case 7.5:
+        return "Good";
+      case 10:
+        return "Amazing";
+      default:
+        return "";
+    }
   };
 
   const getWorkoutStats = () => {
@@ -291,6 +353,40 @@ const WorkoutRecapModal = ({
                 </View>
               </View>
 
+              {/* Sentiment Rating Section */}
+              <View style={styles.sentimentSection}>
+                <Text style={styles.sectionTitle}>How did it feel?</Text>
+                <Text style={styles.sentimentSubtitle}>
+                  Rate your workout experience
+                </Text>
+                <View style={styles.sentimentContainer}>
+                  {[0, 3.5, 5, 7.5, 10].map((value) => (
+                    <TouchableOpacity
+                      key={value}
+                      style={[
+                        styles.sentimentButton,
+                        sentiment === value && styles.sentimentButtonSelected,
+                      ]}
+                      onPress={() => setSentiment(value)}
+                    >
+                      <MaterialIcons
+                        name={getSentimentIcon(value)}
+                        color={sentiment === value ? "#AF125A" : "#666"}
+                        size={32}
+                      />
+                      <Text
+                        style={[
+                          styles.sentimentLabel,
+                          sentiment === value && styles.sentimentLabelSelected,
+                        ]}
+                      >
+                        {getSentimentLabel(value)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
               {/* Secondary Stats */}
               <View style={styles.secondaryStats}>
                 <View style={styles.statRow}>
@@ -347,8 +443,21 @@ const WorkoutRecapModal = ({
 
             {/* Footer */}
             <View style={styles.footer}>
-              <TouchableOpacity style={styles.doneButton} onPress={onClose}>
-                <Text style={styles.doneButtonText}>Done</Text>
+              <TouchableOpacity
+                style={[
+                  styles.doneButton,
+                  sentiment === null && styles.doneButtonDisabled,
+                ]}
+                onPress={handleDone}
+              >
+                <Text
+                  style={[
+                    styles.doneButtonText,
+                    sentiment === null && styles.doneButtonTextDisabled,
+                  ]}
+                >
+                  Done
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -415,7 +524,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20, // Add padding at bottom for better scrolling
+    paddingBottom: 20,
   },
   nameSection: {
     padding: 20,
@@ -490,6 +599,42 @@ const styles = StyleSheet.create({
     color: "#888",
     fontSize: 14,
     marginTop: 4,
+  },
+  sentimentSection: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#222",
+  },
+  sentimentSubtitle: {
+    color: "#888",
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  sentimentContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  sentimentButton: {
+    flex: 1,
+    alignItems: "center",
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: "#1a1a1a",
+  },
+  sentimentButtonSelected: {
+    backgroundColor: "rgba(175, 18, 90, 0.2)",
+    borderWidth: 1,
+    borderColor: "#AF125A",
+  },
+  sentimentLabel: {
+    color: "#666",
+    fontSize: 10,
+    marginTop: 4,
+    fontWeight: "500",
+  },
+  sentimentLabelSelected: {
+    color: "#AF125A",
   },
   secondaryStats: {
     padding: 20,
@@ -572,10 +717,16 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: "center",
   },
+  doneButtonDisabled: {
+    backgroundColor: "#333",
+  },
   doneButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  doneButtonTextDisabled: {
+    color: "#666",
   },
 });
 
