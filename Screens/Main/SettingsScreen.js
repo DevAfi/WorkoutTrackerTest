@@ -102,11 +102,6 @@ const SettingsScreen = ({ navigation }) => {
           >
             <Text style={styles.signOutText}>Sign out</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("OnboardingScreen")}
-          >
-            <Text style={{ color: "white" }}>Debug</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -38,18 +38,18 @@ export default function App() {
         >
           {session && session.user ? (
             <>
-              {/* Optional screen after login */}
-
               <Stack.Screen name="Account">
                 {(props) => <Account {...props} session={session} />}
               </Stack.Screen>
+              <Stack.Screen name="OnboardingScreen">
+                {(props) => <Onboarding {...props} session={session} />}
+              </Stack.Screen>
               <Stack.Screen name="Tabs" component={Tabs} />
+              {/* Add other authenticated screens here */}
             </>
           ) : (
             <Stack.Screen name="Auth" component={Auth} />
           )}
-          <Stack.Screen name="Account2" component={Account} />
-          <Stack.Screen name="OnboardingScreen" component={Onboarding} />
         </Stack.Navigator>
       </NavigationContainer>
     </WorkoutProvider>
