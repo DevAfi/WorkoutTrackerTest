@@ -42,6 +42,39 @@ const ActivityFeed = ({ navigation, userId }) => {
       setRefreshing(false);
     }
   };
+  const findSessionByActivity = async (activity) => {
+    try {
+      const activityTime = new Date(activity.created_at);
+
+      const searchStart = new Date(activityTime.getTime() - 60 * 60 * 1000); // 1 hour before
+      const searchEnd = new Date(activityTime.getTime() + 5 * 60 * 1000); // 5 minutes after
+
+      const { data, error } = await supabase
+        .from("workout_sessions")
+        .select("id, started_at, ended_at, exercise_title")
+        .eq("user_id", activity.user_id)
+        .gte("started_at", searchStart.toISOString())
+        .lte("started_at", searchEnd.toISOString())
+        .order("started_at", { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const session = data[0];
+        const activityTitle = activity.activity_data?.exercise_title;
+
+        if (!activityTitle || activityTitle === session.exercise_title) {
+          return session.id;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error finding session:", error);
+      return null;
+    }
+  };
 
   const formatTimeAgo = (timestamp) => {
     const now = new Date();
@@ -138,12 +171,28 @@ const ActivityFeed = ({ navigation, userId }) => {
       <TouchableOpacity
         key={activity.activity_id}
         style={styles.activityItem}
-        onPress={() => {
+        onPress={async () => {
+          console.log(
+            "Full activity object:",
+            JSON.stringify(activity, null, 2)
+          );
+
           if (navigation) {
-            navigation.navigate("viewProfile", {
-              userId: activity.user_id,
-              username: activity.username,
-            });
+            let sessionId =
+              activity.session_id || activity.activity_data?.session_id;
+
+            if (!sessionId && activity.activity_type === "workout_completed") {
+              console.log("Searching for session by activity data...");
+              sessionId = await findSessionByActivity(activity);
+            }
+
+            if (sessionId) {
+              navigation.navigate("SessionDetail", {
+                sessionId: sessionId,
+              });
+            } else {
+              console.log("No session ID found for this activity");
+            }
           }
         }}
       >

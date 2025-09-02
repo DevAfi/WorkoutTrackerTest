@@ -14,12 +14,14 @@ const SessionDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { sessionId } = route.params || {};
+  console.log("SID: ", sessionId);
 
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchSessionDetails = async () => {
+    console.log("fetching session details");
     if (!sessionId) return;
 
     try {
@@ -39,6 +41,7 @@ const SessionDetailScreen = () => {
         )
         .eq("id", sessionId)
         .single();
+      console.log("Workout session raw data: ", sessionData);
 
       if (sessionError) throw sessionError;
 
@@ -53,6 +56,7 @@ const SessionDetailScreen = () => {
 
       setSession(sessionData);
     } catch (err) {
+      console.log("error");
       setError(err.message);
       console.error("Error fetching session details:", err);
     } finally {
