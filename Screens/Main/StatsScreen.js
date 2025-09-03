@@ -161,7 +161,7 @@ const StatsScreen = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.topButton, !personal && styles.topButtonActive]}
-              onPress={() => navigation.navigate("viewExercises")}
+              onPress={() => navigation.navigate("ViewExercises")}
               activeOpacity={0.8}
             >
               <Text

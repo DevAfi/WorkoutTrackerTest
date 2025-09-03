@@ -239,7 +239,7 @@ const WorkoutScreen = ({ navigation }) => {
           <View style={styles.navigationGrid}>
             <TouchableOpacity
               style={[styles.navButton, styles.primaryNavButton]}
-              onPress={() => navigation.navigate("allWorkoutsScreen")}
+              onPress={() => navigation.navigate("AllWorkoutsScreen")}
               activeOpacity={0.8}
             >
               <View style={styles.navIconContainer}>
@@ -257,7 +257,7 @@ const WorkoutScreen = ({ navigation }) => {
 
             <TouchableOpacity
               style={[styles.navButton, styles.secondaryNavButton]}
-              onPress={() => navigation.navigate("viewExercises")}
+              onPress={() => navigation.navigate("ViewExercises")}
               activeOpacity={0.8}
             >
               <View style={styles.navIconContainer}>

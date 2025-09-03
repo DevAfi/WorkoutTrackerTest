@@ -19,7 +19,7 @@ async function fetchExercises() {
   return data;
 }
 
-const viewAllExercises = () => {
+const ViewAllExercises = () => {
   const navigation = useNavigation();
   const [allExercises, setAllExercises] = useState([]);
   const [groupedExercises, setGroupedExercises] = useState([]);
@@ -274,4 +274,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default viewAllExercises;
+export default ViewAllExercises;

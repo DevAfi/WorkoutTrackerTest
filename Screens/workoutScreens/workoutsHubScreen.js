@@ -10,7 +10,7 @@ import {
 import { supabase } from "../../lib/supabase";
 import { useWorkout } from "../../context/WorkoutContext";
 
-const workoutHub = ({ navigation }) => {
+const WorkoutHub = ({ navigation }) => {
   const [workoutView, setWorkoutView] = useState("custom");
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -197,4 +197,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default workoutHub;
+export default WorkoutHub;

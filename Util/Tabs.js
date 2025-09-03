@@ -6,7 +6,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
-import viewAllExercises from "../components/workoutComponents/viewAllExercises";
+import ViewAllExercises from "../components/workoutComponents/viewAllExercises";
 import DashboardScreen from "../Screens/Main/DashboardScreen";
 import SocialScreen from "../Screens/Main/SocialScreen";
 import ProfileScreen from "../Screens/Main/ProfileScreen";
@@ -21,7 +21,7 @@ import ViewExerciseDetails from "./[exerciseDetails]";
 import CurrentWorkoutScreen from "../Screens/Main/CurrentWorkoutScreen";
 import ExerciseSelectScreen from "../components/workoutComponents/exerciseSelectScreen";
 import SessionDetailScreen from "../Screens/StatsScreens/SessionDetailScreen";
-import workoutHub from "../Screens/workoutScreens/workoutsHubScreen";
+import WorkoutHub from "../Screens/workoutScreens/workoutsHubScreen";
 import FriendsActivityScreen from "../Screens/friendFeedScreen";
 import WorkoutTemplateDetail from "../components/workoutComponents/workoutTemplateDetail";
 
@@ -241,8 +241,8 @@ const Tabs = () => {
         }}
       />
       <Stack.Screen
-        name="viewExercises"
-        component={viewAllExercises}
+        name="ViewExercises"
+        component={ViewAllExercises}
         options={{
           headerStyle: {
             backgroundColor: "#403d3d",
@@ -260,8 +260,8 @@ const Tabs = () => {
         }}
       />
       <Stack.Screen
-        name="allWorkoutsScreen"
-        component={workoutHub}
+        name="AllWorkoutsScreen"
+        component={WorkoutHub}
         options={{
           title: "All Workouts",
           headerShown: false,
