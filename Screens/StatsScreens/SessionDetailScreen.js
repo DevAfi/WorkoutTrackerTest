@@ -14,14 +14,14 @@ const SessionDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { sessionId } = route.params || {};
-  console.log("SID: ", sessionId);
+  console.log("SDS SID: ", sessionId);
 
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchSessionDetails = async () => {
-    console.log("fetching session details");
+    //console.log("fetching session details");
     if (!sessionId) return;
 
     try {
@@ -41,7 +41,7 @@ const SessionDetailScreen = () => {
         )
         .eq("id", sessionId)
         .single();
-      console.log("Workout session raw data: ", sessionData);
+      //console.log("Workout session raw data: ", sessionData);
 
       if (sessionError) throw sessionError;
 

@@ -121,6 +121,7 @@ const WorkoutRecapModal = ({
     }
 
     try {
+      // Only save the sentiment score - the activity was already created in endWorkout
       const { error: scoreError } = await supabase
         .from("workout_sessions")
         .update({ score: sentiment })
@@ -128,34 +129,11 @@ const WorkoutRecapModal = ({
 
       if (scoreError) throw scoreError;
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        const activitySuccess = await createWorkoutActivity(
-          workoutId,
-          user.id,
-          {
-            xpEarned: 50,
-            exerciseTitle: workoutName,
-            workoutDuration: workoutDuration,
-          }
-        );
-
-        if (!activitySuccess) {
-          console.warn(
-            "Failed to create workout activity, but workout was saved"
-          );
-        }
-      } else {
-        console.warn("No user found when trying to create activity");
-      }
-
+      console.log("Workout sentiment saved successfully");
       onClose();
     } catch (error) {
-      console.error("Error completing workout:", error);
-      Alert.alert("Error", "Failed to save workout data");
+      console.error("Error saving workout sentiment:", error);
+      Alert.alert("Error", "Failed to save workout rating");
     }
   };
 

@@ -45,33 +45,51 @@ const ActivityFeed = ({ navigation, userId }) => {
   const findSessionByActivity = async (activity) => {
     try {
       const activityTime = new Date(activity.created_at);
-
       const searchStart = new Date(activityTime.getTime() - 60 * 60 * 1000); // 1 hour before
       const searchEnd = new Date(activityTime.getTime() + 5 * 60 * 1000); // 5 minutes after
 
+      //console.log("Activity time:", activityTime.toISOString());
+      //console.log("User ID:", activity.user_id);
+
       const { data, error } = await supabase
         .from("workout_sessions")
-        .select("id, started_at, ended_at, exercise_title")
+        .select("id, started_at, ended_at, exercise_title, user_id")
         .eq("user_id", activity.user_id)
         .gte("started_at", searchStart.toISOString())
         .lte("started_at", searchEnd.toISOString())
-        .order("started_at", { ascending: false })
-        .limit(1);
+        .order("started_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("❌ Supabase error:", error);
+        throw error;
+      }
 
+      console.log("📊 Found sessions:", data?.length || 0);
       if (data && data.length > 0) {
-        const session = data[0];
-        const activityTitle = activity.activity_data?.exercise_title;
+        //console.log("Sessions found:", JSON.stringify(data, null, 2));
 
-        if (!activityTitle || activityTitle === session.exercise_title) {
-          return session.id;
-        }
+        const session = data[0];
+        console.log("✅ Using most recent session! Session ID:", session.id);
+        return session.id;
+      } else {
+        //console.log("❌ No sessions found in time range");
+
+        const { data: allSessions } = await supabase
+          .from("workout_sessions")
+          .select("id, started_at, ended_at, exercise_title")
+          .eq("user_id", activity.user_id)
+          .order("started_at", { ascending: false })
+          .limit(5);
+
+        /*console.log(
+          "📋 Recent sessions for user:",
+          JSON.stringify(allSessions, null, 2)
+        );*/
       }
 
       return null;
     } catch (error) {
-      console.error("Error finding session:", error);
+      console.error("❌ Error finding session:", error);
       return null;
     }
   };
@@ -172,32 +190,61 @@ const ActivityFeed = ({ navigation, userId }) => {
         key={activity.activity_id}
         style={styles.activityItem}
         onPress={async () => {
+          //console.log("=== DEBUGGING ACTIVITY CLICK ===");
+          /*console.log(
+            "Full activity object:",
+            JSON.stringify(activity, null, 2)
+          );*/
+          //console.log("activity.session_id:", activity.session_id);
+          //console.log("activity.activity_data:", activity.activity_data);
+          //console.log("================================");
+
           if (navigation) {
-            const sessionId = activity.session_id;
-
-            if (sessionId) {
-              console.log("Navigating to session:", sessionId);
+            if (activity.session_id) {
+              console.log("✅ Navigating to session:", activity.session_id);
               navigation.navigate("SessionDetail", {
-                sessionId: sessionId,
+                sessionId: activity.session_id,
               });
-            } else {
-              console.log("No session_id found, trying fallback method...");
+              return;
+            }
 
-              if (activity.activity_type === "workout_completed") {
-                const foundSessionId = await findSessionByActivity(activity);
-                if (foundSessionId) {
-                  navigation.navigate("SessionDetail", {
-                    sessionId: foundSessionId,
-                  });
-                } else {
-                  console.log("Could not find session for this activity");
-                }
+            if (activity.activity_type === "workout_completed") {
+              console.log("❌ No session_id found, trying fallback method...");
+              const foundSessionId = await findSessionByActivity(activity);
+              if (foundSessionId) {
+                console.log("✅ Found session via fallback:", foundSessionId);
+                navigation.navigate("SessionDetail", {
+                  sessionId: foundSessionId,
+                });
+              } else {
+                //console.log("❌ Could not find session for this activity");
+                //console.log("Activity created at:", activity.created_at);
+                //console.log("Activity user_id:", activity.user_id);
+
+                //console.log("=== FALLBACK SEARCH DETAILS ===");
+                const activityTime = new Date(activity.created_at);
+                const searchStart = new Date(
+                  activityTime.getTime() - 60 * 60 * 1000
+                );
+                const searchEnd = new Date(
+                  activityTime.getTime() + 5 * 60 * 1000
+                );
+                /*console.log(
+                  "Search window:",
+                  searchStart.toISOString(),
+                  "to",
+                  searchEnd.toISOString()
+                );*/
               }
+            } else {
+              console.log(
+                "ℹ️  Activity type doesn't support navigation:",
+                activity.activity_type
+              );
             }
           }
         }}
       >
-        {/* Rest of your existing JSX remains the same */}
         <View style={styles.activityHeader}>
           <View style={styles.userInfo}>
             <View style={styles.avatarContainer}>
