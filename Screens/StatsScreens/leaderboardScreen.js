@@ -215,7 +215,7 @@ const StreakLeaderboard = ({ navigation }) => {
             {/* Top 3 Podium */}
             {leaderboard.length >= 3 && (
               <View style={styles.podiumContainer}>
-                <Text style={styles.podiumTitle}>🏆 Top Streakers 🏆</Text>
+                <Text style={styles.podiumTitle}> Longest Streaks </Text>
                 <View style={styles.podium}>
                   {/* Second Place */}
                   <View style={styles.podiumPosition}>
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#f5f1ed",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 32,
   },
   podium: {
     flexDirection: "row",
