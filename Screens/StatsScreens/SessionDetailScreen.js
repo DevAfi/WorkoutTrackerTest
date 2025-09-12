@@ -41,7 +41,7 @@ const SessionDetailScreen = () => {
         )
         .eq("id", sessionId)
         .single();
-      //console.log("Workout session raw data: ", sessionData);
+      console.log("Workout session raw data: ", sessionData);
 
       if (sessionError) throw sessionError;
 
