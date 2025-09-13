@@ -29,6 +29,8 @@ import StreakLeaderboard from "../Screens/StatsScreens/leaderboardScreen";
 
 import OnboardingSettings from "../Screens/SettingsScreens/OnboardingSettings";
 
+import TnCScreen from "../Screens/SettingsScreens/TnCScreen";
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -286,6 +288,13 @@ const Tabs = () => {
       <Stack.Screen
         name="WorkoutTemplateDetail"
         component={WorkoutTemplateDetail}
+        options={{ headerShown: false }}
+      />
+
+      {/* SETTINGS NAVIGATION */}
+      <Stack.Screen
+        name="terms"
+        component={TnCScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

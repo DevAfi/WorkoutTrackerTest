@@ -20,7 +20,6 @@ import NotificationsSettings from "../SettingsScreens/NotificationsSettings";
 import PrivacyPolicy from "../SettingsScreens/PrivacyPolicy";
 import PrivacySettings from "../SettingsScreens/PrivacySettings";
 import ProfileSettings from "../SettingsScreens/ProfileSettings";
-import TncScreen from "../SettingsScreens/TnCScreen";
 import UnitSettings from "../SettingsScreens/UnitsSettings";
 
 import OnboardingSettings from "../SettingsScreens/OnboardingSettings";
@@ -87,7 +86,10 @@ const SettingsScreen = ({ navigation }) => {
               <MaterialIcons name="privacy-tip" color={"#f5f1ed"} size={35} />
               <Text style={styles.settingsText}>Privacy Policy</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.settingsButton}>
+            <TouchableOpacity
+              style={styles.settingsButton}
+              onPress={() => navigation.navigate("terms")}
+            >
               <MaterialIcons
                 name="document-scanner"
                 color={"#f5f1ed"}
