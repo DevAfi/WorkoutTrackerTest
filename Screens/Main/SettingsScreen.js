@@ -17,7 +17,6 @@ import AboutScreen from "../SettingsScreens/AboutScreen";
 import AccountSettings from "../SettingsScreens/AccountSettings";
 import FAQ from "../SettingsScreens/FAQ";
 import NotificationsSettings from "../SettingsScreens/NotificationsSettings";
-import PrivacyPolicy from "../SettingsScreens/PrivacyPolicy";
 import PrivacySettings from "../SettingsScreens/PrivacySettings";
 import ProfileSettings from "../SettingsScreens/ProfileSettings";
 import UnitSettings from "../SettingsScreens/UnitsSettings";
@@ -82,7 +81,10 @@ const SettingsScreen = ({ navigation }) => {
               <MaterialIcons name="menu-book" color={"#f5f1ed"} size={35} />
               <Text style={styles.settingsText}>About</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.settingsButton}>
+            <TouchableOpacity
+              style={styles.settingsButton}
+              onPress={() => navigation.navigate("Privpolicy")}
+            >
               <MaterialIcons name="privacy-tip" color={"#f5f1ed"} size={35} />
               <Text style={styles.settingsText}>Privacy Policy</Text>
             </TouchableOpacity>

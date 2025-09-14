@@ -30,6 +30,7 @@ import StreakLeaderboard from "../Screens/StatsScreens/leaderboardScreen";
 import OnboardingSettings from "../Screens/SettingsScreens/OnboardingSettings";
 
 import TnCScreen from "../Screens/SettingsScreens/TnCScreen";
+import PrivacyPolicy from "../Screens/SettingsScreens/PrivacyPolicy";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -295,6 +296,11 @@ const Tabs = () => {
       <Stack.Screen
         name="terms"
         component={TnCScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Privpolicy"
+        component={PrivacyPolicy}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
