@@ -269,7 +269,7 @@ const WorkoutScreen = ({ navigation }) => {
 
             <TouchableOpacity
               style={[styles.navButton, styles.secondaryNavButton]}
-              onPress={() => navigation.navigate("ProgressScreen")}
+              onPress={() => navigation.navigate("SSC")}
               activeOpacity={0.8}
             >
               <View style={styles.navIconContainer}>

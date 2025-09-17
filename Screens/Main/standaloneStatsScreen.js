@@ -51,7 +51,7 @@ const muscleGroupMap = {
   ["triceps"]: "arms",
 };
 
-const StatsScreen = ({ navigation }) => {
+const StandaloneStatsScreen = ({ navigation }) => {
   const [personal, setPersonal] = useState(true);
   const [stats, setStats] = useState(null);
   const [volumeData, setVolumeData] = useState(null);
@@ -556,4 +556,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StatsScreen;
+export default StandaloneStatsScreen;

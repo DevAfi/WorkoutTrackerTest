@@ -24,6 +24,7 @@ import SessionDetailScreen from "../Screens/StatsScreens/SessionDetailScreen";
 import WorkoutHub from "../Screens/workoutScreens/workoutsHubScreen";
 import FriendsActivityScreen from "../Screens/friendFeedScreen";
 import WorkoutTemplateDetail from "../components/workoutComponents/workoutTemplateDetail";
+import StandaloneStatsScreen from "../Screens/Main/standaloneStatsScreen";
 
 import StreakLeaderboard from "../Screens/StatsScreens/leaderboardScreen";
 
@@ -301,6 +302,11 @@ const Tabs = () => {
       <Stack.Screen
         name="Privpolicy"
         component={PrivacyPolicy}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SSC"
+        component={StandaloneStatsScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
