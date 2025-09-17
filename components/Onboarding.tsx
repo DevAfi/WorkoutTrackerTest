@@ -52,7 +52,7 @@ export default function Onboarding() {
     if (session?.user?.id) {
       getProfile();
     } else if (session === null) {
-      Alert.alert("Session Error", "Please log in again");
+      console.warn("Session Error", "Please log in again");
     }
   }, [session]);
 
@@ -430,12 +430,14 @@ export default function Onboarding() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#000000",
   },
   gradient: {
     flex: 1,
   },
   content: {
     flex: 1,
+    backgroundColor: "#000000",
   },
   loadingContainer: {
     flex: 1,
