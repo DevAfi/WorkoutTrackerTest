@@ -17,6 +17,7 @@ import StartWorkButton from "../../components/startWorkButton";
 import EndWorkoutButton from "../../components/endWorkButton";
 import StreakTracker from "../../components/streakComponent";
 import LatestSessionRecap from "../../components/statisticComponents/LatestSessionRecap";
+import InlineWeightLogger from "../../components/statisticComponents/quickWeightInput";
 
 const { width } = Dimensions.get("window");
 
@@ -315,15 +316,12 @@ const WorkoutScreen = ({ navigation }) => {
               <MaterialIcons name="calculate" color="#AF125A" size={24} />
               <Text style={styles.quickToolText}>1RM Calc</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.quickTool}
-              onPress={() => navigation.navigate("BodyWeightScreen")}
-            >
-              <MaterialIcons name="add" color="#AF125A" size={24} />
-              <Text style={styles.quickToolText}>Log Weight</Text>
-            </TouchableOpacity>
           </View>
+          <InlineWeightLogger
+            onWeightLogged={() => {
+              console.log("Weight logged successfully!");
+            }}
+          />
         </View>
 
         <View style={styles.motivationContainer}>
@@ -539,6 +537,7 @@ const styles = StyleSheet.create({
   quickToolsRow: {
     flexDirection: "row",
     gap: 12,
+    marginBottom: 20,
   },
   quickTool: {
     flex: 1,

@@ -21,7 +21,7 @@ export default function InlineWeightLogger({
 }: InlineWeightLoggerProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [weight, setWeight] = useState("");
-  const [unit, setUnit] = useState<"lbs" | "kg">("lbs");
+  const [unit, setUnit] = useState<"kg" | "lbs">("kg");
   const [saving, setSaving] = useState(false);
   const [scaleAnim] = useState(new Animated.Value(1));
 
