@@ -281,7 +281,7 @@ const WorkoutScreen = ({ navigation }) => {
 
             <TouchableOpacity
               style={[styles.navButton, styles.secondaryNavButton]}
-              onPress={() => navigation.navigate("BodyWeightScreen")}
+              onPress={() => navigation.navigate("WeightStatisticsScreen")}
               activeOpacity={0.8}
             >
               <View style={styles.navIconContainer}>

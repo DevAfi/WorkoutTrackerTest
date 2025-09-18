@@ -25,6 +25,7 @@ import WorkoutHub from "../Screens/workoutScreens/workoutsHubScreen";
 import FriendsActivityScreen from "../Screens/friendFeedScreen";
 import WorkoutTemplateDetail from "../components/workoutComponents/workoutTemplateDetail";
 import StandaloneStatsScreen from "../Screens/Main/standaloneStatsScreen";
+import WeightTrackerScreen from "../Screens/StatsScreens/weightStats";
 
 import StreakLeaderboard from "../Screens/StatsScreens/leaderboardScreen";
 
@@ -307,6 +308,11 @@ const Tabs = () => {
       <Stack.Screen
         name="SSC"
         component={StandaloneStatsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="WeightStatisticsScreen"
+        component={WeightTrackerScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
