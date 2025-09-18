@@ -424,9 +424,9 @@ const styles = StyleSheet.create({
   },
   profileEmail: {
     color: "rgba(245, 241, 237, 0.7)",
-    fontSize: 14,
+    fontSize: 11,
     marginBottom: 2,
-    maxWidth: "90%",
+    maxWidth: "85%",
   },
   profileUsername: {
     color: "#AF125A",
