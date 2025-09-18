@@ -97,6 +97,19 @@ const WorkoutHub = ({ navigation }) => {
           {workoutView === "premade" ? "Pre-Made Templates" : "Your Templates"}
         </Text>
 
+        {workoutView === "custom" && (
+          <TouchableOpacity
+            style={{
+              padding: 15,
+              backgroundColor: "#AF125A",
+              borderRadius: 50,
+            }}
+            onPress={() => navigation.navigate("CreateWorkoutTemplate")}
+          >
+            <Text style={{ color: "white", fontWeight: "bold" }}>+</Text>
+          </TouchableOpacity>
+        )}
+
         {loading ? (
           <Text style={styles.loadingText}>Loading...</Text>
         ) : templates.length === 0 ? (
