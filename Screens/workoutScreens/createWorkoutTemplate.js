@@ -32,7 +32,7 @@ const CreateTemplateScreen = ({ navigation }) => {
       .from("workout_templates")
       .insert([
         {
-          user_id: userData.user.id,
+          created_by: userData.user.id,
           name,
           description,
           category,
