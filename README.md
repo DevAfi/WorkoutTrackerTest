@@ -18,3 +18,7 @@
 - gaining/tracking experience
 - workout recaps
 - sharing workouts with friends
+
+## Premium features:
+
+- Custom workout template tags and colors
