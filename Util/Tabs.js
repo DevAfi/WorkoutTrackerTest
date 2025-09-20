@@ -27,6 +27,7 @@ import WorkoutTemplateDetail from "../components/workoutComponents/workoutTempla
 import StandaloneStatsScreen from "../Screens/Main/standaloneStatsScreen";
 import WeightTrackerScreen from "../Screens/StatsScreens/weightStats";
 import CreateTemplateWithExercises from "../Screens/workoutScreens/createWorkoutTemplate";
+import TemplateWorkoutScreen from "../Screens/Main/TemplateWorkoutScreen";
 
 import StreakLeaderboard from "../Screens/StatsScreens/leaderboardScreen";
 
@@ -319,6 +320,11 @@ const Tabs = () => {
       <Stack.Screen
         name="CreateWorkoutTemplate"
         component={CreateTemplateWithExercises}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="TemplateWorkout"
+        component={TemplateWorkoutScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

@@ -9,22 +9,21 @@ import {
   Alert,
 } from "react-native";
 import { supabase } from "../../lib/supabase";
-import { useWorkout } from "../../context/WorkoutContext";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const WorkoutTemplateDetail = ({ route, navigation }) => {
   const { templateId } = route.params;
   const [template, setTemplate] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { setActiveWorkoutId } = useWorkout();
 
   useEffect(() => {
     loadTemplateDetails();
   }, [templateId]);
 
+  // the master query to fill all the infov
   const loadTemplateDetails = async () => {
     try {
-      // Get template info and exercises in one query
       const { data, error } = await supabase
         .from("workout_templates")
         .select(
@@ -56,7 +55,6 @@ const WorkoutTemplateDetail = ({ route, navigation }) => {
       }
 
       setTemplate(data);
-      // Sort exercises by order_index
       const sortedExercises = (data.template_exercises || []).sort(
         (a, b) => a.order_index - b.order_index
       );
@@ -71,40 +69,19 @@ const WorkoutTemplateDetail = ({ route, navigation }) => {
 
   const startWorkout = async () => {
     try {
-      // Create new workout session
-      const { data: session, error: sessionError } = await supabase
-        .from("workout_sessions")
-        .insert({
-          user_id: (await supabase.auth.getUser()).data.user?.id,
-          exercise_title: template.name,
-          started_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
-
-      if (sessionError) throw sessionError;
-
-      // Copy template exercises to workout exercises
-      if (exercises.length > 0) {
-        const workoutExercises = exercises.map((te) => ({
-          workout_id: session.id,
-          exercise_id: te.exercise.id,
-          order_index: te.order_index,
-          notes: te.notes,
-        }));
-
-        const { error: exercisesError } = await supabase
-          .from("workout_exercises")
-          .insert(workoutExercises);
-
-        if (exercisesError) throw exercisesError;
+      if (!template || exercises.length === 0) {
+        Alert.alert(
+          "Empty Template",
+          "This template has no exercises to start with."
+        );
+        return;
       }
-
-      // Set active workout and navigate
-      setActiveWorkoutId(session.id);
-      navigation.navigate("CurrentWorkoutScreen");
+      navigation.navigate("TemplateWorkout", {
+        templateId: template.id,
+        templateName: template.name,
+      });
     } catch (error) {
-      console.error("Error starting workout:", error);
+      console.error("Error starting template workout:", error);
       Alert.alert("Error", "Failed to start workout");
     }
   };
@@ -112,25 +89,48 @@ const WorkoutTemplateDetail = ({ route, navigation }) => {
   const ExerciseCard = ({ exerciseData }) => (
     <View style={styles.exerciseCard}>
       <View style={styles.exerciseHeader}>
-        <Text style={styles.exerciseName}>{exerciseData.exercise.name}</Text>
-        <Text style={styles.exerciseCategory}>
-          {exerciseData.exercise.category}
-        </Text>
+        <View style={styles.exerciseInfo}>
+          <Text style={styles.exerciseName}>{exerciseData.exercise.name}</Text>
+          <Text style={styles.exerciseCategory}>
+            {exerciseData.exercise.category}
+          </Text>
+        </View>
+        <View style={styles.exerciseIcon}>
+          <MaterialIcons name="fitness-center" size={24} color="#AF125A" />
+        </View>
       </View>
 
       <View style={styles.exerciseDetails}>
-        <Text style={styles.exerciseTarget}>
-          {exerciseData.target_sets} sets × {exerciseData.target_reps} reps
-        </Text>
+        <View style={styles.targetInfo}>
+          <View style={styles.targetItem}>
+            <MaterialIcons name="repeat" size={16} color="#888888" />
+            <Text style={styles.targetText}>
+              {exerciseData.target_sets} sets
+            </Text>
+          </View>
+          <View style={styles.targetItem}>
+            <MaterialIcons name="fitness-center" size={16} color="#888888" />
+            <Text style={styles.targetText}>
+              {exerciseData.target_reps} reps
+            </Text>
+          </View>
+        </View>
+
         {exerciseData.exercise.equipment && (
-          <Text style={styles.exerciseEquipment}>
-            Equipment: {exerciseData.exercise.equipment}
-          </Text>
+          <View style={styles.equipmentInfo}>
+            <MaterialIcons name="build" size={16} color="#888888" />
+            <Text style={styles.equipmentText}>
+              {exerciseData.exercise.equipment}
+            </Text>
+          </View>
         )}
       </View>
 
       {exerciseData.notes && (
-        <Text style={styles.exerciseNotes}>{exerciseData.notes}</Text>
+        <View style={styles.notesSection}>
+          <MaterialIcons name="note" size={16} color="#AF125A" />
+          <Text style={styles.exerciseNotes}>{exerciseData.notes}</Text>
+        </View>
       )}
     </View>
   );
@@ -138,7 +138,10 @@ const WorkoutTemplateDetail = ({ route, navigation }) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.loadingText}>Loading template...</Text>
+        <View style={styles.loadingContainer}>
+          <MaterialIcons name="fitness-center" size={48} color="#AF125A" />
+          <Text style={styles.loadingText}>Loading template...</Text>
+        </View>
       </SafeAreaView>
     );
   }
@@ -146,53 +149,86 @@ const WorkoutTemplateDetail = ({ route, navigation }) => {
   if (!template) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.errorText}>Template not found</Text>
+        <View style={styles.errorContainer}>
+          <MaterialIcons name="error" size={48} color="#ef4444" />
+          <Text style={styles.errorText}>Template not found</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.retryButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <MaterialIcons name="arrow-back" size={24} color="#ffffff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Template Details</Text>
-        <View style={styles.headerSpacer} />
+        <TouchableOpacity style={styles.shareButton}>
+          <MaterialIcons name="share" size={24} color="#ffffff" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content}>
-        {/* Template Info */}
         <View style={styles.templateInfo}>
-          <Text style={styles.templateTitle}>{template.name}</Text>
+          <View style={styles.templateHeader}>
+            <Text style={styles.templateTitle}>{template.name}</Text>
+            {template.category && (
+              <View style={styles.categoryBadge}>
+                <Text style={styles.categoryBadgeText}>
+                  {template.category}
+                </Text>
+              </View>
+            )}
+          </View>
+
           {template.description && (
             <Text style={styles.templateDescription}>
               {template.description}
             </Text>
           )}
 
-          <View style={styles.templateMeta}>
-            {template.category && (
-              <Text style={styles.templateCategory}>{template.category}</Text>
-            )}
-            <Text style={styles.exerciseCount}>
-              {exercises.length} exercise{exercises.length !== 1 ? "s" : ""}
-            </Text>
+          <View style={styles.templateStats}>
+            <View style={styles.statItem}>
+              <MaterialIcons name="fitness-center" size={20} color="#AF125A" />
+              <Text style={styles.statText}>
+                {exercises.length} exercise{exercises.length !== 1 ? "s" : ""}
+              </Text>
+            </View>
+            <View style={styles.statItem}>
+              <MaterialIcons name="schedule" size={20} color="#888888" />
+              <Text style={styles.statText}>
+                Est. {Math.max(20, exercises.length * 5)} min
+              </Text>
+            </View>
           </View>
         </View>
 
-        {/* Exercises List */}
         <View style={styles.exercisesSection}>
-          <Text style={styles.sectionTitle}>Exercises</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>
+              Exercises ({exercises.length})
+            </Text>
+            <MaterialIcons name="list" size={24} color="#AF125A" />
+          </View>
 
           {exercises.length === 0 ? (
             <View style={styles.emptyState}>
+              <MaterialIcons name="fitness-center" size={48} color="#666" />
               <Text style={styles.emptyText}>
                 No exercises in this template
+              </Text>
+              <Text style={styles.emptySubtext}>
+                Add exercises to this template to get started
               </Text>
             </View>
           ) : (
@@ -203,11 +239,26 @@ const WorkoutTemplateDetail = ({ route, navigation }) => {
         </View>
       </ScrollView>
 
-      {/* Bottom Actions */}
       <View style={styles.bottomActions}>
-        <TouchableOpacity style={styles.startButton} onPress={startWorkout}>
-          <Text style={styles.startButtonText}>Start Workout</Text>
-        </TouchableOpacity>
+        {exercises.length > 0 ? (
+          <TouchableOpacity style={styles.startButton} onPress={startWorkout}>
+            <MaterialIcons name="play-arrow" size={24} color="#ffffff" />
+            <Text style={styles.startButtonText}>Start Workout</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => {
+              Alert.alert(
+                "Feature Coming Soon",
+                "Template editing will be available soon!"
+              );
+            }}
+          >
+            <MaterialIcons name="edit" size={24} color="#AF125A" />
+            <Text style={styles.editButtonText}>Edit Template</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -218,9 +269,44 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#0a0a0a",
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 16,
+  },
+  loadingText: {
+    color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 20,
+    paddingHorizontal: 40,
+  },
+  errorText: {
+    color: "#ef4444",
+    fontSize: 18,
+    textAlign: "center",
+  },
+  retryButton: {
+    backgroundColor: "#AF125A",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  retryButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
@@ -234,120 +320,181 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  backButtonText: {
-    color: "#ffffff",
-    fontSize: 20,
-    fontWeight: "500",
-  },
   headerTitle: {
-    flex: 1,
     color: "#ffffff",
     fontSize: 18,
     fontWeight: "600",
+    flex: 1,
     textAlign: "center",
   },
-  headerSpacer: {
+  shareButton: {
     width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#1a1a1a",
+    alignItems: "center",
+    justifyContent: "center",
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
   },
   templateInfo: {
-    paddingVertical: 20,
+    padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: "#1a1a1a",
+  },
+  templateHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
   },
   templateTitle: {
     color: "#ffffff",
     fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 8,
+    flex: 1,
+  },
+  categoryBadge: {
+    backgroundColor: "#AF125A",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  categoryBadgeText: {
+    color: "#ffffff",
+    fontSize: 12,
+    fontWeight: "600",
+    textTransform: "uppercase",
   },
   templateDescription: {
     color: "#cccccc",
     fontSize: 16,
     lineHeight: 24,
-    marginBottom: 16,
+    marginBottom: 20,
   },
-  templateMeta: {
+  templateStats: {
+    flexDirection: "row",
+    gap: 24,
+  },
+  statItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
+    gap: 8,
   },
-  templateCategory: {
-    color: "#AF125A",
+  statText: {
+    color: "#ffffff",
     fontSize: 14,
-    fontWeight: "600",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  exerciseCount: {
-    color: "#888888",
-    fontSize: 14,
+    fontWeight: "500",
   },
   exercisesSection: {
-    paddingTop: 20,
-    paddingBottom: 100,
+    padding: 20,
+    paddingBottom: 120,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
   },
   sectionTitle: {
     color: "#ffffff",
     fontSize: 20,
     fontWeight: "600",
-    marginBottom: 16,
   },
   exerciseCard: {
     backgroundColor: "#111111",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: "#AF125A",
   },
   exerciseHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 12,
+  },
+  exerciseInfo: {
+    flex: 1,
   },
   exerciseName: {
     color: "#ffffff",
     fontSize: 18,
     fontWeight: "600",
-    flex: 1,
-  },
-  exerciseCategory: {
-    color: "#AF125A",
-    fontSize: 12,
-    fontWeight: "600",
-    textTransform: "uppercase",
-  },
-  exerciseDetails: {
-    marginBottom: 8,
-  },
-  exerciseTarget: {
-    color: "#cccccc",
-    fontSize: 16,
-    fontWeight: "500",
     marginBottom: 4,
   },
-  exerciseEquipment: {
+  exerciseCategory: {
+    color: "#888888",
+    fontSize: 12,
+    fontWeight: "500",
+    textTransform: "capitalize",
+  },
+  exerciseIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(175, 18, 90, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  exerciseDetails: {
+    gap: 8,
+  },
+  targetInfo: {
+    flexDirection: "row",
+    gap: 16,
+  },
+  targetItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  targetText: {
+    color: "#cccccc",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  equipmentInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  equipmentText: {
     color: "#888888",
     fontSize: 14,
+  },
+  notesSection: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#1a1a1a",
   },
   exerciseNotes: {
     color: "#cccccc",
     fontSize: 14,
     fontStyle: "italic",
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: "#1a1a1a",
+    flex: 1,
+    lineHeight: 18,
   },
   emptyState: {
     alignItems: "center",
     paddingVertical: 40,
+    gap: 12,
   },
   emptyText: {
+    color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  emptySubtext: {
     color: "#888888",
-    fontSize: 16,
+    fontSize: 14,
+    textAlign: "center",
   },
   bottomActions: {
     position: "absolute",
@@ -364,24 +511,31 @@ const styles = StyleSheet.create({
     backgroundColor: "#AF125A",
     borderRadius: 12,
     paddingVertical: 16,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
   },
   startButtonText: {
     color: "#ffffff",
     fontSize: 18,
     fontWeight: "600",
   },
-  loadingText: {
-    color: "#ffffff",
-    fontSize: 18,
-    textAlign: "center",
-    marginTop: 100,
+  editButton: {
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    borderColor: "#AF125A",
+    borderRadius: 12,
+    paddingVertical: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
   },
-  errorText: {
-    color: "#ef4444",
+  editButtonText: {
+    color: "#AF125A",
     fontSize: 18,
-    textAlign: "center",
-    marginTop: 100,
+    fontWeight: "600",
   },
 });
 
