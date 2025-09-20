@@ -428,13 +428,19 @@ const TemplateWorkoutScreen = ({ route, navigation }) => {
             </View>
           ) : (
             exercises.map((exercise, index) => (
-              <View key={exercise.id} style={styles.exerciseCard}>
-                <Exercise
-                  exercise={exercise.exercise}
-                  workoutExerciseId={exercise.id}
-                  onDelete={fetchWorkoutData}
-                  onSetChange={handleSetChange}
-                />
+              <View key={exercise.id || index} style={styles.exerciseCard}>
+                {exercise.id && exercise.exercise ? (
+                  <Exercise
+                    exercise={exercise.exercise}
+                    workoutExerciseId={exercise.id}
+                    onDelete={fetchWorkoutData}
+                    onSetChange={handleSetChange}
+                  />
+                ) : (
+                  <Text style={{ color: "#fff", padding: 16 }}>
+                    Loading exercise...
+                  </Text>
+                )}
                 {exercise.notes && (
                   <View style={styles.exerciseNotes}>
                     <MaterialIcons name="note" color="#af125f" size={16} />

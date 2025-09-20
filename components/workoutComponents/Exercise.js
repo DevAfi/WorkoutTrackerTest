@@ -381,7 +381,10 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
     const currentSet = sets[setIndex];
 
     // Can only unconfirm sets that are completed and have a real database ID
-    if (!currentSet.completed || currentSet.id.toString().startsWith("temp_")) {
+    if (
+      !currentSet.completed ||
+      String(currentSet.id || "").startsWith("temp_")
+    ) {
       return;
     }
 
@@ -547,7 +550,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
           placeholder={getPlaceholder(index, "weight")}
           placeholderTextColor="rgb(108, 101, 101)"
           keyboardType="numeric"
-          value={set.weight.toString()}
+          value={set.weight?.toString() || ""}
           onChangeText={(value) => handleSetValueChange(index, "weight", value)}
           editable={canEdit}
         />
@@ -559,7 +562,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
           placeholder={getPlaceholder(index, "reps")}
           placeholderTextColor="rgb(108, 101, 101)"
           keyboardType="numeric"
-          value={set.reps.toString()}
+          value={set.reps.toString() || ""}
           onChangeText={(value) => handleSetValueChange(index, "reps", value)}
           editable={canEdit}
         />
@@ -569,7 +572,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
           placeholder={getPlaceholder(index, "rpe")}
           placeholderTextColor="rgb(108, 101, 101)"
           keyboardType="numeric"
-          value={set.rpe.toString()}
+          value={set.rpe.toString() || ""}
           onChangeText={(value) => handleSetValueChange(index, "rpe", value)}
           editable={canEdit}
         />
