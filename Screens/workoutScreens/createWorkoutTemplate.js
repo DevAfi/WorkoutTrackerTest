@@ -59,12 +59,17 @@ const WORKOUT_CATEGORIES = [
   },
 ];
 
-const CreateTemplateScreen = ({ navigation }) => {
+const CreateTemplateWithExercises = ({ navigation }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [templateExercises, setTemplateExercises] = useState([]);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showExerciseModal, setShowExerciseModal] = useState(false);
+  const [availableExercises, setAvailableExercises] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [exerciseLoading, setExerciseLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [errors, setErrors] = useState({});
   const fadeAnim = useState(new Animated.Value(0))[0];
   const slideAnim = useState(new Animated.Value(30))[0];
@@ -82,55 +87,114 @@ const CreateTemplateScreen = ({ navigation }) => {
         useNativeDriver: true,
       }),
     ]).start();
+
+    loadExercises();
   }, []);
+
+  const loadExercises = async () => {
+    setExerciseLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("exercises")
+        .select("*")
+        .order("name");
+
+      if (error) throw error;
+      setAvailableExercises(data || []);
+    } catch (error) {
+      console.error("Error loading exercises:", error);
+      Alert.alert("Error", "Failed to load exercises");
+    } finally {
+      setExerciseLoading(false);
+    }
+  };
+
+  const filteredExercises = availableExercises.filter(
+    (exercise) =>
+      exercise.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (exercise.category &&
+        exercise.category.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const addExercise = (exercise) => {
+    const existingExercise = templateExercises.find(
+      (te) => te.exercise.id === exercise.id
+    );
+    if (existingExercise) {
+      Alert.alert(
+        "Exercise Already Added",
+        "This exercise is already in your template."
+      );
+      return;
+    }
+
+    const newTemplateExercise = {
+      id: `temp_${Date.now()}`,
+      exercise,
+      order_index: templateExercises.length,
+      target_sets: 3,
+      target_reps: 10,
+      notes: "",
+    };
+
+    setTemplateExercises([...templateExercises, newTemplateExercise]);
+    setShowExerciseModal(false);
+    setSearchQuery("");
+  };
+
+  const removeExercise = (exerciseIndex) => {
+    const updatedExercises = templateExercises.filter(
+      (_, index) => index !== exerciseIndex
+    );
+    const reorderedExercises = updatedExercises.map((exercise, index) => ({
+      ...exercise,
+      order_index: index,
+    }));
+    setTemplateExercises(reorderedExercises);
+  };
+
+  const updateExercise = (index, field, value) => {
+    const updatedExercises = [...templateExercises];
+    updatedExercises[index] = {
+      ...updatedExercises[index],
+      [field]: value,
+    };
+    setTemplateExercises(updatedExercises);
+  };
+
+  const moveExercise = (fromIndex, toIndex) => {
+    const updatedExercises = [...templateExercises];
+    const [movedExercise] = updatedExercises.splice(fromIndex, 1);
+    updatedExercises.splice(toIndex, 0, movedExercise);
+
+    const reorderedExercises = updatedExercises.map((exercise, index) => ({
+      ...exercise,
+      order_index: index,
+    }));
+    setTemplateExercises(reorderedExercises);
+  };
 
   const validateForm = () => {
     const newErrors = {};
 
     if (!name.trim()) {
       newErrors.name = "Template name is required";
-    } else if (name.trim().length < 3) {
-      newErrors.name = "Template name must be at least 3 characters";
     }
 
     if (!description.trim()) {
       newErrors.description = "Description is required";
-    } else if (description.trim().length < 10) {
-      newErrors.description = "Description should be at least 10 characters";
     }
 
     if (!selectedCategory) {
       newErrors.category = "Please select a category";
     }
 
+    if (templateExercises.length === 0) {
+      newErrors.exercises = "Add at least one exercise";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  const handleCategorySelect = (category) => {
-    if (category.premium) {
-      Alert.alert(
-        "Premium Feature",
-        "Custom categories are available with Premium. Upgrade to unlock unlimited custom tags and colors for your workouts!",
-        [
-          { text: "Maybe Later", style: "cancel" },
-          {
-            text: "Upgrade to Premium",
-            onPress: () => {
-              // Navigate to premium upgrade screen, im gonna add this later
-              console.log("Navigate to premium upgrade");
-            },
-          },
-        ]
-      );
-      return;
-    }
-
-    setSelectedCategory(category);
-    setShowCategoryModal(false);
-    if (errors.category) {
-      setErrors((prev) => ({ ...prev, category: null }));
-    }
   };
 
   const handleSave = async () => {
@@ -156,33 +220,41 @@ const CreateTemplateScreen = ({ navigation }) => {
         description: description.trim(),
         category: selectedCategory.id,
         is_public: false,
-        created_at: new Date().toISOString(),
       };
 
-      const { data, error } = await supabase
+      const { data: template, error: templateError } = await supabase
         .from("workout_templates")
         .insert([templateData])
         .select()
         .single();
 
-      if (error) {
-        console.error("Error creating template:", error);
-        Alert.alert("Error", "Could not create template. Please try again.");
-        return;
-      }
+      if (templateError) throw templateError;
+
+      const exerciseData = templateExercises.map((te) => ({
+        template_id: template.id,
+        exercise_id: te.exercise.id,
+        order_index: te.order_index,
+        target_sets: parseInt(te.target_sets) || 3,
+        target_reps: parseInt(te.target_reps) || 10,
+        notes: te.notes || null,
+      }));
+
+      const { error: exerciseError } = await supabase
+        .from("template_exercises")
+        .insert(exerciseData);
+
+      if (exerciseError) throw exerciseError;
 
       Alert.alert(
         "Success! 🎉",
-        "Your workout template has been created successfully!",
+        `Template "${name}" created with ${templateExercises.length} exercises!`,
         [
           {
-            text: "Create Another",
-            onPress: () => {
-              setName("");
-              setDescription("");
-              setSelectedCategory(null);
-              setErrors({});
-            },
+            text: "View Template",
+            onPress: () =>
+              navigation.navigate("WorkoutTemplateDetail", {
+                templateId: template.id,
+              }),
           },
           {
             text: "Done",
@@ -191,12 +263,156 @@ const CreateTemplateScreen = ({ navigation }) => {
         ]
       );
     } catch (error) {
-      console.error("Unexpected error:", error);
-      Alert.alert("Error", "An unexpected error occurred. Please try again.");
+      console.error("Error creating template:", error);
+      Alert.alert("Error", "Failed to create template. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleCategorySelect = (category) => {
+    if (category.premium) {
+      Alert.alert(
+        "Premium Feature",
+        "Custom categories are available with Premium. Upgrade to unlock unlimited custom tags and colors!",
+        [
+          { text: "Maybe Later", style: "cancel" },
+          {
+            text: "Upgrade to Premium",
+            onPress: () => console.log("Navigate to premium"),
+          },
+        ]
+      );
+      return;
+    }
+
+    setSelectedCategory(category);
+    setShowCategoryModal(false);
+    if (errors.category) {
+      setErrors((prev) => ({ ...prev, category: null }));
+    }
+  };
+
+  const ExerciseCard = ({ exercise, index }) => (
+    <View style={styles.exerciseCard}>
+      <View style={styles.exerciseHeader}>
+        <View style={styles.exerciseInfo}>
+          <Text style={styles.exerciseName}>{exercise.exercise.name}</Text>
+          <Text style={styles.exerciseCategory}>
+            {exercise.exercise.category}
+          </Text>
+        </View>
+        <View style={styles.exerciseActions}>
+          <TouchableOpacity
+            onPress={() => removeExercise(index)}
+            style={styles.removeButton}
+          >
+            <MaterialIcons name="close" size={20} color="#FF6B6B" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.exerciseTargets}>
+        <View style={styles.targetInput}>
+          <Text style={styles.targetLabel}>Sets</Text>
+          <TextInput
+            style={styles.targetValue}
+            value={exercise.target_sets.toString()}
+            onChangeText={(text) => updateExercise(index, "target_sets", text)}
+            keyboardType="numeric"
+            maxLength={2}
+          />
+        </View>
+        <View style={styles.targetInput}>
+          <Text style={styles.targetLabel}>Reps</Text>
+          <TextInput
+            style={styles.targetValue}
+            value={exercise.target_reps.toString()}
+            onChangeText={(text) => updateExercise(index, "target_reps", text)}
+            keyboardType="numeric"
+            maxLength={3}
+          />
+        </View>
+      </View>
+
+      <TextInput
+        style={styles.exerciseNotes}
+        placeholder="Exercise notes (optional)"
+        placeholderTextColor="#666"
+        value={exercise.notes}
+        onChangeText={(text) => updateExercise(index, "notes", text)}
+        multiline
+      />
+    </View>
+  );
+
+  const ExerciseSelectionModal = () => (
+    <Modal
+      visible={showExerciseModal}
+      transparent
+      animationType="slide"
+      onRequestClose={() => setShowExerciseModal(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.exerciseModalContent}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Add Exercise</Text>
+            <TouchableOpacity
+              onPress={() => setShowExerciseModal(false)}
+              style={styles.modalCloseButton}
+            >
+              <MaterialIcons name="close" size={24} color="#f5f1ed" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.searchContainer}>
+            <MaterialIcons name="search" size={20} color="#666" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search exercises..."
+              placeholderTextColor="#666"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+
+          {exerciseLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#AF125A" />
+              <Text style={styles.loadingText}>Loading exercises...</Text>
+            </View>
+          ) : (
+            <ScrollView style={styles.exercisesList}>
+              {filteredExercises.map((exercise) => (
+                <TouchableOpacity
+                  key={exercise.id}
+                  style={styles.exerciseOption}
+                  onPress={() => addExercise(exercise)}
+                >
+                  <View style={styles.exerciseOptionContent}>
+                    <View>
+                      <Text style={styles.exerciseOptionName}>
+                        {exercise.name}
+                      </Text>
+                      <Text style={styles.exerciseOptionCategory}>
+                        {exercise.category}
+                      </Text>
+                      {exercise.equipment && (
+                        <Text style={styles.exerciseOptionEquipment}>
+                          Equipment: {exercise.equipment}
+                        </Text>
+                      )}
+                    </View>
+                    <MaterialIcons name="add" size={24} color="#AF125A" />
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+        </View>
+      </View>
+    </Modal>
+  );
 
   const CategoryModal = () => (
     <Modal
@@ -241,9 +457,7 @@ const CreateTemplateScreen = ({ navigation }) => {
                 </View>
                 <Text style={styles.categoryName}>{category.name}</Text>
                 {category.premium && (
-                  <View style={styles.premiumBadge}>
-                    <MaterialIcons name="star" size={16} color="#FFD700" />
-                  </View>
+                  <MaterialIcons name="star" size={16} color="#FFD700" />
                 )}
                 <MaterialIcons name="chevron-right" size={20} color="#666" />
               </TouchableOpacity>
@@ -318,7 +532,6 @@ const CreateTemplateScreen = ({ navigation }) => {
                 {errors.name && (
                   <Text style={styles.errorText}>{errors.name}</Text>
                 )}
-                <Text style={styles.characterCount}>{name.length}/50</Text>
               </View>
 
               <View style={styles.inputGroup}>
@@ -338,7 +551,7 @@ const CreateTemplateScreen = ({ navigation }) => {
                   />
                   <TextInput
                     style={[styles.input, styles.multilineInput]}
-                    placeholder="Describe your workout routine..."
+                    placeholder="Describe your workout..."
                     placeholderTextColor="#666"
                     value={description}
                     onChangeText={(text) => {
@@ -348,7 +561,7 @@ const CreateTemplateScreen = ({ navigation }) => {
                       }
                     }}
                     multiline
-                    numberOfLines={4}
+                    numberOfLines={3}
                     maxLength={200}
                     textAlignVertical="top"
                   />
@@ -356,9 +569,6 @@ const CreateTemplateScreen = ({ navigation }) => {
                 {errors.description && (
                   <Text style={styles.errorText}>{errors.description}</Text>
                 )}
-                <Text style={styles.characterCount}>
-                  {description.length}/200
-                </Text>
               </View>
 
               <View style={styles.inputGroup}>
@@ -406,43 +616,44 @@ const CreateTemplateScreen = ({ navigation }) => {
                   <Text style={styles.errorText}>{errors.category}</Text>
                 )}
               </View>
+            </View>
 
-              {name && description && selectedCategory && (
-                <View style={styles.previewSection}>
-                  <Text style={styles.previewTitle}>Preview</Text>
-                  <View style={styles.previewCard}>
-                    <LinearGradient
-                      colors={[
-                        `${selectedCategory.color}15`,
-                        `${selectedCategory.color}08`,
-                      ]}
-                      style={styles.previewGradient}
-                    >
-                      <View style={styles.previewHeader}>
-                        <View
-                          style={[
-                            styles.previewIcon,
-                            { backgroundColor: `${selectedCategory.color}20` },
-                          ]}
-                        >
-                          <MaterialIcons
-                            name={selectedCategory.icon}
-                            size={20}
-                            color={selectedCategory.color}
-                          />
-                        </View>
-                        <View style={styles.previewText}>
-                          <Text style={styles.previewName}>{name}</Text>
-                          <Text style={styles.previewCategory}>
-                            {selectedCategory.name}
-                          </Text>
-                        </View>
-                      </View>
-                      <Text style={styles.previewDescription} numberOfLines={2}>
-                        {description}
-                      </Text>
-                    </LinearGradient>
-                  </View>
+            <View style={styles.exercisesSection}>
+              <View style={styles.exercisesHeader}>
+                <Text style={styles.sectionTitle}>
+                  Exercises ({templateExercises.length})
+                </Text>
+                <TouchableOpacity
+                  style={styles.addExerciseButton}
+                  onPress={() => setShowExerciseModal(true)}
+                >
+                  <MaterialIcons name="add" size={20} color="white" />
+                  <Text style={styles.addExerciseButtonText}>Add Exercise</Text>
+                </TouchableOpacity>
+              </View>
+              {errors.exercises && (
+                <Text style={styles.errorText}>{errors.exercises}</Text>
+              )}
+
+              {templateExercises.length === 0 ? (
+                <View style={styles.emptyExercises}>
+                  <MaterialIcons name="fitness-center" size={48} color="#666" />
+                  <Text style={styles.emptyExercisesText}>
+                    No exercises added yet
+                  </Text>
+                  <Text style={styles.emptyExercisesSubtext}>
+                    Tap "Add Exercise" to get started
+                  </Text>
+                </View>
+              ) : (
+                <View style={styles.exercisesList}>
+                  {templateExercises.map((exercise, index) => (
+                    <ExerciseCard
+                      key={exercise.id}
+                      exercise={exercise}
+                      index={index}
+                    />
+                  ))}
                 </View>
               )}
             </View>
@@ -481,18 +692,15 @@ const CreateTemplateScreen = ({ navigation }) => {
         </ScrollView>
 
         <CategoryModal />
+        <ExerciseSelectionModal />
       </SafeAreaView>
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
+  container: { flex: 1 },
+  safeArea: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -516,25 +724,13 @@ const styles = StyleSheet.create({
     color: "#f5f1ed",
     textAlign: "center",
   },
-  headerSpacer: {
-    width: 40,
-  },
-  scrollContainer: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  formSection: {
-    gap: 24,
-  },
-  inputGroup: {
-    gap: 8,
-  },
+  headerSpacer: { width: 40 },
+  scrollContainer: { flex: 1 },
+  scrollContent: { paddingBottom: 40 },
+  content: { paddingHorizontal: 20, paddingTop: 20 },
+
+  formSection: { gap: 24, marginBottom: 32 },
+  inputGroup: { gap: 8 },
   label: {
     color: "#f5f1ed",
     fontSize: 16,
@@ -555,9 +751,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingVertical: 16,
   },
-  multilineIcon: {
-    marginTop: 2,
-  },
+  multilineIcon: { marginTop: 2 },
   input: {
     flex: 1,
     color: "#f5f1ed",
@@ -565,22 +759,16 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   multilineInput: {
-    minHeight: 80,
+    minHeight: 60,
     textAlignVertical: "top",
   },
-  inputError: {
-    borderColor: "#FF6B6B",
-  },
+  inputError: { borderColor: "#FF6B6B" },
   errorText: {
     color: "#FF6B6B",
     fontSize: 12,
     marginTop: 4,
   },
-  characterCount: {
-    color: "#666",
-    fontSize: 12,
-    textAlign: "right",
-  },
+
   categorySelector: {
     flexDirection: "row",
     alignItems: "center",
@@ -619,59 +807,129 @@ const styles = StyleSheet.create({
     color: "#666",
     fontSize: 16,
   },
-  previewSection: {
-    marginTop: 8,
+
+  exercisesSection: { marginBottom: 32 },
+  exercisesHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
   },
-  previewTitle: {
+  sectionTitle: {
     color: "#f5f1ed",
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
+    fontSize: 20,
+    fontWeight: "bold",
   },
-  previewCard: {
-    borderRadius: 16,
-    overflow: "hidden",
+  addExerciseButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#AF125A",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
+    gap: 6,
+  },
+  addExerciseButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  emptyExercises: {
+    alignItems: "center",
+    paddingVertical: 40,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 12,
+    gap: 12,
+  },
+  emptyExercisesText: {
+    color: "#f5f1ed",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  emptyExercisesSubtext: {
+    color: "#666",
+    fontSize: 14,
+  },
+
+  exercisesList: { gap: 16 },
+  exerciseCard: {
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 12,
+    padding: 16,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
   },
-  previewGradient: {
-    padding: 16,
-  },
-  previewHeader: {
+  exerciseHeader: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
-    gap: 12,
   },
-  previewIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  previewText: {
-    flex: 1,
-  },
-  previewName: {
+  exerciseInfo: { flex: 1 },
+  exerciseName: {
     color: "#f5f1ed",
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 2,
   },
-  previewCategory: {
-    color: "#999",
+  exerciseCategory: {
+    color: "#666",
     fontSize: 12,
     textTransform: "capitalize",
   },
-  previewDescription: {
-    color: "#ccc",
-    fontSize: 14,
-    lineHeight: 20,
+  exerciseActions: {
+    flexDirection: "row",
+    gap: 8,
   },
+  removeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(255, 107, 107, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  exerciseTargets: {
+    flexDirection: "row",
+    gap: 16,
+    marginBottom: 12,
+  },
+  targetInput: {
+    flex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+  },
+  targetLabel: {
+    color: "#666",
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  targetValue: {
+    color: "#f5f1ed",
+    fontSize: 18,
+    fontWeight: "600",
+    textAlign: "center",
+    minWidth: 40,
+  },
+
+  exerciseNotes: {
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 8,
+    padding: 12,
+    color: "#f5f1ed",
+    fontSize: 14,
+    minHeight: 40,
+    textAlignVertical: "top",
+  },
+
   buttonSection: {
     flexDirection: "row",
     gap: 16,
-    marginTop: 40,
+    marginTop: 20,
   },
   cancelButton: {
     flex: 1,
@@ -679,8 +937,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   cancelButtonText: {
     color: "#ccc",
@@ -713,7 +969,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.8)",
@@ -725,6 +980,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     width: "90%",
     maxHeight: "70%",
+    borderWidth: 1,
+    borderColor: "rgba(175, 18, 90, 0.3)",
+  },
+  exerciseModalContent: {
+    backgroundColor: "#1A1A1A",
+    borderRadius: 20,
+    width: "95%",
+    maxHeight: "80%",
     borderWidth: 1,
     borderColor: "rgba(175, 18, 90, 0.3)",
   },
@@ -749,6 +1012,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   categoriesList: {
     maxHeight: 400,
   },
@@ -767,9 +1031,63 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-  premiumBadge: {
-    marginRight: 8,
+
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    margin: 20,
+    gap: 12,
+  },
+  searchInput: {
+    flex: 1,
+    color: "#f5f1ed",
+    fontSize: 16,
+    padding: 0,
+  },
+  loadingContainer: {
+    alignItems: "center",
+    paddingVertical: 40,
+    gap: 16,
+  },
+  loadingText: {
+    color: "#ccc",
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  exercisesList: {
+    maxHeight: 500,
+    paddingBottom: 20,
+  },
+  exerciseOption: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+  },
+  exerciseOptionContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  exerciseOptionName: {
+    color: "#f5f1ed",
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  exerciseOptionCategory: {
+    color: "#666",
+    fontSize: 12,
+    textTransform: "capitalize",
+    marginBottom: 2,
+  },
+  exerciseOptionEquipment: {
+    color: "#AF125A",
+    fontSize: 12,
   },
 });
 
-export default CreateTemplateScreen;
+export default CreateTemplateWithExercises;

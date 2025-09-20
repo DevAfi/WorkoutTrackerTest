@@ -221,8 +221,10 @@ export default function WeightTrackerScreen({ navigation }) {
   };
 
   const getProgressColor = (change: number) => {
-    if (change > 0) return "#FF6B6B"; // weight gain
-    if (change < 0) return "#4ECDC4"; //weight loss
+    if (targetWeight < currentWeight && change > 0) return "#FF6B6B"; // if want to lose weight but gain weight, bad
+    if (targetWeight > currentWeight && change > 0) return "#4ECDC4"; // if want to gain weight and gain weight, good
+    if (targetWeight > currentWeight && change < 0) return "#FF6B6B"; //weight loss
+    if (targetWeight > currentWeight && change < 0) return "#4ECDC4"; //weight loss
     return "#FFE66D"; // stable
   };
 
