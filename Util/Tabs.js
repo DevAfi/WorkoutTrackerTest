@@ -18,7 +18,7 @@ import ProfileSettings from "../Screens/SettingsScreens/ProfileSettings";
 import Auth from "../components/Auth";
 import UserProfile from "../Screens/Main/[userProfile]";
 import ViewExerciseDetails from "./[exerciseDetails]";
-import CurrentWorkoutScreen from "../Screens/Main/CurrentWorkoutScreen";
+import CurrentWorkoutScreen from "../Screens/Main/currentWorkoutScreen";
 import ExerciseSelectScreen from "../components/workoutComponents/exerciseSelectScreen";
 import SessionDetailScreen from "../Screens/StatsScreens/SessionDetailScreen";
 import WorkoutHub from "../Screens/workoutScreens/workoutsHubScreen";
