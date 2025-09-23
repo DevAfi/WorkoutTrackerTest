@@ -4,6 +4,7 @@
 
 - AI powered chatbot to andwer questions
 - Medals showing how much a user has lifted
+- Exercise, weight, time and gym session leaderboards
 
 ## Features added so far:
 
