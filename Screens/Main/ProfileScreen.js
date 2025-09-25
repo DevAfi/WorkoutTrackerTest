@@ -4,9 +4,11 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  Image,
   TouchableOpacity,
   SafeAreaView,
+  Alert,
+  RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import ViewAvatar from "../../components/viewAvatar";
 import { supabase } from "../../lib/supabase";
@@ -15,115 +17,187 @@ import UserActivityFeed from "../../components/socialComponents/userActivityFeed
 
 const ProfileScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [username, setUsername] = useState("");
   const [goal, setGoal] = useState("");
   const [fullName, setFullName] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState(""); // optional
-  const [seeFeed, setSeeFeed] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [activeTab, setActiveTab] = useState("feed");
   const [userID, setUserID] = useState("");
+
+  const [sbd, setSbd] = useState({
+    squat: 0,
+    bench: 0,
+    deadlift: 0,
+  });
 
   useEffect(() => {
     fetchProfile();
   }, []);
 
-  async function fetchProfile() {
+  const fetchProfile = async () => {
     setLoading(true);
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
 
-    if (userError || !user) {
-      Alert.alert("Error", "Could not get user.");
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        Alert.alert("Error", "Could not get user.");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("username, goal, full_name, avatar_url")
+        .eq("id", user.id)
+        .single();
+
+      if (error) {
+        Alert.alert("Error loading profile", error.message);
+      } else if (data) {
+        setUsername(data.username || "");
+        setGoal(data.goal || "");
+        setFullName(data.full_name || "");
+        setAvatarUrl(data.avatar_url || "");
+      }
+
+      setUserID(user.id);
+
+      // GOTTA DO THIS LATER FOR NOW IM GONNA MAKE A TOUCHABLE WHERE YOU CAN ADD THE NUMBERS YOURSELF
+
+      // TODO: Fetch actual SBD data from your database
+      // const sbdData = await fetchSBDData(user.id);
+      // setSbd(sbdData);
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong loading your profile.");
+      console.error("Profile fetch error:", error);
+    } finally {
       setLoading(false);
-      return;
     }
+  };
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("username, goal, full_name, avatar_url")
-      .eq("id", user.id)
-      .single();
-
-    if (error) {
-      Alert.alert("Error loading profile", error.message);
-    } else if (data) {
-      setUsername(data.username || "loading username...");
-      setGoal(data.goal || "loading goal...");
-      setFullName(data.full_name || "loading name...");
-      setAvatarUrl(data.avatar_url || "loading pfp...");
-    }
-
-    setUserID(user.id);
-    console.log("UID: ", userID);
-
-    setLoading(false);
-  }
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchProfile();
+    setRefreshing(false);
+  };
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title: username });
+    navigation.setOptions({
+      title: username || "Profile",
+      headerStyle: {
+        backgroundColor: "#000",
+      },
+      headerTintColor: "#fff",
+    });
   }, [navigation, username]);
+
+  const formatWeight = (weight) => {
+    return weight > 0 ? `${weight}` : "-";
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#AF125A" />
+          <Text style={styles.loadingText}>Loading profile...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={{ width: "100%", height: "100%" }}>
-        <View style={{ gap: 10 }}>
-          <View style={styles.topSectionContainer}>
-            <View style={styles.pfp}>
+      <ScrollView
+        style={styles.scrollView}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.contentContainer}>
+          <View style={styles.profileHeader}>
+            <View style={styles.avatarContainer}>
               <ViewAvatar url={avatarUrl} />
             </View>
-            <View style={styles.topSectionText}>
-              <Text style={{ fontSize: 21, color: "white", width: 255 }}>
-                @{username}
-              </Text>
-
-              <Text style={styles.smallTopText}>
-                {fullName} | "{goal}"
+            <View style={styles.profileInfo}>
+              <Text style={styles.username}>@{username}</Text>
+              <Text style={styles.userDetails}>
+                {fullName}
+                {goal && ` • "${goal}"`}
               </Text>
             </View>
           </View>
-          <SimpleXPBar userId={userID} compact={true} />
-          {/* SBD SECTION */}
-          <View style={styles.secondSectionContainer}>
-            <View style={styles.liftSection}>
-              <Text style={styles.liftBigText}>Squat</Text>
-              <Text style={styles.liftNumber}>999</Text>
-            </View>
-            <View style={styles.liftSection}>
-              <Text style={styles.liftBigText}>Bench</Text>
-              <Text style={styles.liftNumber}>999</Text>
-            </View>
-            <View style={styles.liftSection}>
-              <Text style={styles.liftBigText}>Deadlift</Text>
-              <Text style={styles.liftNumber}>999</Text>
-            </View>
-          </View>
-        </View>
-        {/* Buttons below */}
-        <View style={styles.topButtonsContainer}>
-          <TouchableOpacity
-            style={styles.topButton}
-            onPress={() => setSeeFeed(true)}
-          >
-            <Text style={styles.topButtonText}>Feed</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.topButton}
-            onPress={() => setSeeFeed(false)}
-          >
-            <Text style={styles.topButtonText}>Progress</Text>
-          </TouchableOpacity>
-        </View>
 
-        {seeFeed == true ? (
-          <View style={styles.feedContainer}>
-            <UserActivityFeed userId={userID} />
+          <View style={styles.xpContainer}>
+            <SimpleXPBar userId={userID} compact={true} />
           </View>
-        ) : (
-          <View>
-            <Text>2</Text>
+
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>Squat</Text>
+
+              <Text style={styles.statValue}>{formatWeight(sbd.squat)}</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>Bench</Text>
+              <Text style={styles.statValue}>{formatWeight(sbd.bench)}</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>Deadlift</Text>
+              <Text style={styles.statValue}>{formatWeight(sbd.deadlift)}</Text>
+            </View>
           </View>
-        )}
+
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === "feed" && styles.activeTab]}
+              onPress={() => setActiveTab("feed")}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === "feed" && styles.activeTabText,
+                ]}
+              >
+                Activity
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === "progress" && styles.activeTab]}
+              onPress={() => setActiveTab("progress")}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === "progress" && styles.activeTabText,
+                ]}
+              >
+                Progress
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.tabContent}>
+            {activeTab === "feed" ? (
+              <UserActivityFeed userId={userID} />
+            ) : (
+              <View style={styles.progressPlaceholder}>
+                <Text style={styles.placeholderText}>
+                  Progress tracking coming soon!
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -132,94 +206,134 @@ const ProfileScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
-    alignItems: "center",
-    flexDirection: "column",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    backgroundColor: "#000",
   },
-  topSectionContainer: {
-    borderColor: "#3C3939",
-    borderWidth: 1,
-    width: "100%",
-    alignItems: "center",
-    flexDirection: "row",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    gap: 20,
+  scrollView: {
+    flex: 1,
   },
-  secondSectionContainer: {
-    borderColor: "#3C3939",
-    borderWidth: 1,
-    width: "100%",
-    alignItems: "center",
-    flexDirection: "row",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    gap: 20,
-
-    justifyContent: "space-around",
+  contentContainer: {
+    padding: 16,
+    gap: 16,
   },
-  pfp: {
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 100,
-    width: 75,
-    height: 75,
+    gap: 16,
   },
-  topSectionText: {
-    gap: 1,
-  },
-  smallTopText: {
-    paddingLeft: 20,
-    color: "grey",
-    fontFamily: "Arial",
-    width: 250,
-  },
-  liftSection: {
-    alignItems: "center",
-  },
-  liftBigText: {
-    color: "#f5f1ed",
-    fontWeight: "600",
-    fontFamily: "Arial",
-    fontSize: 20,
-  },
-  liftNumber: {
-    color: "#f5f1ed",
-    fontWeight: "200",
-    fontFamily: "Arial",
+  loadingText: {
+    color: "#888",
     fontSize: 16,
-    paddingTop: 5,
   },
-  topButtonsContainer: {
-    //backgroundColor: "red",
+  profileHeader: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 12,
+    padding: 16,
     flexDirection: "row",
-    alignSelf: "center",
-    justifyContent: "space-evenly",
-    gap: 25,
-    paddingTop: 20,
-  },
-  topButton: {
-    backgroundColor: "#333",
-    height: 70,
-    width: 185,
-
-    justifyContent: "center",
     alignItems: "center",
-    borderRadius: 15,
+    gap: 16,
+    borderWidth: 1,
+    borderColor: "#333",
   },
-  topButtonText: {
-    fontFamily: "Arial",
+  avatarContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    overflow: "hidden",
+  },
+  profileInfo: {
+    flex: 1,
+    gap: 4,
+  },
+  username: {
+    fontSize: 22,
     fontWeight: "600",
-    fontSize: 20,
+    color: "#fff",
+  },
+  userDetails: {
+    fontSize: 15,
+    color: "#888",
+    lineHeight: 20,
+  },
+  xpContainer: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  statsContainer: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 12,
+    padding: 20,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  statItem: {
+    alignItems: "center",
+    gap: 8,
+  },
+  statLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: "300",
     color: "#AF125A",
   },
-
-  // Feed //
-
-  feedContainer: {},
+  statDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: "#333",
+  },
+  tabContainer: {
+    flexDirection: "row",
+    backgroundColor: "#1a1a1a",
+    borderRadius: 12,
+    padding: 4,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  activeTab: {
+    backgroundColor: "#AF125A",
+  },
+  tabText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#888",
+  },
+  activeTabText: {
+    color: "#fff",
+  },
+  tabContent: {
+    minHeight: 200,
+  },
+  progressPlaceholder: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 12,
+    padding: 40,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  placeholderText: {
+    color: "#666",
+    fontSize: 16,
+    textAlign: "center",
+  },
 });
+
 export default ProfileScreen;
