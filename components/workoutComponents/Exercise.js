@@ -18,6 +18,22 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
   const [userId, setUserId] = useState(null);
   const [fullExercise, setFullExercise] = useState(exercise);
 
+  console.log("Exercise component props:", {
+    exercise: exercise?.name,
+    workoutExerciseId,
+    workoutExerciseIdType: typeof workoutExerciseId,
+  });
+
+  if (!workoutExerciseId) {
+    return (
+      <View
+        style={{ padding: 16, backgroundColor: "#111111", borderRadius: 12 }}
+      >
+        <Text style={{ color: "#fff" }}>Loading exercise...</Text>
+      </View>
+    );
+  }
+
   const fetchFullExerciseData = async () => {
     try {
       if (workoutExerciseId && (!exercise?.id || !exercise?.category)) {
@@ -550,7 +566,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
           placeholder={getPlaceholder(index, "weight")}
           placeholderTextColor="rgb(108, 101, 101)"
           keyboardType="numeric"
-          value={set.weight?.toString() || ""}
+          value={set.weight != null ? set.weight.toString() : ""}
           onChangeText={(value) => handleSetValueChange(index, "weight", value)}
           editable={canEdit}
         />
@@ -562,7 +578,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
           placeholder={getPlaceholder(index, "reps")}
           placeholderTextColor="rgb(108, 101, 101)"
           keyboardType="numeric"
-          value={set.reps.toString() || ""}
+          value={set.reps != null ? set.reps.toString() : ""}
           onChangeText={(value) => handleSetValueChange(index, "reps", value)}
           editable={canEdit}
         />
@@ -572,7 +588,7 @@ const Exercise = ({ exercise, workoutExerciseId, onDelete, onSetChange }) => {
           placeholder={getPlaceholder(index, "rpe")}
           placeholderTextColor="rgb(108, 101, 101)"
           keyboardType="numeric"
-          value={set.rpe.toString() || ""}
+          value={set.rpe != null ? set.rpe.toString() : ""}
           onChangeText={(value) => handleSetValueChange(index, "rpe", value)}
           editable={canEdit}
         />
