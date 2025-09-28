@@ -23,3 +23,4 @@
 ## Premium features:
 
 - Custom workout template tags and colors
+- Unlimited conversations with our smart AI chatbot

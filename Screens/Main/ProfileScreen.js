@@ -66,7 +66,7 @@ const ProfileScreen = ({ route, navigation }) => {
 
       setUserID(user.id);
 
-      // GOTTA DO THIS LATER FOR NOW IM GONNA MAKE A TOUCHABLE WHERE YOU CAN ADD THE NUMBERS YOURSELF
+      // GOTTA DO THIS LATER
 
       // TODO: Fetch actual SBD data from your database
       // const sbdData = await fetchSBDData(user.id);
@@ -172,7 +172,7 @@ const ProfileScreen = ({ route, navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.tab, activeTab === "progress" && styles.activeTab]}
-              onPress={() => setActiveTab("progress")}
+              onPress={() => navigation.navigate("SSC")}
               activeOpacity={0.7}
             >
               <Text
