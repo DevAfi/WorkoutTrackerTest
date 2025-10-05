@@ -1,4 +1,4 @@
-# 💪 FitTracker Pro
+# 💪 IronLedger
 
 > **A comprehensive, gamified fitness tracking application built with React Native and Expo**
 
@@ -9,7 +9,7 @@
 
 ## 🚀 Overview
 
-FitTracker Pro is a feature-rich, social fitness application that combines comprehensive workout tracking with gamification elements and social features. Built with modern React Native and powered by Supabase, it provides users with an engaging platform to track their fitness journey, connect with friends, and stay motivated through progress visualization and achievement systems.
+IronLedger is a feature-rich, social fitness application that combines comprehensive workout tracking with gamification elements and social features. Built with modern React Native and powered by Supabase, it provides users with an engaging platform to track their fitness journey, connect with friends, and stay motivated through progress visualization and achievement systems.
 
 ## ✨ Key Features
 
@@ -113,7 +113,7 @@ App.js
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/fittracker-pro.git
+   git clone https://github.com/DevAfi/WorkoutTrackerTest
    cd fittracker-pro
    ```
 
