@@ -768,8 +768,8 @@ const styles = StyleSheet.create({
   },
   quickToolsRow: {
     flexDirection: "row",
-    gap: 12,
-    justifyContent: "space-evenly",
+    gap: 10,
+    justifyContent: "space-around",
   },
   quickTool: {
     flex: 1,
@@ -779,6 +779,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#2A2A2A",
+    maxWidth: 190,
+    width: 150,
   },
   quickToolIcon: {
     width: 48,
